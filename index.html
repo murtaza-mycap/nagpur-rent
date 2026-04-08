@@ -557,7 +557,7 @@
 
 <script>
 const SUPABASE_URL='https://artqzjmizytoxxaqzadw.supabase.co';
-const SUPABASE_KEY='sb_publishable_p-edGtM9F4SBjiObS6AxKA_bciZUdIF';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFydHF6am1penl0b3h4YXF6YWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MjE2MDQsImV4cCI6MjA5MTE5NzYwNH0.dVluFoXQGAKKFUL894F-R-VoITCD14vVJ6R2YyGiYzE';
 const NAGPUR={lat:21.1458,lng:79.0882};
 const GEO_KM=50;
 const MILESTONES=[50,100,200,500,1000];
@@ -857,8 +857,8 @@ async function savePin(){
   openDetail(data[0]);
 }
 
-const SLANGS_CHEAPER=['Arre waah! Tu toh saste mein hai!','Bhai jugaad maar diya tune!','Ekdum perfect deal hai teri!'];
-const SLANGS_EXPENSIVE=['Bhai, thoda zyada de raha hai tu!','Broker ne loot liya kya?','Neighbour se baat karna chahiye tha pehle!'];
+const SLANGS_CHEAPER=["You're getting a great deal here!","Below market rate — well played!","Solid value for Nagpur."];
+const SLANGS_EXPENSIVE=["You might be paying above market.","Worth checking what neighbours pay.","Room to negotiate, potentially."];
 
 async function openDetail(pin){
   curPin=pin;pendRating={loc:0,bld:0};
@@ -880,7 +880,7 @@ async function openDetail(pin){
   const shareMsg=`🏠 Nagpur mein mera rent:\n₹${fmt(pin.rent)}/month · ${pin.bhk}BHK${pin.society_name?' · '+pin.society_name:''}\n${pin.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna rent check karo → nagpur.rent`;
 
   body.innerHTML=`
-    <div class="rent-big">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--td)">/month</span></div>
+    <div class="rent-big">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--td)">/mo</span></div>
     <div class="rent-sub">${pin.bhk}BHK · ₹${fmt(Math.round(pin.rent/pin.bhk))}/BHK${pin.sqft?' · '+pin.sqft+' sqft':''}</div>
     <div class="badges">
       <span class="badge ${pin.gated?'b-blue':'b-orange'}">${pin.gated?'🔒 Gated':'🏘 Non-Gated'}</span>
@@ -890,21 +890,21 @@ async function openDetail(pin){
       <span class="badge b-purple">${occLabel(pin.occupant_type)}</span>
     </div>
     ${pin.society_name?`<div style="font-size:13px;color:var(--td);font-weight:700;margin-bottom:4px;">📍 ${esc(pin.society_name)}</div>`:''}
-    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">+ ₹${fmt(pin.maintenance)}/month maintenance sep.</div>`:''}
+    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">+ ₹${fmt(pin.maintenance)}/month maintenance</div>`:''}
     ${avgLoc?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">⭐ Locality ${avgLoc} · Build ${avgBld} (${ratings.length} ratings)</div>`:''}
 
     <div style="background:${isGood?'rgba(22,163,74,.08)':'rgba(249,115,22,.08)'};border:2px solid ${isGood?'rgba(22,163,74,.2)':'var(--border)'};border-radius:14px;padding:12px;margin:14px 0;">
       <div style="font-size:13px;font-weight:800;color:${isGood?'var(--green)':'var(--orange2)'};">${slang}</div>
-      <div style="font-size:13px;color:var(--tm);font-weight:600;margin-top:4px;">${pin.bhk}BHK walon mein <strong style="color:${isGood?'var(--green)':'var(--orange2)'};">${ct}%</strong> se sasta hai tera rent</div>
+      <div style="font-size:13px;color:var(--tm);font-weight:600;margin-top:4px;">Cheaper than <strong style="color:${isGood?'var(--green)':'var(--orange2)'};">${ct}%</strong> of ${pin.bhk}BHKs in Nagpur</div>
       <div class="pct-bar" style="margin-top:10px;"><div class="pct-fill" style="width:${ct}%"></div></div>
-      <div class="pct-labels"><span>Sabse Sasta</span><span>Sabse Mahanga</span></div>
+      <div class="pct-labels"><span>Cheapest</span><span>Most Expensive</span></div>
     </div>
 
     ${pin.notes?`<div style="font-size:13px;color:var(--tm);background:var(--s1);border:2px solid var(--border);border-radius:12px;padding:12px;line-height:1.6;font-weight:600;margin-bottom:12px;">${esc(pin.notes)}</div>`:''}
 
     <div class="share-card">
-      <div class="sc-title">📲 WhatsApp pe share karo</div>
-      <div class="sc-text">${shareMsg.replace(/\n/g,'<br>')}</div>
+      <div class="sc-title">📲 Share your rent</div>
+      <div class="sc-text" style="font-size:12px;line-height:1.7;">${shareMsg.replace(/\n/g,'<br>')}</div>
       <button class="btn-wa" onclick="doShare()">📲 Share on WhatsApp</button>
     </div>
 
