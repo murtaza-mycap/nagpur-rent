@@ -228,6 +228,13 @@
     ::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px;}
     #about-btn{width:34px;height:34px;border-radius:50%;background:white;border:2px solid var(--border);color:var(--orange2);font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh1);transition:all .15s;flex-shrink:0;}
     #about-btn:hover{background:var(--orange);color:white;border-color:var(--orange);transform:scale(1.08);}
+    /* ── NAKA ── */
+    .naka-card{background:var(--s1);border:2px solid rgba(220,38,38,.2);border-radius:12px;padding:12px 13px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;}
+    .naka-badge{width:36px;height:36px;border-radius:10px;background:rgba(220,38,38,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .naka-type{font-size:13px;font-weight:800;color:#b91c1c;}
+    .naka-meta{font-size:11px;color:var(--td);font-weight:600;margin-top:2px;}
+    .naka-confirm-btn{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);color:#b91c1c;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;}
+    .naka-confirm-btn:hover{background:rgba(220,38,38,.15);}
     /* ── MOBILE ── */
     @media(max-width:600px){
       #live-pill{display:none;}
@@ -543,6 +550,68 @@
   </div>
 </div>
 
+<!-- ══════════ NAKA ALERT LIST ══════════ -->
+<div class="overlay sheet-center" id="naka-list-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="xbtn" onclick="closeOverlay('naka-list-overlay')">✕</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <div style="font-size:28px;">🚨</div>
+      <div><div class="sheet-title" style="margin-bottom:0;">Naka Alert</div><div style="font-size:12px;color:var(--td);font-weight:600;">Community police check reports · Nagpur</div></div>
+    </div>
+    <div style="background:rgba(220,38,38,.06);border:1.5px solid rgba(220,38,38,.2);border-radius:12px;padding:10px 13px;margin:12px 0;font-size:12px;color:#b45309;font-weight:600;line-height:1.6;">
+      ⚠️ For safety awareness only. Always follow traffic rules. Pins auto-expire after 7 days.
+    </div>
+    <button class="btn-p" style="background:#dc2626;box-shadow:0 3px 12px rgba(220,38,38,.3);" onclick="closeOverlay('naka-list-overlay');startNakaPick();">
+      + Report a Naka
+    </button>
+    <div style="font-size:13px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 10px;" id="naka-count-label">Active Reports</div>
+    <div id="naka-list-body"><div style="color:var(--td);text-align:center;padding:16px;font-weight:600;">Loading...</div></div>
+  </div>
+</div>
+
+<!-- ══════════ NAKA ADD FORM ══════════ -->
+<div class="overlay" id="naka-form-overlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">🚨 Report Naka</div>
+    <div style="background:var(--s2);border:2px solid var(--green);border-radius:12px;padding:9px 13px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      <span>📍</span>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:800;color:var(--green);">Location confirmed</div><div style="font-size:11px;color:var(--td);font-weight:600;" id="naka-loc-text">—</div></div>
+      <button onclick="closeOverlay('naka-form-overlay');startNakaPick();" style="background:var(--s2);border:none;color:var(--tm);font-size:11px;font-weight:800;cursor:pointer;padding:4px 10px;border-radius:8px;">Change</button>
+    </div>
+    <div class="fg"><label class="fl">Type of Checking</label>
+      <div class="chips" id="naka-type-c">
+        <div class="chip on" data-v="general" onclick="pick('naka-type-c',this)">General</div>
+        <div class="chip" data-v="helmet" onclick="pick('naka-type-c',this)">Helmet</div>
+        <div class="chip" data-v="drunk" onclick="pick('naka-type-c',this)">Drunk Driving</div>
+        <div class="chip" data-v="speed" onclick="pick('naka-type-c',this)">Speed Trap</div>
+        <div class="chip" data-v="documents" onclick="pick('naka-type-c',this)">Documents</div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Usually Active When?</label>
+      <div class="chips" id="naka-time-c">
+        <div class="chip on" data-v="morning" onclick="pick('naka-time-c',this)">Morning</div>
+        <div class="chip" data-v="afternoon" onclick="pick('naka-time-c',this)">Afternoon</div>
+        <div class="chip" data-v="evening" onclick="pick('naka-time-c',this)">Evening</div>
+        <div class="chip" data-v="night" onclick="pick('naka-time-c',this)">Night</div>
+        <div class="chip" data-v="random" onclick="pick('naka-time-c',this)">Random</div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">How Recent?</label>
+      <div class="chips" id="naka-freq-c">
+        <div class="chip on" data-v="today" onclick="pick('naka-freq-c',this)">Seen Today</div>
+        <div class="chip" data-v="week" onclick="pick('naka-freq-c',this)">This Week</div>
+        <div class="chip" data-v="regular" onclick="pick('naka-freq-c',this)">Regular Spot</div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Notes (optional)</label>
+      <textarea class="fta" id="naka-notes" placeholder="e.g. Near Sitabuldi square, both sides of road..."></textarea>
+    </div>
+    <button class="btn-p" style="background:#dc2626;box-shadow:0 3px 12px rgba(220,38,38,.3);" onclick="saveNaka()">Report This Naka 🚨</button>
+    <button class="btn-s" onclick="closeOverlay('naka-form-overlay')">Cancel</button>
+  </div>
+</div>
+
 <!-- ══════════ MILESTONE ══════════ -->
 <div class="overlay sheet-center" id="ms-overlay">
   <div class="sheet" style="position:relative;text-align:center;">
@@ -577,7 +646,7 @@ const SPOTS=[
 
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
-let map,allPins=[],markers=[],seekerMs=[],clusterer=null;
+let map,allPins=[],markers=[],seekerMs=[],clusterer=null,nakaMs=[];
 let placing=false,newLL=null,pendM=null;
 let filters={bhk:'all',rMin:0,rMax:100000,fur:'all',gated:'all',avail:'all'};
 let areaDraw=false,areaRect=null,areaMD=false,areaStart=null;
@@ -634,6 +703,7 @@ async function loadPins(){
   hideLoad();
   const{data:sk}=await sb.from('seekers').select('*');
   renderSeekers(sk||[]);
+  loadNakasOnMap();
 }
 
 function pinIcon(pin){
@@ -1211,7 +1281,160 @@ async function notifyAdmin(type, pin){
   }catch(e){console.log('Notify failed:',e);}
 }
 
-function openOverlay(id){document.getElementById(id).classList.add('open');}
+// ══════════ NAKA ALERT ══════════
+let nakaLL=null;
+let nakaPickMode=false;
+
+function startNakaPick(){
+  nakaPickMode=true;
+  pickMode='naka';
+  placing=true;
+  document.getElementById('add-btn').classList.add('placing');
+  document.getElementById('add-text').textContent='Cancel';
+  document.getElementById('add-icon').textContent='✕';
+  document.getElementById('crosshair').style.display='block';
+  document.getElementById('confirm-wrap').style.display='flex';
+  document.getElementById('confirm-loc-btn').style.innerHTML='✓ Confirm Naka Location';
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+  toast('Move map to the naka location, then confirm');
+}
+
+async function loadNakas(){
+  // Only show non-expired (within 7 days)
+  const sevenDaysAgo=new Date(Date.now()-7*24*60*60*1000).toISOString();
+  const{data,error}=await sb.from('nakas').select('*').gte('created_at',sevenDaysAgo).order('created_at',{ascending:false});
+  if(error){console.error('Naka load error:',error);return[];}
+  return data||[];
+}
+
+async function openNakaList(){
+  openOverlay('naka-list-overlay');
+  const body=document.getElementById('naka-list-body');
+  const nakas=await loadNakas();
+  document.getElementById('naka-count-label').textContent=`Active Reports (${nakas.length})`;
+  renderNakaMarkers(nakas);
+  if(!nakas.length){
+    body.innerHTML='<div style="text-align:center;padding:20px;color:var(--td);font-weight:600;">No active reports in Nagpur.<br>Be the first to report a naka!</div>';
+    return;
+  }
+  const typeEmoji={general:'🚔',helmet:'⛑️',drunk:'🍺',speed:'💨',documents:'📄'};
+  const timeLabel={morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night',random:'Random times'};
+  const freqLabel={today:'Seen today',week:'Seen this week',regular:'Regular spot'};
+  body.innerHTML=nakas.map(n=>`
+    <div class="naka-card">
+      <div class="naka-badge">${typeEmoji[n.type]||'🚨'}</div>
+      <div style="flex:1;">
+        <div class="naka-type">${cap(n.type||'General')} Check · ${timeLabel[n.time_of_day]||''}</div>
+        <div class="naka-meta">Near ${getNearestArea(n.lat,n.lng)} · ${freqLabel[n.frequency]||''} · ${ago(n.created_at)}</div>
+        ${n.notes?`<div style="font-size:12px;color:var(--tm);font-weight:600;margin-top:3px;">${esc(n.notes)}</div>`:''}
+        <div style="font-size:11px;color:var(--td);margin-top:4px;">👍 ${n.confirms||0} confirmed</div>
+      </div>
+      <button class="naka-confirm-btn" onclick="confirmNaka('${n.id}',this)">👍 Still there</button>
+    </div>`).join('');
+}
+
+// Override the naka-list-overlay open to load data
+document.getElementById('naka-list-overlay').addEventListener('click',function(){});
+const origOpen=window.openOverlay;
+
+function renderNakaMarkers(nakas){
+  nakaMs.forEach(m=>m.setMap(null));nakaMs=[];
+  const typeEmoji={general:'🚔',helmet:'⛑️',drunk:'🍺',speed:'💨',documents:'📄'};
+  nakas.forEach(n=>{
+    const emoji=typeEmoji[n.type]||'🚨';
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="70" height="30">
+      <rect x="0" y="0" width="70" height="30" rx="15" fill="#dc2626" opacity="0.93"/>
+      <text x="35" y="10" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="white" text-anchor="middle" dominant-baseline="middle">${emoji} Naka</text>
+      <text x="35" y="22" font-family="Nunito,sans-serif" font-size="9" font-weight="700" fill="rgba(255,255,255,0.85)" text-anchor="middle" dominant-baseline="middle">${cap(n.type||'check')}</text>
+    </svg>`;
+    const m=new google.maps.Marker({
+      position:{lat:n.lat,lng:n.lng},map,
+      icon:{url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg),scaledSize:new google.maps.Size(70,30),anchor:new google.maps.Point(35,15)},
+      zIndex:5,
+    });
+    m.addListener('click',()=>openNakaDetail(n));
+    nakaMs.push(m);
+  });
+}
+
+function openNakaDetail(n){
+  const body=document.getElementById('detail-body');
+  const typeEmoji={general:'🚔',helmet:'⛑️',drunk:'🍺',speed:'💨',documents:'📄'};
+  const timeLabel={morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night',random:'Random times'};
+  const freqLabel={today:'Seen today',week:'Seen this week',regular:'Regular spot'};
+  body.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(220,38,38,.1);border:2px solid rgba(220,38,38,.3);display:flex;align-items:center;justify-content:center;font-size:24px;">${typeEmoji[n.type]||'🚨'}</div>
+      <div><div style="font-size:18px;font-weight:900;color:#b91c1c;">${cap(n.type||'General')} Check</div><div style="font-size:12px;color:var(--td);font-weight:600;">Near ${getNearestArea(n.lat,n.lng)}</div></div>
+    </div>
+    <div class="badges">
+      <span class="badge b-red">⏰ ${timeLabel[n.time_of_day]||'Unknown time'}</span>
+      <span class="badge b-red">${freqLabel[n.frequency]||''}</span>
+    </div>
+    ${n.notes?`<div style="font-size:13px;color:var(--tm);background:var(--s1);border:2px solid var(--border);border-radius:12px;padding:10px;line-height:1.6;font-weight:600;margin:10px 0;">${esc(n.notes)}</div>`:''}
+    <div style="font-size:12px;color:var(--td);font-weight:600;margin:10px 0;">Reported ${ago(n.created_at)} · 👍 ${n.confirms||0} confirmed</div>
+    <button class="btn-p" style="background:#dc2626;box-shadow:0 3px 12px rgba(220,38,38,.3);" onclick="confirmNaka('${n.id}',this)">👍 Still active — confirm</button>
+    <hr class="divider"/>
+    <div style="display:flex;gap:8px;">
+      <button class="rb" onclick="reportNaka('${n.id}')">🚩 Wrong info</button>
+    </div>`;
+  openOverlay('detail-overlay');
+}
+
+async function saveNaka(){
+  if(!nakaLL){toast('Pick a location first');return;}
+  const{error}=await sb.from('nakas').insert([{
+    lat:nakaLL.lat,lng:nakaLL.lng,
+    type:cv('naka-type-c')||'general',
+    time_of_day:cv('naka-time-c')||'random',
+    frequency:cv('naka-freq-c')||'today',
+    notes:document.getElementById('naka-notes').value||null,
+    confirms:0,
+    ip_address:userIP,
+  }]);
+  if(error){
+    if(error.message.includes('relation "nakas" does not exist')){
+      toast('Run the nakas SQL in Supabase first — see instructions');
+    } else {
+      toast('Error saving naka');console.error(error);
+    }
+    return;
+  }
+  nakaLL=null;
+  document.getElementById('naka-notes').value='';
+  closeOverlay('naka-form-overlay');
+  toast('Naka reported! 🚨 Stay safe.');
+  const nakas=await loadNakas();
+  renderNakaMarkers(nakas);
+}
+
+async function confirmNaka(id,btn){
+  btn.textContent='✓ Confirmed!';btn.disabled=true;
+  // Get current confirms count
+  const{data}=await sb.from('nakas').select('confirms').eq('id',id).single();
+  const current=(data?.confirms||0)+1;
+  await sb.from('nakas').update({confirms:current}).eq('id',id);
+  toast('Confirmed — thanks for keeping the map honest!');
+}
+
+async function reportNaka(id){
+  await sb.from('nakas').delete().eq('id',id);
+  closeOverlay('detail-overlay');
+  toast('Removed. Thanks!');
+  const nakas=await loadNakas();
+  renderNakaMarkers(nakas);
+}
+
+// Load nakas on map init
+async function loadNakasOnMap(){
+  const nakas=await loadNakas();
+  renderNakaMarkers(nakas);
+}
+
+function openOverlay(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='naka-list-overlay')openNakaList();
+}
 function closeOverlay(id){document.getElementById(id).classList.remove('open');}
 function openFP(){document.getElementById('fp').classList.add('open');}
 function closeFP(){document.getElementById('fp').classList.remove('open');}
@@ -1260,6 +1483,12 @@ const spotsBtn=document.createElement('div');
 spotsBtn.className='rb';
 spotsBtn.innerHTML='🍊 <span>Nagpur Spots</span>';
 spotsBtn.onclick=()=>openOverlay('spots-overlay');
+
+const nakaBtn=document.createElement('div');
+nakaBtn.className='rb';
+nakaBtn.innerHTML='🚨 <span>Naka Alert</span>';
+nakaBtn.onclick=()=>openOverlay('naka-list-overlay');
+document.getElementById('right-btns').insertBefore(nakaBtn,spotsBtn);
 document.getElementById('right-btns').appendChild(spotsBtn);
 
 // ── ADMIN ──
