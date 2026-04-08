@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D2PRRL89Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-5D2PRRL89Q');
+  </script>
   <title>nagpur.rent — Real rents by real Nagpurkars</title>
   <meta name="description" content="Nagpur cha rent map — real rents shared by real Nagpurkars. No broker, no BS."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -525,6 +533,16 @@
   </div>
 </div>
 
+<!-- ══════════ ADMIN PANEL ══════════ -->
+<div class="overlay" id="admin-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="handle"></div>
+    <div class="xbtn" onclick="closeOverlay('admin-overlay')">✕</div>
+    <div class="sheet-title">🔐 Admin Panel</div>
+    <div id="admin-body"></div>
+  </div>
+</div>
+
 <!-- ══════════ MILESTONE ══════════ -->
 <div class="overlay sheet-center" id="ms-overlay">
   <div class="sheet" style="position:relative;text-align:center;">
@@ -653,8 +671,34 @@ function renderSeekers(list){
       icon:{url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="28"><rect x="0" y="0" width="72" height="28" rx="14" fill="#16a34a"/><text x="36" y="14" font-family="Nunito,sans-serif" font-size="10" font-weight="800" fill="white" text-anchor="middle" dominant-baseline="middle">🔍 Seeker</text></svg>`),
       scaledSize:new google.maps.Size(72,28),anchor:new google.maps.Point(36,14)},zIndex:1,
     });
+    m.addListener('click',()=>openSeekerDetail(s));
     seekerMs.push(m);
   });
+}
+
+function openSeekerDetail(s){
+  const body=document.getElementById('detail-body');
+  const area=getNearestArea(s.lat,s.lng);
+  body.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="width:44px;height:44px;border-radius:14px;background:var(--green-dim);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;">🔍</div>
+      <div><div style="font-size:18px;font-weight:900;">Flat Seeker</div><div style="font-size:12px;color:var(--td);font-weight:600;">Near ${area}</div></div>
+    </div>
+    <div class="badges">
+      ${s.budget_min||s.budget_max?`<span class="badge b-orange">💰 ₹${fmt(s.budget_min||0)}–₹${fmt(s.budget_max||0)}/mo</span>`:''}
+      ${s.bhk_preference?`<span class="badge b-blue">${s.bhk_preference} BHK</span>`:''}
+      ${s.food_pref&&s.food_pref!=='any'?`<span class="badge b-green">${s.food_pref==='veg'?'🥗 Veg Only':'🍖 Non-Veg OK'}</span>`:''}
+      ${s.gender&&s.gender!=='any'?`<span class="badge b-purple">${s.gender}</span>`:''}
+    </div>
+    ${s.contact_email?`
+    <div class="share-card" style="margin-top:12px;">
+      <div class="sc-title">📧 Contact this seeker</div>
+      <div class="sc-text">${s.contact_email}</div>
+      <button class="btn-p" style="margin-top:0;" onclick="window.location='mailto:${s.contact_email}?subject=Flat for you near ${area} - nagpur.rent'">Send Email</button>
+    </div>`:`<div style="font-size:13px;color:var(--td);font-weight:600;margin-top:10px;">No contact info shared.</div>`}
+    <div style="font-size:11px;color:var(--td);font-weight:600;margin-top:12px;">Posted ${ago(s.created_at)}</div>
+  `;
+  openOverlay('detail-overlay');
 }
 
 function onMapClick(e){
@@ -1101,6 +1145,23 @@ function checkMS(n){
   }
 }
 
+// ── ADMIN NOTIFICATION ──
+// Uses a free email service (emailjs) — set up at emailjs.com and replace these values
+const ADMIN_EMAIL='your@email.com'; // replace with your email
+const NOTIFY_ENABLED=false; // set to true after emailjs setup
+
+async function notifyAdmin(type, pin){
+  if(!NOTIFY_ENABLED||!pin)return;
+  try{
+    // Option 1: Use a simple webhook (Zapier/Make) — paste your webhook URL here
+    const WEBHOOK_URL=''; // e.g. https://hooks.zapier.com/hooks/catch/xxxxx/
+    if(WEBHOOK_URL){
+      await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({type,pin,url:'https://nagpur.rent/admin'})});
+    }
+  }catch(e){console.log('Notify failed:',e);}
+}
+
 function openOverlay(id){document.getElementById(id).classList.add('open');}
 function closeOverlay(id){document.getElementById(id).classList.remove('open');}
 function openFP(){document.getElementById('fp').classList.add('open');}
@@ -1136,12 +1197,98 @@ document.querySelectorAll('.overlay').forEach(ov=>{
   });
 });
 
+// Admin button (hidden, secret tap on logo 5x)
+let logoTaps=0,logoTimer=null;
+document.getElementById('logo-pill').addEventListener('click',function(){
+  logoTaps++;
+  clearTimeout(logoTimer);
+  logoTimer=setTimeout(()=>{logoTaps=0;},2000);
+  if(logoTaps>=5){logoTaps=0;openAdminPanel();}
+});
+
 // Spots button in right panel - add to right-btns
 const spotsBtn=document.createElement('div');
 spotsBtn.className='rb';
 spotsBtn.innerHTML='🍊 <span>Nagpur Spots</span>';
 spotsBtn.onclick=()=>openOverlay('spots-overlay');
 document.getElementById('right-btns').appendChild(spotsBtn);
+
+// ── ADMIN ──
+const ADMIN_PASS='nagpur2024admin'; // change this!
+let isAdmin=localStorage.getItem('nag_admin')==='1';
+
+function openAdminLogin(){
+  const pw=prompt('Admin password:');
+  if(pw===ADMIN_PASS){
+    isAdmin=true;
+    localStorage.setItem('nag_admin','1');
+    toast('Welcome, admin! 🔐');
+    openAdminPanel();
+  } else if(pw!==null){
+    toast('Wrong password');
+  }
+}
+
+async function openAdminPanel(){
+  if(!isAdmin){openAdminLogin();return;}
+  const body=document.getElementById('admin-body');
+  body.innerHTML='<div style="color:var(--td);text-align:center;padding:20px;font-weight:700;">Loading...</div>';
+  openOverlay('admin-overlay');
+  const[{data:pins},{data:seekers}]=await Promise.all([
+    sb.from('pins').select('*').order('created_at',{ascending:false}).limit(50),
+    sb.from('seekers').select('*').order('created_at',{ascending:false}).limit(30),
+  ]);
+  body.innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <div style="background:var(--orange-dim);border:2px solid var(--border);border-radius:12px;padding:10px 16px;flex:1;text-align:center;">
+        <div style="font-size:22px;font-weight:900;">${pins?.length||0}</div>
+        <div style="font-size:11px;font-weight:800;color:var(--td);">RENT PINS</div>
+      </div>
+      <div style="background:var(--green-dim);border:2px solid var(--green);border-radius:12px;padding:10px 16px;flex:1;text-align:center;">
+        <div style="font-size:22px;font-weight:900;color:var(--green);">${seekers?.length||0}</div>
+        <div style="font-size:11px;font-weight:800;color:var(--td);">SEEKERS</div>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Recent Rent Pins</div>
+    ${(pins||[]).slice(0,20).map(p=>`
+      <div style="background:var(--s1);border:2px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-weight:800;font-size:14px;">₹${fmt(p.rent)}/mo · ${p.bhk}BHK</div>
+          <div style="font-size:11px;color:var(--td);font-weight:600;">${p.society_name||getNearestArea(p.lat,p.lng)} · ${ago(p.created_at)}</div>
+          ${p.notes?`<div style="font-size:11px;color:var(--tm);margin-top:3px;">${esc(p.notes.substring(0,80))}</div>`:''}
+        </div>
+        <button onclick="adminDelete('pins','${p.id}',this)" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:var(--red);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">🗑 Delete</button>
+      </div>`).join('')}
+    <div style="font-size:13px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Seeker Pins</div>
+    ${(seekers||[]).map(s=>`
+      <div style="background:var(--s1);border:2px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-weight:800;font-size:14px;">🔍 Seeker · Near ${getNearestArea(s.lat,s.lng)}</div>
+          <div style="font-size:11px;color:var(--td);font-weight:600;">₹${fmt(s.budget_min||0)}–₹${fmt(s.budget_max||0)} · ${s.bhk_preference||'?'}BHK · ${ago(s.created_at)}</div>
+          ${s.contact_email?`<div style="font-size:11px;color:var(--tm);margin-top:2px;">${s.contact_email}</div>`:''}
+        </div>
+        <button onclick="adminDelete('seekers','${s.id}',this)" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:var(--red);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">🗑 Delete</button>
+      </div>`).join('')}
+    <button onclick="adminLogout()" style="width:100%;background:var(--s2);border:none;color:var(--tm);padding:12px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;">Log Out</button>
+  `;
+}
+
+async function adminDelete(table,id,btn){
+  if(!confirm('Delete this?'))return;
+  btn.textContent='...';btn.disabled=true;
+  const{error}=await sb.from(table).delete().eq('id',id);
+  if(error){toast('Error deleting');btn.textContent='🗑 Delete';btn.disabled=false;return;}
+  btn.closest('div[style]').style.opacity='.3';
+  btn.textContent='Deleted';
+  if(table==='pins'){allPins=allPins.filter(p=>p.id!==id);renderPins(allPins);setCount(allPins.length);}
+  if(table==='seekers'){const{data:sk}=await sb.from('seekers').select('*');renderSeekers(sk||[]);}
+  toast('Deleted!');
+}
+
+function adminLogout(){
+  isAdmin=false;localStorage.removeItem('nag_admin');
+  closeOverlay('admin-overlay');toast('Logged out');
+}
 
 if(!localStorage.getItem('nag_v3')){
   setTimeout(()=>{openOverlay('welcome-overlay');localStorage.setItem('nag_v3','1');},1000);
