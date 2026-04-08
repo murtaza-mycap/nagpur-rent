@@ -577,7 +577,7 @@ const SPOTS=[
 
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
-let map,allPins=[],markers=[],seekerMs=[];
+let map,allPins=[],markers=[],seekerMs=[],clusterer=null;
 let placing=false,newLL=null,pendM=null;
 let filters={bhk:'all',rMin:0,rMax:100000,fur:'all',gated:'all',avail:'all'};
 let areaDraw=false,areaRect=null,areaMD=false,areaStart=null;
@@ -655,12 +655,61 @@ function pinIcon(pin){
 }
 
 function renderPins(pins){
+  // Clear existing markers and clusterer
+  if(clusterer){clusterer.clearMarkers();clusterer=null;}
   markers.forEach(m=>m.setMap(null));markers=[];
+
   pins.forEach(pin=>{
-    const m=new google.maps.Marker({position:{lat:pin.lat,lng:pin.lng},map,icon:pinIcon(pin),zIndex:2});
+    const m=new google.maps.Marker({
+      position:{lat:pin.lat,lng:pin.lng},
+      icon:pinIcon(pin),
+      zIndex:2,
+    });
+    m.pinData=pin;
     m.addListener('click',()=>openDetail(pin));
     markers.push(m);
   });
+
+  // Custom cluster renderer — shows count + avg rent
+  const renderer={
+    render:({count,position,markers:ms})=>{
+      const rents=ms.map(m=>m.pinData?.rent||0).filter(Boolean);
+      const avg=rents.length?Math.round(rents.reduce((a,b)=>a+b,0)/rents.length):0;
+      const size=count<5?44:count<15?52:60;
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size+40}" height="${size}">
+        <rect x="0" y="0" width="${size+40}" height="${size}" rx="${size/2}" fill="#1c0a00" opacity="0.92"/>
+        <rect x="1" y="1" width="${size+38}" height="${size-2}" rx="${size/2-1}" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        <text x="${(size+40)/2}" y="${size*0.42}" font-family="Nunito,sans-serif" font-size="${size*0.28}" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle">${count} flats</text>
+        ${avg?`<text x="${(size+40)/2}" y="${size*0.72}" font-family="DM Mono,monospace" font-size="${size*0.26}" font-weight="500" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">avg ₹${shortFmt(avg)}</text>`:''}
+      </svg>`;
+      return new google.maps.Marker({
+        position,
+        icon:{
+          url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg),
+          scaledSize:new google.maps.Size(size+40,size),
+          anchor:new google.maps.Point((size+40)/2,size/2),
+        },
+        zIndex:10,
+      });
+    }
+  };
+
+  if(typeof markerClusterer !== 'undefined' && markerClusterer.MarkerClusterer){
+    clusterer=new markerClusterer.MarkerClusterer({
+      map,
+      markers,
+      renderer,
+      algorithm:new markerClusterer.SuperClusterAlgorithm({
+        radius:80,
+        minPoints:3,
+        minZoom:0,
+        maxZoom:14,
+      }),
+    });
+  } else {
+    // Fallback: no clustering, just put markers on map
+    markers.forEach(m=>m.setMap(map));
+  }
 }
 
 function renderSeekers(list){
@@ -1295,6 +1344,7 @@ if(!localStorage.getItem('nag_v3')){
 }
 </script>
 
+<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhEIPGnMDU2PRHWhMwSlT0qPBVgRPWeU&callback=initMap&libraries=drawing"></script>
 </body>
 </html>
