@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <title>nagpur.rent — Bhai, kitna deta hai tu?</title>
+  <title>nagpur.rent — Real rents by real Nagpurkars</title>
   <meta name="description" content="Nagpur cha rent map — real rents shared by real Nagpurkars. No broker, no BS."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -226,7 +226,7 @@
 <!-- Loading -->
 <div id="loading">
   <div class="ld-brand">nagpur<span>.rent</span></div>
-  <div class="ld-tagline">Bhai, kitna deta hai tu? 🍊</div>
+  <div class="ld-tagline">Real rents. No broker. No BS. 🍊</div>
   <div class="ld-spin"></div>
 </div>
 
@@ -256,7 +256,7 @@
 
 <!-- Neighborhood bar -->
 <div id="nb-bar">
-  <div class="nb on" onclick="nbGo(this,null,null)">🌍 Sabhi</div>
+  <div class="nb on" onclick="nbGo(this,null,null)">🍊 All Areas</div>
   <div class="nb" onclick="nbGo(this,21.1362,79.0709)">🕌 Dharampeth</div>
   <div class="nb" onclick="nbGo(this,21.1543,79.0849)">🏛 Civil Lines</div>
   <div class="nb" onclick="nbGo(this,21.1437,79.0918)">🛍 Sadar</div>
@@ -276,13 +276,13 @@
 <div id="bottom-bar">
   <button id="add-btn" onclick="togglePlacing()">
     <span id="add-icon">＋</span>
-    <span id="add-text">Mera Rent Add Karo</span>
+    <span id="add-text">Add My Rent</span>
   </button>
   <div id="right-btns">
     <div class="rb" onclick="openOverlay('stats-overlay')">📊 <span>Stats</span></div>
     <div class="rb" id="area-rb" onclick="toggleArea()">📐 <span>Area Stats</span></div>
-    <div class="rb" onclick="openOverlay('seeker-overlay')">🔍 <span>Flat Dhundh</span></div>
-    <div class="rb" onclick="openFP()">⚙ <span>Filter</span></div>
+    <div class="rb" onclick="openOverlay('seeker-overlay')">🔍 <span>Flat Hunt</span></div>
+    <div class="rb" onclick="openFP()">⚙ <span>Filters</span></div>
   </div>
 </div>
 
@@ -293,25 +293,25 @@
 <div class="overlay sheet-center" id="welcome-overlay">
   <div class="sheet" style="position:relative;">
     <div class="xbtn" onclick="closeOverlay('welcome-overlay')">✕</div>
+
     <div class="w-top">
       <div class="w-emoji">🍊</div>
       <div class="w-title">nagpur.rent</div>
-      <div class="w-tagline">Bhai, broker ne bola ₹22K — par tere padosi ka ₹14K mein ho raha hai!<br>Ab sach pata chalega. Nagpurkar ke liye, Nagpurkar dwara.</div>
-      <div class="w-count" id="w-stat">🟠 0 Nagpurkars ne apna rent share kiya</div>
+      <div class="w-tagline">Broker says ₹22K. Your neighbour pays ₹14K.<br>Now you can know the difference, bhai.</div>
+      <div class="w-count" id="w-stat">🟠 0 Nagpurkars shared their rent</div>
     </div>
 
     <div class="feat-list">
-      <div class="feat"><div class="feat-icon">📌</div><div class="feat-text"><strong>Apna rent pin karo</strong> — 30 second ka kaam. No login, no jugaad.</div></div>
-      <div class="feat"><div class="feat-icon">📊</div><div class="feat-text"><strong>Percentile dekho</strong> — pata chale tu overpay kar raha hai ya nahi.</div></div>
-      <div class="feat"><div class="feat-icon">📐</div><div class="feat-text"><strong>Area Stats</strong> — map pe box draw karo, BHK-wise average dekho.</div></div>
-      <div class="feat"><div class="feat-icon">🔍</div><div class="feat-text"><strong>Flat Dhundh</strong> — seeker pin daalo, landlord khud milega.</div></div>
-      <div class="feat"><div class="feat-icon">🍊</div><div class="feat-text"><strong>Nagpur ke famous spots</strong> — Sitabuldi, Ambazari, Zero Mile aur bhi dekho.</div></div>
+      <div class="feat"><div class="feat-icon">📌</div><div class="feat-text"><strong>Pin your rent</strong> — 30 seconds. No login, no tracking.</div></div>
+      <div class="feat"><div class="feat-icon">📊</div><div class="feat-text"><strong>See your percentile</strong> — instantly know if you're overpaying.</div></div>
+      <div class="feat"><div class="feat-icon">📐</div><div class="feat-text"><strong>Area Stats</strong> — draw a box on the map, get avg rent by BHK.</div></div>
+      <div class="feat"><div class="feat-icon">🔍</div><div class="feat-text"><strong>Flat Hunt</strong> — drop a seeker pin, get found by landlords.</div></div>
     </div>
 
-    <div class="trust-box">Har pin ek real insaan ka hai — scrape nahi, AI-generated nahi.<br><strong>Site AI se bani hai. Data nahi.</strong></div>
+    <div class="trust-box">Every pin is from a real person — not scraped, not AI-generated.<br><strong>Built with AI. Data isn't.</strong></div>
 
-    <button class="btn-wa" onclick="shareWelcome()">📲 Doston ko bhejo pehle</button>
-    <button class="btn-p" onclick="closeOverlay('welcome-overlay')">Chalo shuru karte hain 🍊</button>
+    <button class="btn-wa" onclick="shareWelcome()">📲 Share with friends first</button>
+    <button class="btn-p" onclick="closeOverlay('welcome-overlay')">Let's go 🍊</button>
   </div>
 </div>
 
@@ -319,9 +319,9 @@
 <div class="overlay" id="pin-overlay">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="sheet-title">🏠 Apna Rent Batao</div>
-    <div class="fg"><label class="fl">Monthly Rent (₹) — sach batao yaar!</label><input type="number" class="fi" id="pin-rent" placeholder="e.g. 12000"/></div>
-    <div class="fg"><label class="fl">BHK — kitne kamre hain?</label>
+    <div class="sheet-title">🏠 Add Your Rent</div>
+    <div class="fg"><label class="fl">Monthly Rent (₹)</label><input type="number" class="fi" id="pin-rent" placeholder="e.g. 12000"/></div>
+    <div class="fg"><label class="fl">BHK</label>
       <div class="chips" id="bhk-c">
         <div class="chip" data-v="1" onclick="pick('bhk-c',this)">1 BHK</div>
         <div class="chip" data-v="2" onclick="pick('bhk-c',this)">2 BHK</div>
@@ -330,32 +330,32 @@
         <div class="chip" data-v="5" onclick="pick('bhk-c',this)">5+ BHK</div>
       </div>
     </div>
-    <div class="fg"><label class="fl">Saaman — kya milta hai?</label>
+    <div class="fg"><label class="fl">Furnishing</label>
       <div class="chips" id="fur-c">
-        <div class="chip on" data-v="unfurnished" onclick="pick('fur-c',this)">Khaali Ghar</div>
-        <div class="chip" data-v="semi" onclick="pick('fur-c',this)">Thoda Saaman</div>
-        <div class="chip" data-v="fully" onclick="pick('fur-c',this)">Fully Bharela</div>
+        <div class="chip on" data-v="unfurnished" onclick="pick('fur-c',this)">Unfurnished</div>
+        <div class="chip" data-v="semi" onclick="pick('fur-c',this)">Semi-furnished</div>
+        <div class="chip" data-v="fully" onclick="pick('fur-c',this)">Fully Furnished</div>
       </div>
     </div>
-    <div class="fg"><label class="fl">Kaun reh sakta hai?</label>
+    <div class="fg"><label class="fl">Occupant Type</label>
       <div class="chips" id="occ-c">
-        <div class="chip on" data-v="any" onclick="pick('occ-c',this)">Koi bhi</div>
+        <div class="chip on" data-v="any" onclick="pick('occ-c',this)">Any</div>
         <div class="chip" data-v="family" onclick="pick('occ-c',this)">Family</div>
         <div class="chip" data-v="bachelor" onclick="pick('occ-c',this)">Bachelor</div>
-        <div class="chip" data-v="girls" onclick="pick('occ-c',this)">Sirf Ladkiyan</div>
+        <div class="chip" data-v="girls" onclick="pick('occ-c',this)">Girls Only</div>
       </div>
     </div>
     <div class="fr">
-      <div class="fg"><label class="fl">Society ka naam</label><input type="text" class="fi" id="p-soc" placeholder="Optional hai"/></div>
+      <div class="fg"><label class="fl">Society Name</label><input type="text" class="fi" id="p-soc" placeholder="Optional"/></div>
       <div class="fg"><label class="fl">Area (sqft)</label><input type="number" class="fi" id="p-sqft" placeholder="Optional"/></div>
     </div>
-    <div class="tog-row"><div><div class="tog-lbl">🔒 Gated Society hai?</div><div class="tog-sub">Security, compound wall wala</div></div><div class="tog" id="t-gated" onclick="this.classList.toggle('on')"></div></div>
-    <div class="tog-row"><div><div class="tog-lbl">🧾 Maintenance andar hai?</div><div class="tog-sub">Rent mein hi shaamil</div></div><div class="tog" id="t-maint" onclick="this.classList.toggle('on')"></div></div>
-    <div class="fg" style="margin-top:12px;"><label class="fl">Maintenance (₹/mahina — alag ho toh)</label><input type="number" class="fi" id="p-maint" placeholder="0 agar nahi hai"/></div>
-    <div class="tog-row"><div><div class="tog-lbl">🏠 Ghar khaali hone wala hai?</div><div class="tog-sub">Jald available hoga</div></div><div class="tog" id="t-vacant" onclick="this.classList.toggle('on')"></div></div>
-    <div class="fg" style="margin-top:12px;"><label class="fl">Kuch aur batana hai? (Optional)</label><textarea class="fta" id="p-notes" placeholder="Parking hai? Paani ka kya haal hai? Landlord kaisa hai? Area ka vibe?"></textarea></div>
-    <button class="btn-p" id="save-btn" onclick="savePin()">Pin Daalo! 📌</button>
-    <button class="btn-s" onclick="cancelPin()">Rehne do</button>
+    <div class="tog-row"><div><div class="tog-lbl">Gated Society</div><div class="tog-sub">Security, compound wall wala</div></div><div class="tog" id="t-gated" onclick="this.classList.toggle('on')"></div></div>
+    <div class="tog-row"><div><div class="tog-lbl">Maintenance Included</div><div class="tog-sub">Already included in rent</div></div><div class="tog" id="t-maint" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg" style="margin-top:12px;"><label class="fl">Maintenance (₹/month if separate)</label><input type="number" class="fi" id="p-maint" placeholder="0 if none"/></div>
+    <div class="tog-row"><div><div class="tog-lbl">Vacant Soon?</div><div class="tog-sub">Will be available soon</div></div><div class="tog" id="t-vacant" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg" style="margin-top:12px;"><label class="fl">Notes (optional)</label><textarea class="fta" id="p-notes" placeholder="Parking, water supply, landlord vibe, anything useful..."></textarea></div>
+    <button class="btn-p" id="save-btn" onclick="savePin()">Drop Pin 📌</button>
+    <button class="btn-s" onclick="cancelPin()">Cancel</button>
   </div>
 </div>
 
@@ -373,7 +373,7 @@
   <div class="sheet" style="position:relative;">
     <div class="handle"></div>
     <div class="xbtn" onclick="closeOverlay('stats-overlay')">✕</div>
-    <div class="sheet-title">📊 Nagpur ka Rent Hisaab</div>
+    <div class="sheet-title">📊 Nagpur Rent Stats</div>
     <div id="stats-body"></div>
   </div>
 </div>
@@ -383,72 +383,72 @@
   <div class="sheet" style="position:relative;">
     <div class="handle"></div>
     <div class="xbtn" onclick="closeOverlay('area-overlay')">✕</div>
-    <div class="sheet-title">📐 Iss Area ka Hisaab</div>
+    <div class="sheet-title">📐 Area Analysis</div>
     <div id="area-body"></div>
   </div>
 </div>
 
 <!-- ══════════ FILTERS ══════════ -->
 <div id="fp">
-  <div class="fp-head">Filter Karo <div class="xbtn" style="position:static;" onclick="closeFP()">✕</div></div>
+  <div class="fp-head">Filters <div class="xbtn" style="position:static;" onclick="closeFP()">✕</div></div>
   <div class="fg"><label class="fl">BHK</label>
     <div class="chips" id="fb-c">
-      <div class="chip on" data-v="all" onclick="pick('fb-c',this)">Sab</div>
+      <div class="chip on" data-v="all" onclick="pick('fb-c',this)">All</div>
       <div class="chip" data-v="1" onclick="pick('fb-c',this)">1</div>
       <div class="chip" data-v="2" onclick="pick('fb-c',this)">2</div>
       <div class="chip" data-v="3" onclick="pick('fb-c',this)">3</div>
       <div class="chip" data-v="4" onclick="pick('fb-c',this)">4+</div>
     </div>
   </div>
-  <div class="fg"><label class="fl">Minimum Rent: ₹<span id="lbl-min">0</span></label><input type="range" id="flt-min" min="0" max="50000" step="1000" value="0" oninput="document.getElementById('lbl-min').textContent=fmtN(+this.value)"/></div>
-  <div class="fg"><label class="fl">Maximum Rent: ₹<span id="lbl-max">1,00,000+</span></label><input type="range" id="flt-max" min="5000" max="100000" step="1000" value="100000" oninput="document.getElementById('lbl-max').textContent=(+this.value>=100000?'1,00,000+':fmtN(+this.value))"/></div>
-  <div class="fg"><label class="fl">Saaman</label>
+  <div class="fg"><label class="fl">Min Rent: ₹<span id="lbl-min">0</span></label><input type="range" id="flt-min" min="0" max="50000" step="1000" value="0" oninput="document.getElementById('lbl-min').textContent=fmtN(+this.value)"/></div>
+  <div class="fg"><label class="fl">Max Rent: ₹<span id="lbl-max">1,00,000+</span></label><input type="range" id="flt-max" min="5000" max="100000" step="1000" value="100000" oninput="document.getElementById('lbl-max').textContent=(+this.value>=100000?'1,00,000+':fmtN(+this.value))"/></div>
+  <div class="fg"><label class="fl">Furnishing</label>
     <div class="chips" id="ff-c">
-      <div class="chip on" data-v="all" onclick="pick('ff-c',this)">Sab</div>
-      <div class="chip" data-v="unfurnished" onclick="pick('ff-c',this)">Khaali</div>
+      <div class="chip on" data-v="all" onclick="pick('ff-c',this)">All</div>
+      <div class="chip" data-v="unfurnished" onclick="pick('ff-c',this)">Unfurnished</div>
       <div class="chip" data-v="semi" onclick="pick('ff-c',this)">Semi</div>
       <div class="chip" data-v="fully" onclick="pick('ff-c',this)">Fully</div>
     </div>
   </div>
   <div class="fg"><label class="fl">Gated?</label>
     <div class="chips" id="fg-c">
-      <div class="chip on" data-v="all" onclick="pick('fg-c',this)">Sab</div>
+      <div class="chip on" data-v="all" onclick="pick('fg-c',this)">All</div>
       <div class="chip" data-v="gated" onclick="pick('fg-c',this)">Gated</div>
       <div class="chip" data-v="non-gated" onclick="pick('fg-c',this)">Non-Gated</div>
     </div>
   </div>
   <div class="fg"><label class="fl">Available?</label>
     <div class="chips" id="fa-c">
-      <div class="chip on" data-v="all" onclick="pick('fa-c',this)">Sab</div>
-      <div class="chip" data-v="vacant" onclick="pick('fa-c',this)">Jald Khaali</div>
+      <div class="chip on" data-v="all" onclick="pick('fa-c',this)">All</div>
+      <div class="chip" data-v="vacant" onclick="pick('fa-c',this)">Vacant Soon</div>
     </div>
   </div>
-  <button class="btn-p" onclick="applyFlt()">Lagao Filter</button>
-  <button class="btn-s" onclick="resetFlt()">Reset Karo</button>
+  <button class="btn-p" onclick="applyFlt()">Apply Filters</button>
+  <button class="btn-s" onclick="resetFlt()">Reset All</button>
 </div>
 
 <!-- ══════════ SEEKER ══════════ -->
 <div class="overlay" id="seeker-overlay">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="sheet-title">🔍 Flat Dhundh Raha Hai?</div>
-    <div class="sk-note">Map pe ek green pin daalo jahan rehna chahte ho. Landlord aur residents tujhe dhundh lenge — seedha contact!</div>
+    <div class="sheet-title">🔍 Looking for a Flat?</div>
+    <div class="sk-note">Drop a green pin where you want to live. Landlords and residents in that area can see your preferences and reach out directly.</div>
     <div class="fr">
       <div class="fg"><label class="fl">Min Budget (₹)</label><input type="number" class="fi" id="sk-min" placeholder="5000"/></div>
       <div class="fg"><label class="fl">Max Budget (₹)</label><input type="number" class="fi" id="sk-max" placeholder="20000"/></div>
     </div>
-    <div class="fg"><label class="fl">Kitne BHK chahiye?</label>
+    <div class="fg"><label class="fl">BHK Preference</label>
       <div class="chips" id="sk-b"><div class="chip" data-v="1" onclick="pick('sk-b',this)">1 BHK</div><div class="chip" data-v="2" onclick="pick('sk-b',this)">2 BHK</div><div class="chip" data-v="3" onclick="pick('sk-b',this)">3 BHK</div></div>
     </div>
-    <div class="fg"><label class="fl">Khana</label>
-      <div class="chips" id="sk-f"><div class="chip on" data-v="any" onclick="pick('sk-f',this)">Kuch bhi</div><div class="chip" data-v="veg" onclick="pick('sk-f',this)">Sirf Veg</div><div class="chip" data-v="non-veg" onclick="pick('sk-f',this)">Non-Veg OK</div></div>
+    <div class="fg"><label class="fl">Food Preference</label>
+      <div class="chips" id="sk-f"><div class="chip on" data-v="any" onclick="pick('sk-f',this)">Any</div><div class="chip" data-v="veg" onclick="pick('sk-f',this)">Veg Only</div><div class="chip" data-v="non-veg" onclick="pick('sk-f',this)">Non-Veg OK</div></div>
     </div>
     <div class="fg"><label class="fl">Gender</label>
-      <div class="chips" id="sk-g"><div class="chip on" data-v="any" onclick="pick('sk-g',this)">Koi bhi</div><div class="chip" data-v="male" onclick="pick('sk-g',this)">Male</div><div class="chip" data-v="female" onclick="pick('sk-g',this)">Female</div></div>
+      <div class="chips" id="sk-g"><div class="chip on" data-v="any" onclick="pick('sk-g',this)">Any</div><div class="chip" data-v="male" onclick="pick('sk-g',this)">Male</div><div class="chip" data-v="female" onclick="pick('sk-g',this)">Female</div></div>
     </div>
-    <div class="fg"><label class="fl">Email (optional — landlord contact ke liye)</label><input type="email" class="fi" id="sk-email" placeholder="tera@email.com"/></div>
-    <button class="btn-p" onclick="saveSeeker()">Green Pin Daalo! 🔍</button>
-    <button class="btn-s" onclick="closeOverlay('seeker-overlay')">Rehne do</button>
+    <div class="fg"><label class="fl">Contact Email (optional)</label><input type="email" class="fi" id="sk-email" placeholder="your@email.com"/></div>
+    <button class="btn-p" onclick="saveSeeker()">Drop Seeker Pin 🔍</button>
+    <button class="btn-s" onclick="closeOverlay('seeker-overlay')">Cancel</button>
   </div>
 </div>
 
@@ -470,7 +470,7 @@
     <div style="font-size:52px;margin-bottom:10px;">🎉</div>
     <div class="sheet-title" id="ms-title"></div>
     <div style="font-size:14px;color:var(--tm);margin-bottom:16px;font-weight:600;" id="ms-desc"></div>
-    <button class="btn-wa" onclick="shareMS()">📲 WhatsApp pe bhejo</button>
+    <button class="btn-wa" onclick="shareMS()">📲 Share on WhatsApp</button>
     <button class="btn-s" onclick="closeOverlay('ms-overlay')">Baad mein</button>
   </div>
 </div>
@@ -598,7 +598,7 @@ function renderSeekers(list){
 function onMapClick(e){
   if(!placing||areaDraw)return;
   const lat=e.latLng.lat(),lng=e.latLng.lng();
-  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Bhai, Nagpur ke andar pin daalo 😄');return;}
+  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Pin within Nagpur only, bhai 😄');return;}
   newLL={lat,lng};
   if(pendM)pendM.setMap(null);
   pendM=new google.maps.Marker({
@@ -623,7 +623,7 @@ function togglePlacing(){
 function stopPlacing(){
   placing=false;
   document.getElementById('add-btn').classList.remove('placing');
-  document.getElementById('add-text').textContent='Mera Rent Add Karo';
+  document.getElementById('add-text').textContent='Add My Rent';
   document.getElementById('add-icon').textContent='＋';
   document.getElementById('hint').style.display='none';
 }
@@ -632,11 +632,11 @@ function cancelPin(){closeOverlay('pin-overlay');stopPlacing();resetForm();}
 async function savePin(){
   const rent=parseInt(document.getElementById('pin-rent').value);
   const bhk=parseInt(cv('bhk-c'));
-  if(!rent||rent<500){toast('Sahi rent daalo yaar!');return;}
-  if(!bhk){toast('BHK toh batao bhai');return;}
-  if(!newLL){toast('Pehle location choose karo');return;}
+  if(!rent||rent<500){toast('Enter a valid rent amount');return;}
+  if(!bhk){toast('Select BHK type');return;}
+  if(!newLL){toast('No location — tap Add My Rent first');return;}
   const btn=document.getElementById('save-btn');
-  btn.disabled=true;btn.textContent='Daal raha hoon…';
+  btn.disabled=true;btn.textContent='Saving...';
   const{data,error}=await sb.from('pins').insert([{
     lat:newLL.lat,lng:newLL.lng,rent,bhk,
     furnishing:cv('fur-c')||'unfurnished',
@@ -650,13 +650,13 @@ async function savePin(){
     notes:document.getElementById('p-notes').value||null,
     ip_address:userIP,
   }]).select();
-  btn.disabled=false;btn.textContent='Pin Daalo! 📌';
-  if(error){toast('Kuch gadbad ho gaya, dobara try karo');console.error(error);return;}
+  btn.disabled=false;btn.textContent='Drop Pin 📌';
+  if(error){toast('Error saving — try again');console.error(error);return;}
   allPins.unshift(data[0]);
   renderPins(doFlt(allPins));
   setCount(allPins.length);
   closeOverlay('pin-overlay');resetForm();
-  toast('Pin dal diya! Shukriya yaar 🙏');
+  toast('Pin added! Shukriya 🙏');
   checkMS(allPins.length);
   openDetail(data[0]);
 }
@@ -681,20 +681,20 @@ async function openDetail(pin){
   const avgLoc=ratings?.length?(ratings.reduce((s,r)=>s+(r.locality_rating||0),0)/ratings.length).toFixed(1):null;
   const avgBld=ratings?.length?(ratings.reduce((s,r)=>s+(r.build_rating||0),0)/ratings.length).toFixed(1):null;
   const isOwner=pin.ip_address===userIP;
-  const shareMsg=`🏠 Nagpur mein mera rent:\n₹${fmt(pin.rent)}/mahina · ${pin.bhk}BHK${pin.society_name?' · '+pin.society_name:''}\n${pin.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna rent check karo → nagpur.rent`;
+  const shareMsg=`🏠 Nagpur mein mera rent:\n₹${fmt(pin.rent)}/month · ${pin.bhk}BHK${pin.society_name?' · '+pin.society_name:''}\n${pin.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna rent check karo → nagpur.rent`;
 
   body.innerHTML=`
-    <div class="rent-big">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--td)">/mahina</span></div>
+    <div class="rent-big">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--td)">/month</span></div>
     <div class="rent-sub">${pin.bhk}BHK · ₹${fmt(Math.round(pin.rent/pin.bhk))}/BHK${pin.sqft?' · '+pin.sqft+' sqft':''}</div>
     <div class="badges">
       <span class="badge ${pin.gated?'b-blue':'b-orange'}">${pin.gated?'🔒 Gated':'🏘 Non-Gated'}</span>
       <span class="badge b-purple">${furLabel(pin.furnishing)}</span>
-      ${pin.maintenance_included?'<span class="badge b-green">Maint Shaamil</span>':''}
-      ${pin.is_vacant_soon?'<span class="badge b-green">🏠 Jald Khaali</span>':''}
+      ${pin.maintenance_included?'<span class="badge b-green">Maint Incl.</span>':''}
+      ${pin.is_vacant_soon?'<span class="badge b-green">🏠 Vacant Soon</span>':''}
       <span class="badge b-purple">${occLabel(pin.occupant_type)}</span>
     </div>
     ${pin.society_name?`<div style="font-size:13px;color:var(--td);font-weight:700;margin-bottom:4px;">📍 ${esc(pin.society_name)}</div>`:''}
-    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">+ ₹${fmt(pin.maintenance)}/mahina maintenance</div>`:''}
+    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">+ ₹${fmt(pin.maintenance)}/month maintenance sep.</div>`:''}
     ${avgLoc?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">⭐ Locality ${avgLoc} · Build ${avgBld} (${ratings.length} ratings)</div>`:''}
 
     <div style="background:${isGood?'rgba(22,163,74,.08)':'rgba(249,115,22,.08)'};border:2px solid ${isGood?'rgba(22,163,74,.2)':'var(--border)'};border-radius:14px;padding:12px;margin:14px 0;">
@@ -709,27 +709,27 @@ async function openDetail(pin){
     <div class="share-card">
       <div class="sc-title">📲 WhatsApp pe share karo</div>
       <div class="sc-text">${shareMsg.replace(/\n/g,'<br>')}</div>
-      <button class="btn-wa" onclick="doShare()">📲 WhatsApp pe bhejo</button>
+      <button class="btn-wa" onclick="doShare()">📲 Share on WhatsApp</button>
     </div>
 
     <hr class="divider"/>
 
     <div style="margin-bottom:14px;">
-      <div class="fl" style="margin-bottom:8px;">Is jagah ko rate karo</div>
+      <div class="fl" style="margin-bottom:8px;">Rate this listing</div>
       <div style="display:flex;gap:20px;flex-wrap:wrap;">
-        <div><div style="font-size:12px;color:var(--td);font-weight:700;margin-bottom:4px;">Area kaisa hai?</div><div class="stars" id="ls">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('loc',${i})">★</div>`).join('')}</div></div>
-        <div><div style="font-size:12px;color:var(--td);font-weight:700;margin-bottom:4px;">Building kaisi hai?</div><div class="stars" id="bs">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('bld',${i})">★</div>`).join('')}</div></div>
+        <div><div style="font-size:12px;color:var(--td);font-weight:700;margin-bottom:4px;">Locality</div><div class="stars" id="ls">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('loc',${i})">★</div>`).join('')}</div></div>
+        <div><div style="font-size:12px;color:var(--td);font-weight:700;margin-bottom:4px;">Build Quality</div><div class="stars" id="bs">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('bld',${i})">★</div>`).join('')}</div></div>
       </div>
-      <button class="btn-s" style="margin-top:8px;width:auto;padding:8px 16px;" onclick="submitRating()">Rating Submit Karo</button>
+      <button class="btn-s" style="margin-top:8px;width:auto;padding:8px 16px;" onclick="submitRating()">Submit Rating</button>
     </div>
 
     <hr class="divider"/>
 
     <div>
       <div class="fl" style="margin-bottom:8px;">Comments (${comments?.length||0})</div>
-      ${comments?.length?comments.slice(0,5).map(c=>`<div class="comment"><div class="c-text">${esc(c.content)}</div><div class="c-time">${ago(c.created_at)}</div></div>`).join(''):'<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:8px;">Pehle comment karo yaar!</div>'}
+      ${comments?.length?comments.slice(0,5).map(c=>`<div class="comment"><div class="c-text">${esc(c.content)}</div><div class="c-time">${ago(c.created_at)}</div></div>`).join(''):'<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:8px;">No comments yet.</div>'}
       <div style="display:flex;gap:8px;margin-top:8px;">
-        <input type="text" class="fi" id="c-in" placeholder="Kuch bolna hai?" style="flex:1;"/>
+        <input type="text" class="fi" id="c-in" placeholder="Add a comment..." style="flex:1;"/>
         <button class="rb" onclick="addComment()">Post</button>
       </div>
     </div>
@@ -741,15 +741,15 @@ async function openDetail(pin){
     </div>`;
 }
 
-function furLabel(f){const m={unfurnished:'Khaali Ghar',semi:'Thoda Saaman',fully:'Fully Bharela'};return m[f]||cap(f||'unfurnished');}
-function occLabel(o){const m={any:'Koi bhi',family:'Family',bachelor:'Bachelor',girls:'Sirf Ladkiyan'};return m[o]||cap(o||'any');}
+function furLabel(f){const m={unfurnished:'Unfurnished',semi:'Semi-furnished',fully:'Fully Furnished'};return m[f]||cap(f||'unfurnished');}
+function occLabel(o){const m={any:'Any',family:'Family',bachelor:'Bachelor',girls:'Girls Only'};return m[o]||cap(o||'any');}
 
 function doShare(){
   if(!curPin)return;
   const p=curPin;const same=allPins.filter(x=>x.bhk===p.bhk);
   const cheaper=same.filter(x=>x.rent<p.rent).length;
   const ct=same.length>1?Math.round(((same.length-1-cheaper)/(same.length-1))*100):50;
-  const msg=`🏠 Nagpur mein mera rent:\n₹${fmt(p.rent)}/mahina · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\n${p.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna check karo → nagpur.rent`;
+  const msg=`🏠 Nagpur mein mera rent:\n₹${fmt(p.rent)}/month · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\n${p.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna check karo → nagpur.rent`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -771,24 +771,24 @@ function rateStar(type,val){
 }
 async function submitRating(){
   if(!curPin)return;
-  if(!pendRating.loc&&!pendRating.bld){toast('Pehle stars pe click karo!');return;}
+  if(!pendRating.loc&&!pendRating.bld){toast('Tap the stars to rate');return;}
   const{error}=await sb.from('ratings').insert([{pin_id:curPin.id,locality_rating:pendRating.loc||null,build_rating:pendRating.bld||null,ip_address:userIP}]);
-  if(error){toast('Kuch gadbad ho gaya');return;}
-  toast('Rating de diya, shukriya! ⭐');pendRating={loc:0,bld:0};
+  if(error){toast('Something went wrong');return;}
+  toast('Rating saved, shukriya! ⭐');pendRating={loc:0,bld:0};
 }
 async function addComment(){
   if(!curPin)return;
   const inp=document.getElementById('c-in');
   const content=inp.value.trim();if(!content)return;
   const{error}=await sb.from('comments').insert([{pin_id:curPin.id,content,ip_address:userIP}]);
-  if(error){toast('Comment nahi gaya, dobara try karo');return;}
-  inp.value='';toast('Comment ho gaya!');openDetail(curPin);
+  if(error){toast('Could not post comment');return;}
+  inp.value='';toast('Comment posted!');openDetail(curPin);
 }
 async function reportPin(){
   if(!curPin)return;
   const reason=prompt('Report kyun kar rahe ho? (optional)')||'suspicious';
   await sb.from('reports').insert([{pin_id:curPin.id,reason,ip_address:userIP}]);
-  toast('Report ho gaya, shukriya!');
+  toast('Reported. Thanks!');
 }
 async function deletePin(id){
   if(!confirm('Pin delete karna hai pakka?'))return;
@@ -799,10 +799,10 @@ async function deletePin(id){
 
 async function openStats(){
   const body=document.getElementById('stats-body');
-  body.innerHTML='<div style="color:var(--td);text-align:center;padding:20px;font-weight:700;">Calculate ho raha hai…</div>';
+  body.innerHTML='<div style="color:var(--td);text-align:center;padding:20px;font-weight:700;">Loading...</div>';
   openOverlay('stats-overlay');
   const pins=allPins;
-  if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">Abhi koi pin nahi hai. Pehla pin tum daalo!</div>';return;}
+  if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">No pins yet. Be the first to add one!</div>';return;}
   const byB={};pins.forEach(p=>{(byB[p.bhk]=byB[p.bhk]||[]).push(p.rent);});
   const gated=pins.filter(p=>p.gated),ng=pins.filter(p=>!p.gated);
   const avgAll=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
@@ -814,17 +814,17 @@ async function openStats(){
       <div class="stat-box"><div class="stat-lbl">Non-Gated Avg</div><div class="stat-val">${ng.length?'₹'+shortFmt(Math.round(ng.reduce((s,p)=>s+p.rent,0)/ng.length)):'—'}</div></div>
     </div>
     <div class="stat-section">
-      <div class="stat-lbl" style="margin-bottom:8px;">BHK-wise Average Rent</div>
+      <div class="stat-lbl" style="margin-bottom:8px;">Average Rent by BHK</div>
       ${Object.keys(byB).sort((a,b)=>a-b).map(b=>{const rents=byB[b];const avg=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-lbl">${b} BHK</div><div class="bhk-cnt">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-val">₹${fmt(avg)}</div></div>`;}).join('')}
     </div>
     <div class="stat-section">
-      <div class="stat-lbl" style="margin-bottom:8px;">Sabse Sasta BHK</div>
+      <div class="stat-lbl" style="margin-bottom:8px;">Cheapest per BHK</div>
       ${Object.keys(byB).sort((a,b)=>a-b).map(b=>`<div class="bhk-row"><div class="bhk-lbl">${b} BHK</div><div class="bhk-val" style="color:var(--green)">₹${fmt(Math.min(...byB[b]))}</div></div>`).join('')}
     </div>
     <div class="share-card" style="margin-top:4px;">
-      <div class="sc-title">Doston ko batao!</div>
+      <div class="sc-title">Spread the word!</div>
       <div class="sc-text" style="font-size:12px;">${pins.length} Nagpurkars ne apna rent share kiya. Tu bhi batao, community strong hogi!</div>
-      <button class="btn-wa" onclick="shareWelcome()">📲 Share karo nagpur.rent</button>
+      <button class="btn-wa" onclick="shareWelcome()">📲 Share nagpur.rent</button>
     </div>`;
 }
 
@@ -856,12 +856,12 @@ function onMU(e){
 }
 function showAreaStats(pins){
   const body=document.getElementById('area-body');
-  if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">Is area mein abhi koi pin nahi hai!</div>';openOverlay('area-overlay');return;}
+  if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">No pins in this area yet.</div>';openOverlay('area-overlay');return;}
   const byB={};pins.forEach(p=>{(byB[p.bhk]=byB[p.bhk]||[]).push(p.rent);});
   const avg=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
   body.innerHTML=`
-    <div style="font-size:13px;color:var(--tm);font-weight:700;margin-bottom:14px;">${pins.length} pins selected area mein</div>
-    <div class="stat-section"><div class="stat-lbl">Is Area ka Average</div><div class="stat-val" style="margin-top:4px;">₹${fmt(avg)}</div></div>
+    <div style="font-size:13px;color:var(--tm);font-weight:700;margin-bottom:14px;">${pins.length} pins in selected area</div>
+    <div class="stat-section"><div class="stat-lbl">Area Average</div><div class="stat-val" style="margin-top:4px;">₹${fmt(avg)}</div></div>
     <div class="stat-section" style="margin-top:10px;"><div class="stat-lbl" style="margin-bottom:8px;">BHK-wise</div>
       ${Object.keys(byB).sort((a,b)=>a-b).map(b=>{const rents=byB[b];const a=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-lbl">${b} BHK</div><div class="bhk-cnt">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-val">₹${fmt(a)}</div></div>`;}).join('')}
     </div>`;
@@ -871,14 +871,14 @@ function showAreaStats(pins){
 async function saveSeeker(){
   const lat=map.getCenter().lat(),lng=map.getCenter().lng();
   const{error}=await sb.from('seekers').insert([{lat,lng,budget_min:parseInt(document.getElementById('sk-min').value)||null,budget_max:parseInt(document.getElementById('sk-max').value)||null,bhk_preference:parseInt(cv('sk-b'))||null,food_pref:cv('sk-f')||'any',gender:cv('sk-g')||'any',contact_email:document.getElementById('sk-email').value||null,ip_address:userIP}]);
-  if(error){toast('Kuch gadbad ho gaya');return;}
-  closeOverlay('seeker-overlay');toast('Seeker pin dal diya! Ab landlord milega 🔍');
+  if(error){toast('Something went wrong');return;}
+  closeOverlay('seeker-overlay');toast('Seeker pin added! 🔍');
   const{data:sk}=await sb.from('seekers').select('*');renderSeekers(sk||[]);
 }
 
 function applyFlt(){
   filters={bhk:cv('fb-c'),rMin:parseInt(document.getElementById('flt-min').value),rMax:parseInt(document.getElementById('flt-max').value),fur:cv('ff-c'),gated:cv('fg-c'),avail:cv('fa-c')};
-  const f=doFlt(allPins);renderPins(f);setCount(f.length);closeFP();toast(f.length+' pins dikh rahe hain');
+  const f=doFlt(allPins);renderPins(f);setCount(f.length);closeFP();toast(f.length+' pins shown');
 }
 function doFlt(pins){
   return pins.filter(p=>{
