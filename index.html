@@ -1,442 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>nagpur.rent — Community Rental Map</title>
-  <meta name="description" content="Community-driven rental price map for Nagpur. Real rents, shared by residents." />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>nagpur.rent — Bhai, kitna deta hai tu?</title>
+  <meta name="description" content="Nagpur cha rent map — real rents shared by real Nagpurkars. No broker, no BS."/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Nunito:wght@400;600;700;800;900&display=swap');
+
     :root {
-      --bg:#f0f2f5;--surface:#fff;--surface2:#f5f6fa;--border:#e8eaed;
-      --accent:#2563eb;--accent-h:#1d4ed8;--accent-dim:rgba(37,99,235,0.08);
-      --green:#059669;--green-dim:rgba(5,150,105,0.1);
-      --orange:#d97706;--orange-dim:rgba(217,119,6,0.1);
-      --red:#dc2626;--text:#111827;--text-m:#6b7280;--text-d:#9ca3af;
-      --sh1:0 1px 4px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
-      --sh2:0 4px 16px rgba(0,0,0,0.09),0 2px 6px rgba(0,0,0,0.05);
-      --sh3:0 12px 40px rgba(0,0,0,0.11),0 4px 12px rgba(0,0,0,0.06);
-      --fm:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
+      --orange:#f97316;
+      --orange2:#ea580c;
+      --orange-light:#fff7ed;
+      --orange-dim:rgba(249,115,22,0.12);
+      --yellow:#fbbf24;
+      --bg:#ffffff;
+      --s1:#fffbf7;
+      --s2:#fff3e8;
+      --s3:#ffe8cc;
+      --border:#fcd9b0;
+      --text:#1c0a00;
+      --tm:#7c4a1e;
+      --td:#c4855a;
+      --green:#16a34a;
+      --green-dim:rgba(22,163,74,0.1);
+      --blue:#2563eb;
+      --blue-dim:rgba(37,99,235,0.1);
+      --red:#dc2626;
+      --sh1:0 2px 8px rgba(249,115,22,0.12);
+      --sh2:0 6px 24px rgba(249,115,22,0.15);
+      --sh3:0 16px 48px rgba(0,0,0,0.12);
+      --fm:'Nunito',sans-serif;
+      --mono:'DM Mono',monospace;
     }
+
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:var(--fm);background:var(--bg);color:var(--text);height:100vh;height:100dvh;overflow:hidden;}
     #map{width:100%;height:100%;position:absolute;top:0;left:0;}
 
-    /* TOP BAR */
-    #topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));pointer-events:none;}
+    /* ── TOP BAR ── */
+    #topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));pointer-events:none;}
     #topbar>*{pointer-events:all;}
-    #logo-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:50px;padding:7px 14px 7px 8px;box-shadow:var(--sh2);flex-shrink:0;}
-    #logo-icon{width:28px;height:28px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-    #logo{font-family:var(--fm);font-weight:800;font-size:15px;color:var(--text);letter-spacing:-0.3px;}
-    #logo span{color:var(--accent);}
-    #pin-count-badge{font-family:var(--mono);font-size:11px;background:var(--accent-dim);color:var(--accent);padding:2px 8px;border-radius:20px;font-weight:500;flex-shrink:0;margin-left:2px;}
+
+    #logo-pill{display:flex;align-items:center;gap:8px;background:var(--orange);border-radius:50px;padding:8px 16px 8px 10px;box-shadow:0 4px 16px rgba(249,115,22,0.4);flex-shrink:0;cursor:pointer;transition:transform .15s;}
+    #logo-pill:hover{transform:scale(1.03);}
+    #logo-icon{font-size:18px;line-height:1;}
+    #logo-text{font-weight:900;font-size:15px;color:white;letter-spacing:-.3px;}
+    #logo-text span{opacity:.85;}
+    #pin-badge{background:rgba(255,255,255,.25);color:white;font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;margin-left:2px;}
+
+    #search-wrap{flex:1;max-width:360px;position:relative;}
+    #search-input{width:100%;background:white;border:2px solid var(--border);color:var(--text);padding:9px 14px 9px 38px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:600;outline:none;transition:all .2s;box-shadow:var(--sh1);}
+    #search-input::placeholder{color:var(--td);font-weight:400;}
+    #search-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,.15);}
+    #search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
+    #search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:white;border:2px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh3);display:none;z-index:10;}
+    .s-item{padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;transition:background .1s;display:flex;align-items:center;gap:8px;}
+    .s-item:hover{background:var(--s2);}
+
     .spacer{flex:1;}
-    .top-btn{background:var(--surface);box-shadow:var(--sh2);border:none;color:var(--text);padding:9px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px;}
-    .top-btn:hover{background:var(--accent);color:#fff;transform:translateY(-1px);box-shadow:var(--sh3);}
 
-    /* NEIGHBORHOOD BAR */
-    #neighborhood-bar{position:fixed;top:62px;left:0;right:0;z-index:90;padding:0 16px 10px;overflow-x:auto;display:flex;gap:6px;scrollbar-width:none;pointer-events:none;}
-    #neighborhood-bar>*{pointer-events:all;}
-    #neighborhood-bar::-webkit-scrollbar{display:none;}
-    .n-chip{padding:6px 13px;border-radius:50px;background:var(--surface);box-shadow:var(--sh1);border:1.5px solid transparent;color:var(--text-m);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
-    .n-chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);box-shadow:none;}
-    .n-chip:hover:not(.active){border-color:var(--border);color:var(--text);}
+    #live-pill{background:white;border:2px solid var(--border);border-radius:50px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--tm);display:flex;align-items:center;gap:6px;box-shadow:var(--sh1);flex-shrink:0;}
+    #live-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-    /* BOTTOM */
-    #bottom-controls{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:flex-end;justify-content:space-between;padding:16px;padding-bottom:max(20px,env(safe-area-inset-bottom));pointer-events:none;}
-    #bottom-controls>*{pointer-events:all;}
-    #add-pin-btn{background:var(--accent);color:#fff;border:none;padding:15px 24px;border-radius:50px;font-family:var(--fm);font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.4);transition:all .2s;display:flex;align-items:center;gap:8px;}
-    #add-pin-btn:hover{background:var(--accent-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(37,99,235,.5);}
-    #add-pin-btn.placing{background:#d97706;box-shadow:0 4px 20px rgba(217,119,6,.4);}
-    #bottom-right-btns{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
-    .circle-btn{width:46px;height:46px;border-radius:50%;background:var(--surface);box-shadow:var(--sh2);border:none;color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
-    .circle-btn:hover{background:var(--accent);color:#fff;transform:translateY(-1px);box-shadow:var(--sh3);}
+    /* ── NEIGHBORHOOD CHIPS ── */
+    #nb-bar{position:fixed;top:58px;left:0;right:0;z-index:90;padding:0 14px 8px;overflow-x:auto;display:flex;gap:6px;scrollbar-width:none;pointer-events:none;}
+    #nb-bar>*{pointer-events:all;}
+    #nb-bar::-webkit-scrollbar{display:none;}
+    .nb{padding:5px 12px;border-radius:50px;background:white;border:2px solid var(--border);color:var(--tm);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;box-shadow:var(--sh1);}
+    .nb.on{border-color:var(--orange);color:var(--orange2);background:var(--orange-dim);}
+    .nb:hover:not(.on){border-color:var(--orange);color:var(--orange);}
 
-    /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s;}
-    .modal-overlay.open{opacity:1;pointer-events:all;}
-    .modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:20px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(30px);transition:transform .25s;box-shadow:var(--sh3);}
-    .modal-overlay.open .modal{transform:translateY(0);}
-    .modal-center{align-items:center;padding:20px;}
-    .modal-center .modal{border-radius:24px;max-height:85vh;}
-    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px;}
-    .modal-title{font-size:19px;font-weight:800;margin-bottom:18px;color:var(--text);}
-    .modal-close{position:absolute;top:18px;right:18px;background:var(--surface2);border:none;color:var(--text-m);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .modal-close:hover{background:var(--border);color:var(--text);}
+    /* ── BOTTOM CONTROLS ── */
+    #bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:flex-end;justify-content:space-between;padding:14px 14px;padding-bottom:max(18px,env(safe-area-inset-bottom));pointer-events:none;}
+    #bottom-bar>*{pointer-events:all;}
 
-    /* FORM */
-    .form-group{margin-bottom:15px;}
-    .form-label{display:block;font-size:11px;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
-    .form-input,.form-textarea{width:100%;background:var(--surface2);border:1.5px solid transparent;color:var(--text);padding:11px 13px;border-radius:10px;font-family:var(--fm);font-size:14px;outline:none;transition:all .15s;}
-    .form-input:focus,.form-textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-    .form-textarea{resize:vertical;min-height:70px;}
-    .form-row{display:flex;gap:10px;}
-    .form-row .form-group{flex:1;}
-    .chip-group{display:flex;flex-wrap:wrap;gap:6px;}
-    .chip{padding:7px 13px;border-radius:50px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-m);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
-    .chip:hover{border-color:var(--accent);color:var(--accent);}
-    .chip.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
-    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
-    .toggle-label{font-size:14px;font-weight:600;}
-    .toggle-desc{font-size:12px;color:var(--text-m);margin-top:2px;}
-    .toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
-    .toggle.on{background:var(--accent);}
-    .toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-    .toggle.on::after{left:23px;}
-    .btn-primary{width:100%;background:var(--accent);color:#fff;border:none;padding:14px;border-radius:12px;font-family:var(--fm);font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;transition:all .15s;box-shadow:0 2px 8px rgba(37,99,235,.3);}
-    .btn-primary:hover{background:var(--accent-h);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.4);}
-    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-    .btn-secondary{width:100%;background:var(--surface2);color:var(--text-m);border:none;padding:13px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .15s;}
-    .btn-secondary:hover{background:var(--border);color:var(--text);}
+    #add-btn{background:var(--orange);color:white;border:none;padding:14px 22px;border-radius:50px;font-family:var(--fm);font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 4px 20px rgba(249,115,22,.5);transition:all .2s;display:flex;align-items:center;gap:8px;}
+    #add-btn:hover{background:var(--orange2);transform:translateY(-2px);box-shadow:0 6px 28px rgba(249,115,22,.6);}
+    #add-btn.placing{background:#7c3aed;box-shadow:0 4px 20px rgba(124,58,237,.5);}
 
-    /* PIN DETAIL */
-    .pin-rent{font-family:var(--mono);font-size:34px;font-weight:500;color:var(--text);}
-    .pin-sub{font-size:13px;color:var(--text-m);margin-top:3px;font-family:var(--mono);}
-    .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
-    .badge{padding:5px 11px;border-radius:50px;font-size:12px;font-weight:600;}
-    .badge-blue{background:var(--accent-dim);color:var(--accent);}
-    .badge-green{background:var(--green-dim);color:var(--green);}
-    .badge-orange{background:var(--orange-dim);color:var(--orange);}
-    .badge-purple{background:rgba(124,58,237,.08);color:#7c3aed;}
-    .badge-red{background:rgba(220,38,38,.08);color:var(--red);}
-    .percentile-bar{background:var(--surface2);border-radius:50px;height:8px;margin:10px 0 4px;overflow:hidden;}
-    .percentile-fill{height:100%;background:linear-gradient(to right,#059669,#2563eb);border-radius:50px;transition:width .6s ease;}
-    .range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-d);margin-top:4px;}
-    hr.sd{border:none;border-top:1px solid var(--border);margin:16px 0;}
+    #right-btns{display:flex;flex-direction:column;gap:7px;align-items:flex-end;}
+    .rb{display:flex;align-items:center;gap:7px;background:white;border:2px solid var(--border);color:var(--tm);padding:8px 13px;border-radius:50px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:var(--sh1);white-space:nowrap;}
+    .rb:hover{border-color:var(--orange);color:var(--orange2);background:var(--orange-dim);}
+    .rb.active-tool{border-color:#7c3aed;color:#7c3aed;background:rgba(124,58,237,.08);}
 
-    /* STATS */
-    .stat-card{background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:10px;}
-    .stat-label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:6px;}
-    .stat-value{font-family:var(--mono);font-size:24px;font-weight:500;}
-    .bhk-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
-    .bhk-row:last-child{border-bottom:none;}
-    .bhk-label{font-weight:700;font-size:14px;}
-    .bhk-avg{font-family:var(--mono);font-size:16px;color:var(--accent);}
-    .bhk-count{font-size:12px;color:var(--text-m);}
+    /* ── HINTS ── */
+    #hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border:2px solid var(--orange);color:var(--text);padding:12px 22px;border-radius:50px;font-size:14px;font-weight:800;z-index:150;display:none;pointer-events:none;box-shadow:var(--sh2);}
 
-    /* FILTER PANEL */
-    #filter-panel{position:fixed;top:0;left:0;width:100%;max-width:360px;height:100%;background:var(--surface);z-index:300;padding:20px;padding-top:max(20px,env(safe-area-inset-top));overflow-y:auto;transform:translateX(-100%);transition:transform .3s;box-shadow:var(--sh3);}
-    #filter-panel.open{transform:translateX(0);}
-    .filter-title{font-size:20px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
-
-    /* STARS */
-    .star-group{display:flex;gap:4px;}
-    .star{font-size:24px;cursor:pointer;color:var(--border);transition:color .1s;}
-    .star.filled{color:#f59e0b;}
-
-    /* COMMENTS */
-    .comment-item{background:var(--surface2);border-radius:10px;padding:10px 13px;margin-bottom:8px;}
-    .comment-text{font-size:13px;line-height:1.5;}
-    .comment-time{font-size:11px;color:var(--text-d);margin-top:4px;}
-
-    /* HINTS */
-    #placing-hint,#area-draw-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:var(--text);padding:13px 22px;border-radius:50px;font-size:14px;font-weight:600;z-index:150;display:none;pointer-events:none;box-shadow:var(--sh3);}
-    #placing-hint{border-left:4px solid var(--accent);}
-    #area-draw-hint{border-left:4px solid var(--orange);}
-
-    /* TOAST */
-    #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:11px 22px;border-radius:50px;font-size:13px;font-weight:600;z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:var(--sh3);}
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:white;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;z-index:500;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;box-shadow:var(--sh3);}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-    /* LOADING */
-    #loading{position:fixed;inset:0;background:#fff;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s;}
+    /* ── LOADING ── */
+    #loading{position:fixed;inset:0;background:white;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s;}
     #loading.hidden{opacity:0;pointer-events:none;}
-    .loading-logo{font-family:var(--fm);font-size:28px;font-weight:800;}
-    .loading-logo span{color:var(--accent);}
-    .loading-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+    .ld-brand{font-size:32px;font-weight:900;color:var(--text);}
+    .ld-brand span{color:var(--orange);}
+    .ld-tagline{font-size:14px;color:var(--td);font-weight:600;}
+    .ld-spin{width:32px;height:32px;border:3px solid var(--s3);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    .loading-text{font-size:13px;color:var(--text-m);}
 
-    /* WELCOME */
-    .welcome-icon{font-size:52px;margin-bottom:12px;text-align:center;}
-    .welcome-title{font-size:26px;font-weight:800;margin-bottom:8px;text-align:center;}
-    .welcome-desc{font-size:14px;color:var(--text-m);line-height:1.6;margin-bottom:20px;text-align:center;}
-    .welcome-steps{background:var(--surface2);border-radius:14px;padding:16px;margin-bottom:20px;}
-    .welcome-step{display:flex;align-items:flex-start;gap:12px;padding:7px 0;font-size:13px;color:var(--text-m);}
-    .step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    /* ── OVERLAY / SHEET ── */
+    .overlay{position:fixed;inset:0;background:rgba(28,10,0,.55);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s;}
+    .overlay.open{opacity:1;pointer-events:all;}
+    .sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:91vh;overflow-y:auto;padding:20px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(24px);transition:transform .25s;box-shadow:var(--sh3);}
+    .overlay.open .sheet{transform:translateY(0);}
+    .sheet-center{align-items:center;padding:16px;}
+    .sheet-center .sheet{border-radius:24px;max-height:88vh;}
+    .handle{width:40px;height:4px;background:var(--s3);border-radius:2px;margin:0 auto 16px;}
+    .sheet-title{font-size:19px;font-weight:900;margin-bottom:16px;color:var(--text);}
+    .xbtn{position:absolute;top:16px;right:16px;background:var(--s2);border:none;color:var(--tm);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .15s;}
+    .xbtn:hover{background:var(--s3);}
 
-    /* MSG BANNER */
-    #msg-banner{position:fixed;top:96px;left:50%;transform:translateX(-50%);z-index:95;display:none;}
-    .msg-banner-inner{background:#fff;color:var(--text);font-size:13px;font-weight:600;padding:7px 16px;border-radius:50px;white-space:nowrap;box-shadow:var(--sh2);border-left:3px solid var(--accent);}
+    /* ── FORM ── */
+    .fg{margin-bottom:14px;}
+    .fl{display:block;font-size:11px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;}
+    .fi,.fta{width:100%;background:var(--s1);border:2px solid var(--border);color:var(--text);padding:11px 13px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:600;outline:none;transition:all .15s;}
+    .fi:focus,.fta:focus{border-color:var(--orange);background:white;box-shadow:0 0 0 3px rgba(249,115,22,.12);}
+    .fta{resize:vertical;min-height:70px;}
+    .fr{display:flex;gap:10px;}
+    .fr .fg{flex:1;}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;}
+    .chip{padding:7px 13px;border-radius:50px;border:2px solid var(--border);background:white;color:var(--tm);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;}
+    .chip:hover{border-color:var(--orange);color:var(--orange);}
+    .chip.on{border-color:var(--orange);background:var(--orange-dim);color:var(--orange2);}
+    .tog-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--s3);}
+    .tog-lbl{font-size:14px;font-weight:700;}
+    .tog-sub{font-size:12px;color:var(--td);margin-top:2px;}
+    .tog{width:44px;height:24px;background:var(--s3);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+    .tog.on{background:var(--orange);}
+    .tog::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+    .tog.on::after{left:23px;}
+    .btn-p{width:100%;background:var(--orange);color:white;border:none;padding:14px;border-radius:14px;font-family:var(--fm);font-size:15px;font-weight:900;cursor:pointer;margin-top:14px;transition:all .15s;box-shadow:0 3px 12px rgba(249,115,22,.3);}
+    .btn-p:hover{background:var(--orange2);transform:translateY(-1px);}
+    .btn-p:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .btn-s{width:100%;background:var(--s2);color:var(--tm);border:none;padding:13px;border-radius:14px;font-family:var(--fm);font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .15s;}
+    .btn-s:hover{background:var(--s3);}
+    .btn-wa{width:100%;background:#25d366;color:white;border:none;padding:14px;border-radius:14px;font-family:var(--fm);font-size:15px;font-weight:900;cursor:pointer;margin-top:8px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-wa:hover{background:#1ebe5d;transform:translateY(-1px);}
+    .divider{border:none;border-top:2px solid var(--s2);margin:16px 0;}
 
-    /* SEEKER */
-    .seeker-note{font-size:12px;color:var(--text-m);background:var(--accent-dim);border-radius:10px;padding:10px 13px;margin-bottom:16px;line-height:1.6;border-left:3px solid var(--accent);}
+    /* ── PIN DETAIL ── */
+    .rent-big{font-family:var(--mono);font-size:36px;font-weight:500;line-height:1;color:var(--text);}
+    .rent-sub{font-size:13px;color:var(--td);margin-top:4px;font-family:var(--mono);}
+    .badges{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
+    .badge{padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;}
+    .b-blue{background:var(--blue-dim);color:var(--blue);}
+    .b-green{background:var(--green-dim);color:var(--green);}
+    .b-orange{background:var(--orange-dim);color:var(--orange2);}
+    .b-purple{background:rgba(124,58,237,.1);color:#7c3aed;}
+    .b-red{background:rgba(220,38,38,.1);color:var(--red);}
+    .pct-bar{background:var(--s3);border-radius:50px;height:10px;margin:10px 0 4px;overflow:hidden;}
+    .pct-fill{height:100%;background:linear-gradient(to right,var(--green),var(--orange));border-radius:50px;transition:width .6s ease;}
+    .pct-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--td);font-weight:600;}
+    .share-card{background:var(--s1);border:2px solid var(--border);border-radius:16px;padding:14px;margin-top:14px;}
+    .sc-title{font-size:11px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+    .sc-text{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;font-weight:600;}
 
-    input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none;margin:8px 0;}
-    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(37,99,235,.3);}
+    /* ── STATS ── */
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+    .stat-box{background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:14px;}
+    .stat-lbl{font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:.6px;font-weight:800;margin-bottom:6px;}
+    .stat-val{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--text);}
+    .bhk-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--s3);}
+    .bhk-row:last-child{border-bottom:none;}
+    .bhk-lbl{font-weight:800;font-size:14px;}
+    .bhk-val{font-family:var(--mono);font-size:16px;color:var(--orange2);}
+    .bhk-cnt{font-size:12px;color:var(--td);font-weight:600;}
+    .stat-section{background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+
+    /* ── FILTER PANEL ── */
+    #fp{position:fixed;top:0;left:0;width:100%;max-width:360px;height:100%;background:white;border-right:2px solid var(--border);z-index:300;padding:20px;padding-top:max(20px,env(safe-area-inset-top));overflow-y:auto;transform:translateX(-100%);transition:transform .3s;box-shadow:var(--sh3);}
+    #fp.open{transform:translateX(0);}
+    .fp-head{font-size:20px;font-weight:900;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+
+    /* ── WELCOME ── */
+    .w-top{text-align:center;padding-bottom:16px;}
+    .w-emoji{font-size:52px;margin-bottom:10px;}
+    .w-title{font-size:26px;font-weight:900;margin-bottom:6px;color:var(--text);}
+    .w-tagline{font-size:14px;color:var(--tm);line-height:1.7;margin-bottom:16px;font-weight:600;}
+    .w-count{display:inline-flex;align-items:center;gap:6px;background:var(--orange-dim);border:2px solid var(--border);color:var(--orange2);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:18px;}
+    .feat-list{background:var(--s1);border:2px solid var(--border);border-radius:16px;padding:14px;margin-bottom:14px;text-align:left;}
+    .feat{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--s3);}
+    .feat:last-child{border-bottom:none;padding-bottom:0;}
+    .feat-icon{width:32px;height:32px;border-radius:10px;background:var(--orange-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+    .feat-text{font-size:13px;color:var(--tm);line-height:1.5;font-weight:600;}
+    .feat-text strong{color:var(--text);}
+    .trust-box{background:var(--orange-dim);border:2px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--tm);line-height:1.7;font-weight:600;text-align:center;}
+    .trust-box strong{color:var(--orange2);}
+
+    /* ── SPOTS ── */
+    .spots-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+    .spot-card{background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:12px;cursor:pointer;transition:all .15s;text-align:center;}
+    .spot-card:hover{border-color:var(--orange);background:var(--orange-dim);transform:translateY(-2px);box-shadow:var(--sh1);}
+    .spot-emoji{font-size:22px;margin-bottom:4px;}
+    .spot-name{font-size:12px;font-weight:800;color:var(--text);}
+    .spot-desc{font-size:10px;color:var(--td);font-weight:600;margin-top:2px;}
+
+    /* ── STARS ── */
+    .stars{display:flex;gap:4px;}
+    .star{font-size:22px;cursor:pointer;color:var(--s3);transition:color .1s;}
+    .star.on{color:var(--yellow);}
+
+    /* ── COMMENTS ── */
+    .comment{background:var(--s1);border-radius:12px;padding:10px 13px;margin-bottom:8px;border:1px solid var(--border);}
+    .c-text{font-size:13px;line-height:1.5;font-weight:600;}
+    .c-time{font-size:11px;color:var(--td);margin-top:4px;font-weight:600;}
+
+    /* ── SEEKER ── */
+    .sk-note{font-size:12px;color:var(--tm);background:var(--orange-dim);border:2px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:14px;line-height:1.7;font-weight:600;}
+
+    /* ── MILESTONE ── */
+    input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--s3);border-radius:2px;outline:none;margin:8px 0;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--orange);cursor:pointer;box-shadow:0 0 8px rgba(249,115,22,.4);}
     ::-webkit-scrollbar{width:4px;}
     ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-    @media(max-width:480px){.top-btn span{display:none;}}
+    ::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px;}
+    @media(max-width:480px){#live-pill{display:none;}.rb span{display:none;}}
   </style>
 </head>
 <body>
 
+<!-- Loading -->
 <div id="loading">
-  <div class="loading-logo">nagpur<span>.rent</span></div>
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Loading rental data…</div>
+  <div class="ld-brand">nagpur<span>.rent</span></div>
+  <div class="ld-tagline">Bhai, kitna deta hai tu? 🍊</div>
+  <div class="ld-spin"></div>
 </div>
 
 <div id="map"></div>
 
+<!-- Top bar -->
 <div id="topbar">
-  <div id="logo-pill">
-    <div id="logo-icon">🏠</div>
-    <div id="logo">nagpur<span>.rent</span></div>
-    <div id="pin-count-badge">0 pins</div>
+  <div id="logo-pill" onclick="openOverlay('welcome-overlay')">
+    <div id="logo-icon">🍊</div>
+    <div id="logo-text">nagpur<span>.rent</span></div>
+    <div id="pin-badge">0 pins</div>
   </div>
+
+  <div id="search-wrap">
+    <div id="search-icon">🔍</div>
+    <input id="search-input" type="text" placeholder="Kaunsa area dhundh raha hai?" autocomplete="off" oninput="onSearch(this.value)"/>
+    <div id="search-results"></div>
+  </div>
+
   <div class="spacer"></div>
-  <button class="top-btn" onclick="openFilter()">⚙ <span>Filters</span></button>
-  <button class="top-btn" onclick="openStats()">📊 <span>Stats</span></button>
-  <button class="top-btn" id="area-btn" onclick="toggleAreaDraw()">📐 <span>Area</span></button>
-</div>
 
-<div id="neighborhood-bar">
-  <div class="n-chip active" onclick="filterByArea(this,null,null)">All Areas</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1362,79.0709)">Dharampeth</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1543,79.0849)">Civil Lines</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1437,79.0918)">Sadar</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1224,79.1068)">Laxmi Nagar</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1317,79.0766)">Trimurti Nagar</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1250,79.0832)">Pratap Nagar</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1050,79.1050)">Manewada</div>
-  <div class="n-chip" onclick="filterByArea(this,21.0843,79.1011)">Besa</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1080,79.0745)">Wardha Road</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1180,79.0612)">Manish Nagar</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1380,79.0261)">Hingna Road</div>
-  <div class="n-chip" onclick="filterByArea(this,21.1458,79.0882)">Sitabuldi</div>
-</div>
-
-<div id="msg-banner"><div class="msg-banner-inner" id="msg-banner-text"></div></div>
-
-<div id="bottom-controls">
-  <button id="add-pin-btn" onclick="togglePlacingPin()">
-    <span id="add-icon">＋</span>
-    <span id="add-text">Add My Rent</span>
-  </button>
-  <div id="bottom-right-btns">
-    <div class="circle-btn" title="Looking for flat" onclick="openSeekerForm()">🔍</div>
-    <div class="circle-btn" title="My location" onclick="locateMe()">📍</div>
+  <div id="live-pill">
+    <div class="dot"></div>
+    <span id="live-n">0</span> pins live
   </div>
 </div>
 
-<div id="placing-hint">📍 Tap on the map to place your pin</div>
-<div id="area-draw-hint">📐 Click and drag to draw a rectangle</div>
+<!-- Neighborhood bar -->
+<div id="nb-bar">
+  <div class="nb on" onclick="nbGo(this,null,null)">🌍 Sabhi</div>
+  <div class="nb" onclick="nbGo(this,21.1362,79.0709)">🕌 Dharampeth</div>
+  <div class="nb" onclick="nbGo(this,21.1543,79.0849)">🏛 Civil Lines</div>
+  <div class="nb" onclick="nbGo(this,21.1437,79.0918)">🛍 Sadar</div>
+  <div class="nb" onclick="nbGo(this,21.1224,79.1068)">💡 Laxmi Nagar</div>
+  <div class="nb" onclick="nbGo(this,21.1317,79.0766)">🌳 Trimurti Nagar</div>
+  <div class="nb" onclick="nbGo(this,21.1250,79.0832)">🏘 Pratap Nagar</div>
+  <div class="nb" onclick="nbGo(this,21.1050,79.1050)">🏙 Manewada</div>
+  <div class="nb" onclick="nbGo(this,21.0843,79.1011)">🌿 Besa</div>
+  <div class="nb" onclick="nbGo(this,21.1080,79.0745)">🛣 Wardha Road</div>
+  <div class="nb" onclick="nbGo(this,21.1180,79.0612)">🌆 Manish Nagar</div>
+  <div class="nb" onclick="nbGo(this,21.1380,79.0261)">🏭 Hingna Road</div>
+  <div class="nb" onclick="nbGo(this,21.1458,79.0882)">🏪 Sitabuldi</div>
+  <div class="nb" onclick="nbGo(this,21.1383,79.0951)">🌊 Dhantoli</div>
+</div>
+
+<!-- Bottom controls -->
+<div id="bottom-bar">
+  <button id="add-btn" onclick="togglePlacing()">
+    <span id="add-icon">＋</span>
+    <span id="add-text">Mera Rent Add Karo</span>
+  </button>
+  <div id="right-btns">
+    <div class="rb" onclick="openOverlay('stats-overlay')">📊 <span>Stats</span></div>
+    <div class="rb" id="area-rb" onclick="toggleArea()">📐 <span>Area Stats</span></div>
+    <div class="rb" onclick="openOverlay('seeker-overlay')">🔍 <span>Flat Dhundh</span></div>
+    <div class="rb" onclick="openFP()">⚙ <span>Filter</span></div>
+  </div>
+</div>
+
+<div id="hint">📍 Yahan tap karo apna area choose karne ke liye</div>
 <div id="toast"></div>
 
-<!-- WELCOME -->
-<div class="modal-overlay modal-center" id="welcome-modal">
-  <div class="modal" style="position:relative;">
-    <div class="welcome-icon">🏠</div>
-    <div class="welcome-title">Welcome to nagpur.rent</div>
-    <div class="welcome-desc">A community map of real rental prices in Nagpur — by residents, for residents. No brokers. No ads.</div>
-    <div class="welcome-steps">
-      <div class="welcome-step"><div class="step-num">1</div><div>Tap <strong>Add My Rent</strong> and drop a pin on your area</div></div>
-      <div class="welcome-step"><div class="step-num">2</div><div>Fill in your rent, BHK, furnishing details</div></div>
-      <div class="welcome-step"><div class="step-num">3</div><div>See how your rent compares to the neighbourhood</div></div>
-      <div class="welcome-step"><div class="step-num">4</div><div>Share on WhatsApp and help others decide smarter</div></div>
+<!-- ══════════ WELCOME ══════════ -->
+<div class="overlay sheet-center" id="welcome-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="xbtn" onclick="closeOverlay('welcome-overlay')">✕</div>
+    <div class="w-top">
+      <div class="w-emoji">🍊</div>
+      <div class="w-title">nagpur.rent</div>
+      <div class="w-tagline">Bhai, broker ne bola ₹22K — par tere padosi ka ₹14K mein ho raha hai!<br>Ab sach pata chalega. Nagpurkar ke liye, Nagpurkar dwara.</div>
+      <div class="w-count" id="w-stat">🟠 0 Nagpurkars ne apna rent share kiya</div>
     </div>
-    <button class="btn-primary" onclick="closeWelcome()">Explore the Map →</button>
+
+    <div class="feat-list">
+      <div class="feat"><div class="feat-icon">📌</div><div class="feat-text"><strong>Apna rent pin karo</strong> — 30 second ka kaam. No login, no jugaad.</div></div>
+      <div class="feat"><div class="feat-icon">📊</div><div class="feat-text"><strong>Percentile dekho</strong> — pata chale tu overpay kar raha hai ya nahi.</div></div>
+      <div class="feat"><div class="feat-icon">📐</div><div class="feat-text"><strong>Area Stats</strong> — map pe box draw karo, BHK-wise average dekho.</div></div>
+      <div class="feat"><div class="feat-icon">🔍</div><div class="feat-text"><strong>Flat Dhundh</strong> — seeker pin daalo, landlord khud milega.</div></div>
+      <div class="feat"><div class="feat-icon">🍊</div><div class="feat-text"><strong>Nagpur ke famous spots</strong> — Sitabuldi, Ambazari, Zero Mile aur bhi dekho.</div></div>
+    </div>
+
+    <div class="trust-box">Har pin ek real insaan ka hai — scrape nahi, AI-generated nahi.<br><strong>Site AI se bani hai. Data nahi.</strong></div>
+
+    <button class="btn-wa" onclick="shareWelcome()">📲 Doston ko bhejo pehle</button>
+    <button class="btn-p" onclick="closeOverlay('welcome-overlay')">Chalo shuru karte hain 🍊</button>
   </div>
 </div>
 
-<!-- ADD PIN -->
-<div class="modal-overlay" id="pin-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Add Your Rent</div>
-    <div class="form-group">
-      <label class="form-label">Monthly Rent (₹)</label>
-      <input type="number" class="form-input" id="pin-rent" placeholder="e.g. 12000" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">BHK</label>
-      <div class="chip-group" id="bhk-chips">
-        <div class="chip" data-val="1" onclick="selectChip('bhk-chips',this)">1 BHK</div>
-        <div class="chip" data-val="2" onclick="selectChip('bhk-chips',this)">2 BHK</div>
-        <div class="chip" data-val="3" onclick="selectChip('bhk-chips',this)">3 BHK</div>
-        <div class="chip" data-val="4" onclick="selectChip('bhk-chips',this)">4 BHK</div>
-        <div class="chip" data-val="5" onclick="selectChip('bhk-chips',this)">5+ BHK</div>
+<!-- ══════════ ADD PIN ══════════ -->
+<div class="overlay" id="pin-overlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">🏠 Apna Rent Batao</div>
+    <div class="fg"><label class="fl">Monthly Rent (₹) — sach batao yaar!</label><input type="number" class="fi" id="pin-rent" placeholder="e.g. 12000"/></div>
+    <div class="fg"><label class="fl">BHK — kitne kamre hain?</label>
+      <div class="chips" id="bhk-c">
+        <div class="chip" data-v="1" onclick="pick('bhk-c',this)">1 BHK</div>
+        <div class="chip" data-v="2" onclick="pick('bhk-c',this)">2 BHK</div>
+        <div class="chip" data-v="3" onclick="pick('bhk-c',this)">3 BHK</div>
+        <div class="chip" data-v="4" onclick="pick('bhk-c',this)">4 BHK</div>
+        <div class="chip" data-v="5" onclick="pick('bhk-c',this)">5+ BHK</div>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Furnishing</label>
-      <div class="chip-group" id="furnishing-chips">
-        <div class="chip selected" data-val="unfurnished" onclick="selectChip('furnishing-chips',this)">Unfurnished</div>
-        <div class="chip" data-val="semi" onclick="selectChip('furnishing-chips',this)">Semi</div>
-        <div class="chip" data-val="fully" onclick="selectChip('furnishing-chips',this)">Fully Furnished</div>
+    <div class="fg"><label class="fl">Saaman — kya milta hai?</label>
+      <div class="chips" id="fur-c">
+        <div class="chip on" data-v="unfurnished" onclick="pick('fur-c',this)">Khaali Ghar</div>
+        <div class="chip" data-v="semi" onclick="pick('fur-c',this)">Thoda Saaman</div>
+        <div class="chip" data-v="fully" onclick="pick('fur-c',this)">Fully Bharela</div>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Occupant Type</label>
-      <div class="chip-group" id="occupant-chips">
-        <div class="chip selected" data-val="any" onclick="selectChip('occupant-chips',this)">Any</div>
-        <div class="chip" data-val="family" onclick="selectChip('occupant-chips',this)">Family</div>
-        <div class="chip" data-val="bachelor" onclick="selectChip('occupant-chips',this)">Bachelor</div>
-        <div class="chip" data-val="girls" onclick="selectChip('occupant-chips',this)">Girls Only</div>
+    <div class="fg"><label class="fl">Kaun reh sakta hai?</label>
+      <div class="chips" id="occ-c">
+        <div class="chip on" data-v="any" onclick="pick('occ-c',this)">Koi bhi</div>
+        <div class="chip" data-v="family" onclick="pick('occ-c',this)">Family</div>
+        <div class="chip" data-v="bachelor" onclick="pick('occ-c',this)">Bachelor</div>
+        <div class="chip" data-v="girls" onclick="pick('occ-c',this)">Sirf Ladkiyan</div>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Society Name</label><input type="text" class="form-input" id="pin-society" placeholder="Optional" /></div>
-      <div class="form-group"><label class="form-label">Area (sqft)</label><input type="number" class="form-input" id="pin-sqft" placeholder="Optional" /></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Society ka naam</label><input type="text" class="fi" id="p-soc" placeholder="Optional hai"/></div>
+      <div class="fg"><label class="fl">Area (sqft)</label><input type="number" class="fi" id="p-sqft" placeholder="Optional"/></div>
     </div>
-    <div class="toggle-row">
-      <div><div class="toggle-label">Gated Society</div><div class="toggle-desc">Has security / compound wall</div></div>
-      <div class="toggle" id="gated-toggle" onclick="this.classList.toggle('on')"></div>
-    </div>
-    <div class="toggle-row">
-      <div><div class="toggle-label">Maintenance Included</div><div class="toggle-desc">In the rent amount</div></div>
-      <div class="toggle" id="maint-toggle" onclick="this.classList.toggle('on')"></div>
-    </div>
-    <div class="form-group" style="margin-top:14px;">
-      <label class="form-label">Maintenance (₹/month if separate)</label>
-      <input type="number" class="form-input" id="pin-maintenance" placeholder="0 if none" />
-    </div>
-    <div class="toggle-row">
-      <div><div class="toggle-label">Vacant Soon</div><div class="toggle-desc">Flat will be available</div></div>
-      <div class="toggle" id="vacant-toggle" onclick="this.classList.toggle('on')"></div>
-    </div>
-    <div class="form-group" style="margin-top:14px;">
-      <label class="form-label">Notes (optional)</label>
-      <textarea class="form-textarea" id="pin-notes" placeholder="Parking, water issues, landlord info, area vibe…"></textarea>
-    </div>
-    <button class="btn-primary" id="save-pin-btn" onclick="savePin()">Save Pin</button>
-    <button class="btn-secondary" onclick="cancelPin()">Cancel</button>
+    <div class="tog-row"><div><div class="tog-lbl">🔒 Gated Society hai?</div><div class="tog-sub">Security, compound wall wala</div></div><div class="tog" id="t-gated" onclick="this.classList.toggle('on')"></div></div>
+    <div class="tog-row"><div><div class="tog-lbl">🧾 Maintenance andar hai?</div><div class="tog-sub">Rent mein hi shaamil</div></div><div class="tog" id="t-maint" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg" style="margin-top:12px;"><label class="fl">Maintenance (₹/mahina — alag ho toh)</label><input type="number" class="fi" id="p-maint" placeholder="0 agar nahi hai"/></div>
+    <div class="tog-row"><div><div class="tog-lbl">🏠 Ghar khaali hone wala hai?</div><div class="tog-sub">Jald available hoga</div></div><div class="tog" id="t-vacant" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg" style="margin-top:12px;"><label class="fl">Kuch aur batana hai? (Optional)</label><textarea class="fta" id="p-notes" placeholder="Parking hai? Paani ka kya haal hai? Landlord kaisa hai? Area ka vibe?"></textarea></div>
+    <button class="btn-p" id="save-btn" onclick="savePin()">Pin Daalo! 📌</button>
+    <button class="btn-s" onclick="cancelPin()">Rehne do</button>
   </div>
 </div>
 
-<!-- DETAIL -->
-<div class="modal-overlay" id="detail-modal">
-  <div class="modal" id="detail-content" style="position:relative;">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+<!-- ══════════ PIN DETAIL ══════════ -->
+<div class="overlay" id="detail-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="handle"></div>
+    <div class="xbtn" onclick="closeOverlay('detail-overlay')">✕</div>
     <div id="detail-body"></div>
   </div>
 </div>
 
-<!-- STATS -->
-<div class="modal-overlay" id="stats-modal">
-  <div class="modal" style="position:relative;">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('stats-modal')">✕</button>
-    <div class="modal-title">📊 Live Stats</div>
+<!-- ══════════ STATS ══════════ -->
+<div class="overlay" id="stats-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="handle"></div>
+    <div class="xbtn" onclick="closeOverlay('stats-overlay')">✕</div>
+    <div class="sheet-title">📊 Nagpur ka Rent Hisaab</div>
     <div id="stats-body"></div>
   </div>
 </div>
 
-<!-- AREA STATS -->
-<div class="modal-overlay" id="area-stats-modal">
-  <div class="modal" style="position:relative;">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('area-stats-modal')">✕</button>
-    <div class="modal-title">📐 Area Analysis</div>
-    <div id="area-stats-body"></div>
+<!-- ══════════ AREA STATS ══════════ -->
+<div class="overlay" id="area-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="handle"></div>
+    <div class="xbtn" onclick="closeOverlay('area-overlay')">✕</div>
+    <div class="sheet-title">📐 Iss Area ka Hisaab</div>
+    <div id="area-body"></div>
   </div>
 </div>
 
-<!-- FILTERS -->
-<div id="filter-panel">
-  <div class="filter-title">Filters <button class="modal-close" style="position:static;" onclick="closeFilter()">✕</button></div>
-  <div class="form-group">
-    <label class="form-label">BHK</label>
-    <div class="chip-group" id="filter-bhk">
-      <div class="chip selected" data-val="all" onclick="selectChip('filter-bhk',this)">All</div>
-      <div class="chip" data-val="1" onclick="selectChip('filter-bhk',this)">1</div>
-      <div class="chip" data-val="2" onclick="selectChip('filter-bhk',this)">2</div>
-      <div class="chip" data-val="3" onclick="selectChip('filter-bhk',this)">3</div>
-      <div class="chip" data-val="4" onclick="selectChip('filter-bhk',this)">4+</div>
+<!-- ══════════ FILTERS ══════════ -->
+<div id="fp">
+  <div class="fp-head">Filter Karo <div class="xbtn" style="position:static;" onclick="closeFP()">✕</div></div>
+  <div class="fg"><label class="fl">BHK</label>
+    <div class="chips" id="fb-c">
+      <div class="chip on" data-v="all" onclick="pick('fb-c',this)">Sab</div>
+      <div class="chip" data-v="1" onclick="pick('fb-c',this)">1</div>
+      <div class="chip" data-v="2" onclick="pick('fb-c',this)">2</div>
+      <div class="chip" data-v="3" onclick="pick('fb-c',this)">3</div>
+      <div class="chip" data-v="4" onclick="pick('fb-c',this)">4+</div>
     </div>
   </div>
-  <div class="form-group">
-    <label class="form-label">Min Rent: ₹<span id="lbl-min">0</span></label>
-    <input type="range" id="flt-min" min="0" max="50000" step="1000" value="0" oninput="document.getElementById('lbl-min').textContent=fmtNum(+this.value)" />
-  </div>
-  <div class="form-group">
-    <label class="form-label">Max Rent: ₹<span id="lbl-max">1,00,000+</span></label>
-    <input type="range" id="flt-max" min="5000" max="100000" step="1000" value="100000" oninput="document.getElementById('lbl-max').textContent=(+this.value>=100000?'1,00,000+':fmtNum(+this.value))" />
-  </div>
-  <div class="form-group">
-    <label class="form-label">Furnishing</label>
-    <div class="chip-group" id="filter-furnishing">
-      <div class="chip selected" data-val="all" onclick="selectChip('filter-furnishing',this)">All</div>
-      <div class="chip" data-val="unfurnished" onclick="selectChip('filter-furnishing',this)">Unfurnished</div>
-      <div class="chip" data-val="semi" onclick="selectChip('filter-furnishing',this)">Semi</div>
-      <div class="chip" data-val="fully" onclick="selectChip('filter-furnishing',this)">Fully</div>
+  <div class="fg"><label class="fl">Minimum Rent: ₹<span id="lbl-min">0</span></label><input type="range" id="flt-min" min="0" max="50000" step="1000" value="0" oninput="document.getElementById('lbl-min').textContent=fmtN(+this.value)"/></div>
+  <div class="fg"><label class="fl">Maximum Rent: ₹<span id="lbl-max">1,00,000+</span></label><input type="range" id="flt-max" min="5000" max="100000" step="1000" value="100000" oninput="document.getElementById('lbl-max').textContent=(+this.value>=100000?'1,00,000+':fmtN(+this.value))"/></div>
+  <div class="fg"><label class="fl">Saaman</label>
+    <div class="chips" id="ff-c">
+      <div class="chip on" data-v="all" onclick="pick('ff-c',this)">Sab</div>
+      <div class="chip" data-v="unfurnished" onclick="pick('ff-c',this)">Khaali</div>
+      <div class="chip" data-v="semi" onclick="pick('ff-c',this)">Semi</div>
+      <div class="chip" data-v="fully" onclick="pick('ff-c',this)">Fully</div>
     </div>
   </div>
-  <div class="form-group">
-    <label class="form-label">Gated Status</label>
-    <div class="chip-group" id="filter-gated">
-      <div class="chip selected" data-val="all" onclick="selectChip('filter-gated',this)">All</div>
-      <div class="chip" data-val="gated" onclick="selectChip('filter-gated',this)">Gated</div>
-      <div class="chip" data-val="non-gated" onclick="selectChip('filter-gated',this)">Non-Gated</div>
+  <div class="fg"><label class="fl">Gated?</label>
+    <div class="chips" id="fg-c">
+      <div class="chip on" data-v="all" onclick="pick('fg-c',this)">Sab</div>
+      <div class="chip" data-v="gated" onclick="pick('fg-c',this)">Gated</div>
+      <div class="chip" data-v="non-gated" onclick="pick('fg-c',this)">Non-Gated</div>
     </div>
   </div>
-  <div class="form-group">
-    <label class="form-label">Availability</label>
-    <div class="chip-group" id="filter-avail">
-      <div class="chip selected" data-val="all" onclick="selectChip('filter-avail',this)">All</div>
-      <div class="chip" data-val="vacant" onclick="selectChip('filter-avail',this)">Vacant Soon</div>
+  <div class="fg"><label class="fl">Available?</label>
+    <div class="chips" id="fa-c">
+      <div class="chip on" data-v="all" onclick="pick('fa-c',this)">Sab</div>
+      <div class="chip" data-v="vacant" onclick="pick('fa-c',this)">Jald Khaali</div>
     </div>
   </div>
-  <button class="btn-primary" onclick="applyFilters()">Apply Filters</button>
-  <button class="btn-secondary" onclick="resetFilters()">Reset All</button>
+  <button class="btn-p" onclick="applyFlt()">Lagao Filter</button>
+  <button class="btn-s" onclick="resetFlt()">Reset Karo</button>
 </div>
 
-<!-- SEEKER -->
-<div class="modal-overlay" id="seeker-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🔍 Looking for a Flat?</div>
-    <div class="seeker-note">Drop a seeker pin (green) showing where you want to live. Landlords and residents can see your budget and preferences.</div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Min Budget (₹)</label><input type="number" class="form-input" id="seeker-min" placeholder="5000" /></div>
-      <div class="form-group"><label class="form-label">Max Budget (₹)</label><input type="number" class="form-input" id="seeker-max" placeholder="20000" /></div>
+<!-- ══════════ SEEKER ══════════ -->
+<div class="overlay" id="seeker-overlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">🔍 Flat Dhundh Raha Hai?</div>
+    <div class="sk-note">Map pe ek green pin daalo jahan rehna chahte ho. Landlord aur residents tujhe dhundh lenge — seedha contact!</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Min Budget (₹)</label><input type="number" class="fi" id="sk-min" placeholder="5000"/></div>
+      <div class="fg"><label class="fl">Max Budget (₹)</label><input type="number" class="fi" id="sk-max" placeholder="20000"/></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">BHK Preference</label>
-      <div class="chip-group" id="seeker-bhk">
-        <div class="chip" data-val="1" onclick="selectChip('seeker-bhk',this)">1 BHK</div>
-        <div class="chip" data-val="2" onclick="selectChip('seeker-bhk',this)">2 BHK</div>
-        <div class="chip" data-val="3" onclick="selectChip('seeker-bhk',this)">3 BHK</div>
-      </div>
+    <div class="fg"><label class="fl">Kitne BHK chahiye?</label>
+      <div class="chips" id="sk-b"><div class="chip" data-v="1" onclick="pick('sk-b',this)">1 BHK</div><div class="chip" data-v="2" onclick="pick('sk-b',this)">2 BHK</div><div class="chip" data-v="3" onclick="pick('sk-b',this)">3 BHK</div></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Food Preference</label>
-      <div class="chip-group" id="seeker-food">
-        <div class="chip selected" data-val="any" onclick="selectChip('seeker-food',this)">Any</div>
-        <div class="chip" data-val="veg" onclick="selectChip('seeker-food',this)">Veg Only</div>
-        <div class="chip" data-val="non-veg" onclick="selectChip('seeker-food',this)">Non-Veg OK</div>
-      </div>
+    <div class="fg"><label class="fl">Khana</label>
+      <div class="chips" id="sk-f"><div class="chip on" data-v="any" onclick="pick('sk-f',this)">Kuch bhi</div><div class="chip" data-v="veg" onclick="pick('sk-f',this)">Sirf Veg</div><div class="chip" data-v="non-veg" onclick="pick('sk-f',this)">Non-Veg OK</div></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Gender</label>
-      <div class="chip-group" id="seeker-gender">
-        <div class="chip selected" data-val="any" onclick="selectChip('seeker-gender',this)">Any</div>
-        <div class="chip" data-val="male" onclick="selectChip('seeker-gender',this)">Male</div>
-        <div class="chip" data-val="female" onclick="selectChip('seeker-gender',this)">Female</div>
-      </div>
+    <div class="fg"><label class="fl">Gender</label>
+      <div class="chips" id="sk-g"><div class="chip on" data-v="any" onclick="pick('sk-g',this)">Koi bhi</div><div class="chip" data-v="male" onclick="pick('sk-g',this)">Male</div><div class="chip" data-v="female" onclick="pick('sk-g',this)">Female</div></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Contact Email (optional)</label>
-      <input type="email" class="form-input" id="seeker-email" placeholder="for landlords to reach you" />
-    </div>
-    <button class="btn-primary" onclick="saveSeekerPin()">Drop Seeker Pin</button>
-    <button class="btn-secondary" onclick="closeModal('seeker-modal')">Cancel</button>
+    <div class="fg"><label class="fl">Email (optional — landlord contact ke liye)</label><input type="email" class="fi" id="sk-email" placeholder="tera@email.com"/></div>
+    <button class="btn-p" onclick="saveSeeker()">Green Pin Daalo! 🔍</button>
+    <button class="btn-s" onclick="closeOverlay('seeker-overlay')">Rehne do</button>
   </div>
 </div>
 
-<!-- MILESTONE -->
-<div class="modal-overlay modal-center" id="milestone-modal">
-  <div class="modal" style="position:relative;text-align:center;">
-    <button class="modal-close" onclick="closeModal('milestone-modal')">✕</button>
+<!-- ══════════ SPOTS ══════════ -->
+<div class="overlay sheet-center" id="spots-overlay">
+  <div class="sheet" style="position:relative;">
+    <div class="xbtn" onclick="closeOverlay('spots-overlay')">✕</div>
+    <div class="sheet-title">🍊 Nagpur ke Famous Spots</div>
+    <div style="font-size:13px;color:var(--tm);font-weight:600;margin-bottom:14px;">Yahan click karo aur map pe jump karo!</div>
+    <div class="spots-grid" id="spots-grid"></div>
+    <div style="font-size:12px;color:var(--td);text-align:center;font-weight:600;margin-top:8px;">🍊 Orange City — India ka center!</div>
+  </div>
+</div>
+
+<!-- ══════════ MILESTONE ══════════ -->
+<div class="overlay sheet-center" id="ms-overlay">
+  <div class="sheet" style="position:relative;text-align:center;">
+    <div class="xbtn" onclick="closeOverlay('ms-overlay')">✕</div>
     <div style="font-size:52px;margin-bottom:10px;">🎉</div>
-    <div class="modal-title" id="milestone-title">Community Milestone!</div>
-    <div style="font-size:14px;color:var(--text-m);margin-bottom:20px;" id="milestone-desc"></div>
-    <button class="btn-primary" onclick="shareMilestone()">Share on WhatsApp 📲</button>
-    <button class="btn-secondary" onclick="closeModal('milestone-modal')">Maybe Later</button>
+    <div class="sheet-title" id="ms-title"></div>
+    <div style="font-size:14px;color:var(--tm);margin-bottom:16px;font-weight:600;" id="ms-desc"></div>
+    <button class="btn-wa" onclick="shareMS()">📲 WhatsApp pe bhejo</button>
+    <button class="btn-s" onclick="closeOverlay('ms-overlay')">Baad mein</button>
   </div>
 </div>
 
@@ -444,16 +479,43 @@
 const SUPABASE_URL='https://artqzjmizytoxxaqzadw.supabase.co';
 const SUPABASE_KEY='sb_publishable_p-edGtM9F4SBjiObS6AxKA_bciZUdIF';
 const NAGPUR={lat:21.1458,lng:79.0882};
-const GEOFENCE_KM=50;
+const GEO_KM=50;
 const MILESTONES=[50,100,200,500,1000];
+
+const SPOTS=[
+  {emoji:'🔱',name:'Zero Mile',desc:'India ka center!',lat:21.1503,lng:79.0826},
+  {emoji:'🍊',name:'Sitabuldi Fort',desc:'Aamchi history',lat:21.1521,lng:79.0812},
+  {emoji:'🦁',name:'Ambazari Lake',desc:'Sundar jheel',lat:21.1493,lng:79.0527},
+  {emoji:'🛍',name:'Sadar Bazaar',desc:'Shopping paradise',lat:21.1437,lng:79.0918},
+  {emoji:'🏛',name:'Raman Science Centre',desc:'Brainy spot',lat:21.1532,lng:79.0856},
+  {emoji:'🌳',name:'Futala Lake',desc:'Evening hangout',lat:21.1607,lng:79.0604},
+  {emoji:'🕌',name:'Shukrawari Talav',desc:'Old city vibes',lat:21.1502,lng:79.0897},
+  {emoji:'✈️',name:'Dr Ambedkar Airport',desc:'Uda chalein!',lat:21.0922,lng:79.0472},
+  {emoji:'🏪',name:'Dharampeth Market',desc:'Sabse sasta',lat:21.1362,lng:79.0709},
+  {emoji:'🎓',name:'VNIT Campus',desc:'Engineer ki factory',lat:21.1349,lng:79.0514},
+];
+
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
-let map,allPins=[],markers=[],seekerMarkers=[];
-let placingPin=false,newLatLng=null,pendingMarker=null;
-let activeFilters={bhk:'all',rentMin:0,rentMax:100000,furnishing:'all',gated:'all',avail:'all'};
-let areaDrawMode=false,areaRect=null,areaMouseDown=false,areaStart=null;
-let currentPin=null,userIP='';
-let pendingRating={locality:0,build:0};
+let map,allPins=[],markers=[],seekerMs=[];
+let placing=false,newLL=null,pendM=null;
+let filters={bhk:'all',rMin:0,rMax:100000,fur:'all',gated:'all',avail:'all'};
+let areaDraw=false,areaRect=null,areaMD=false,areaStart=null;
+let curPin=null,userIP='';
+let pendRating={loc:0,bld:0};
+
+// Build spots grid
+document.getElementById('spots-grid').innerHTML=SPOTS.map((s,i)=>
+  `<div class="spot-card" onclick="jumpSpot(${s.lat},${s.lng})">
+    <div class="spot-emoji">${s.emoji}</div>
+    <div class="spot-name">${s.name}</div>
+    <div class="spot-desc">${s.desc}</div>
+  </div>`).join('');
+
+function jumpSpot(lat,lng){
+  map.panTo({lat,lng});map.setZoom(15);
+  closeOverlay('spots-overlay');
+}
 
 function initMap(){
   map=new google.maps.Map(document.getElementById('map'),{
@@ -462,351 +524,476 @@ function initMap(){
       {featureType:'poi',stylers:[{visibility:'off'}]},
       {featureType:'transit',stylers:[{visibility:'off'}]},
       {featureType:'road',elementType:'geometry',stylers:[{color:'#ffffff'}]},
-      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#f8f8f8'}]},
-      {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#9ca3af'}]},
-      {featureType:'landscape',elementType:'geometry',stylers:[{color:'#f3f4f6'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#fff3e8'}]},
+      {featureType:'road.highway',elementType:'geometry.stroke',stylers:[{color:'#fcd9b0'}]},
+      {featureType:'landscape',elementType:'geometry',stylers:[{color:'#faf8f5'}]},
       {featureType:'water',elementType:'geometry',stylers:[{color:'#bfdbfe'}]},
-      {featureType:'administrative',elementType:'geometry.stroke',stylers:[{color:'#d1d5db'}]},
-      {elementType:'labels.text.fill',stylers:[{color:'#374151'}]},
+      {featureType:'water',elementType:'labels.text.fill',stylers:[{color:'#93c5fd'}]},
+      {featureType:'administrative',elementType:'geometry.stroke',stylers:[{color:'#e5d5c5'}]},
+      {elementType:'labels.text.fill',stylers:[{color:'#5c3d1e'}]},
       {elementType:'labels.text.stroke',stylers:[{color:'#ffffff'}]},
+      {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#b8895a'}]},
     ]
   });
   map.addListener('click',onMapClick);
-  map.addListener('mousedown',onAreaMouseDown);
-  map.addListener('mousemove',onAreaMouseMove);
-  map.addListener('mouseup',onAreaMouseUp);
-  getUserIP().then(()=>{loadPins();loadMsgBoard();});
+  map.addListener('mousedown',onMD);
+  map.addListener('mousemove',onMM);
+  map.addListener('mouseup',onMU);
+  getIP().then(()=>{loadPins();});
 }
 
-async function getUserIP(){try{const r=await fetch('https://api.ipify.org?format=json');const d=await r.json();userIP=d.ip;}catch{userIP='unknown';}}
+async function getIP(){try{const r=await fetch('https://api.ipify.org?format=json');const d=await r.json();userIP=d.ip;}catch{userIP='unknown';}}
 
 async function loadPins(){
   const{data,error}=await sb.from('pins').select('*').order('created_at',{ascending:false});
-  if(error){console.error(error);hideLoading();return;}
-  allPins=data||[];renderMarkers(allPins);updateCount(allPins.length);checkMilestones(allPins.length);hideLoading();
-  const{data:seekers}=await sb.from('seekers').select('*');
-  renderSeekers(seekers||[]);
+  if(error){console.error(error);hideLoad();return;}
+  allPins=data||[];
+  renderPins(allPins);
+  setCount(allPins.length);
+  checkMS(allPins.length);
+  hideLoad();
+  const{data:sk}=await sb.from('seekers').select('*');
+  renderSeekers(sk||[]);
 }
 
-function renderMarkers(pins){
+function pinIcon(pin){
+  const gated=pin.gated;
+  const bg=gated?'#2563eb':'#f97316';
+  const bhkTxt=pin.bhk+'BHK';
+  const rentTxt='₹'+shortFmt(pin.rent);
+  return{
+    url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="86" height="36">
+        <rect x="0" y="0" width="86" height="36" rx="18" fill="${bg}"/>
+        <rect x="1" y="1" width="84" height="34" rx="17" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+        <text x="43" y="13" font-family="Nunito,sans-serif" font-size="10" font-weight="800" fill="white" text-anchor="middle" dominant-baseline="middle">${bhkTxt}</text>
+        <text x="43" y="25" font-family="DM Mono,monospace" font-size="11" font-weight="500" fill="white" text-anchor="middle" dominant-baseline="middle">${rentTxt}</text>
+      </svg>`),
+    scaledSize:new google.maps.Size(86,36),
+    anchor:new google.maps.Point(43,18),
+  };
+}
+
+function renderPins(pins){
   markers.forEach(m=>m.setMap(null));markers=[];
   pins.forEach(pin=>{
-    const color=pin.gated?'#2563eb':'#d97706';
-    const dot=new google.maps.Marker({position:{lat:pin.lat,lng:pin.lng},map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:11,fillColor:color,fillOpacity:1,strokeColor:'#fff',strokeWeight:2},zIndex:2});
-    const lbl=new google.maps.Marker({position:{lat:pin.lat,lng:pin.lng},map,label:{text:'₹'+shortFmt(pin.rent),color:'#fff',fontSize:'10px',fontFamily:'DM Mono,monospace',fontWeight:'500'},icon:{path:google.maps.SymbolPath.CIRCLE,scale:0},zIndex:3});
-    dot.addListener('click',()=>openDetail(pin));lbl.addListener('click',()=>openDetail(pin));
-    markers.push(dot,lbl);
+    const m=new google.maps.Marker({position:{lat:pin.lat,lng:pin.lng},map,icon:pinIcon(pin),zIndex:2});
+    m.addListener('click',()=>openDetail(pin));
+    markers.push(m);
   });
 }
 
 function renderSeekers(list){
-  seekerMarkers.forEach(m=>m.setMap(null));seekerMarkers=[];
-  list.forEach(s=>{const m=new google.maps.Marker({position:{lat:s.lat,lng:s.lng},map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:9,fillColor:'#059669',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},zIndex:1});seekerMarkers.push(m);});
+  seekerMs.forEach(m=>m.setMap(null));seekerMs=[];
+  list.forEach(s=>{
+    const m=new google.maps.Marker({
+      position:{lat:s.lat,lng:s.lng},map,
+      icon:{url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="28"><rect x="0" y="0" width="72" height="28" rx="14" fill="#16a34a"/><text x="36" y="14" font-family="Nunito,sans-serif" font-size="10" font-weight="800" fill="white" text-anchor="middle" dominant-baseline="middle">🔍 Seeker</text></svg>`),
+      scaledSize:new google.maps.Size(72,28),anchor:new google.maps.Point(36,14)},zIndex:1,
+    });
+    seekerMs.push(m);
+  });
 }
 
 function onMapClick(e){
-  if(!placingPin||areaDrawMode)return;
+  if(!placing||areaDraw)return;
   const lat=e.latLng.lat(),lng=e.latLng.lng();
-  if(distKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEOFENCE_KM){showToast('Please pin within Nagpur');return;}
-  newLatLng={lat,lng};
-  if(pendingMarker)pendingMarker.setMap(null);
-  pendingMarker=new google.maps.Marker({position:newLatLng,map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:12,fillColor:'#2563eb',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},animation:google.maps.Animation.BOUNCE});
-  setTimeout(()=>{if(pendingMarker)pendingMarker.setAnimation(null);},700);
-  document.getElementById('placing-hint').style.display='none';
-  openModal('pin-modal');stopPlacing();
+  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Bhai, Nagpur ke andar pin daalo 😄');return;}
+  newLL={lat,lng};
+  if(pendM)pendM.setMap(null);
+  pendM=new google.maps.Marker({
+    position:newLL,map,
+    icon:{url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="14" cy="14" r="12" fill="#f97316" stroke="white" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="white"/></svg>`),
+    scaledSize:new google.maps.Size(28,28),anchor:new google.maps.Point(14,14)},
+    animation:google.maps.Animation.BOUNCE,zIndex:10,
+  });
+  setTimeout(()=>{if(pendM)pendM.setAnimation(null);},700);
+  document.getElementById('hint').style.display='none';
+  openOverlay('pin-overlay');stopPlacing();
 }
 
-function togglePlacingPin(){
-  if(placingPin){stopPlacing();return;}
-  placingPin=true;
-  document.getElementById('add-pin-btn').classList.add('placing');
+function togglePlacing(){
+  if(placing){stopPlacing();return;}
+  placing=true;
+  document.getElementById('add-btn').classList.add('placing');
   document.getElementById('add-text').textContent='Cancel';
   document.getElementById('add-icon').textContent='✕';
-  document.getElementById('placing-hint').style.display='block';
+  document.getElementById('hint').style.display='block';
 }
-
 function stopPlacing(){
-  placingPin=false;
-  document.getElementById('add-pin-btn').classList.remove('placing');
-  document.getElementById('add-text').textContent='Add My Rent';
+  placing=false;
+  document.getElementById('add-btn').classList.remove('placing');
+  document.getElementById('add-text').textContent='Mera Rent Add Karo';
   document.getElementById('add-icon').textContent='＋';
-  document.getElementById('placing-hint').style.display='none';
+  document.getElementById('hint').style.display='none';
 }
-
-function cancelPin(){closeModal('pin-modal');stopPlacing();resetForm();}
+function cancelPin(){closeOverlay('pin-overlay');stopPlacing();resetForm();}
 
 async function savePin(){
   const rent=parseInt(document.getElementById('pin-rent').value);
-  const bhk=parseInt(getChip('bhk-chips'));
-  if(!rent||rent<500){showToast('Enter a valid rent');return;}
-  if(!bhk){showToast('Select BHK type');return;}
-  if(!newLatLng){showToast('No location — tap Add My Rent first');return;}
-  const btn=document.getElementById('save-pin-btn');
-  btn.disabled=true;btn.textContent='Saving…';
+  const bhk=parseInt(cv('bhk-c'));
+  if(!rent||rent<500){toast('Sahi rent daalo yaar!');return;}
+  if(!bhk){toast('BHK toh batao bhai');return;}
+  if(!newLL){toast('Pehle location choose karo');return;}
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.textContent='Daal raha hoon…';
   const{data,error}=await sb.from('pins').insert([{
-    lat:newLatLng.lat,lng:newLatLng.lng,rent,bhk,
-    furnishing:getChip('furnishing-chips')||'unfurnished',
-    occupant_type:getChip('occupant-chips')||'any',
-    society_name:document.getElementById('pin-society').value||null,
-    sqft:parseInt(document.getElementById('pin-sqft').value)||null,
-    gated:document.getElementById('gated-toggle').classList.contains('on'),
-    maintenance_included:document.getElementById('maint-toggle').classList.contains('on'),
-    maintenance:parseInt(document.getElementById('pin-maintenance').value)||0,
-    is_vacant_soon:document.getElementById('vacant-toggle').classList.contains('on'),
-    notes:document.getElementById('pin-notes').value||null,
+    lat:newLL.lat,lng:newLL.lng,rent,bhk,
+    furnishing:cv('fur-c')||'unfurnished',
+    occupant_type:cv('occ-c')||'any',
+    society_name:document.getElementById('p-soc').value||null,
+    sqft:parseInt(document.getElementById('p-sqft').value)||null,
+    gated:document.getElementById('t-gated').classList.contains('on'),
+    maintenance_included:document.getElementById('t-maint').classList.contains('on'),
+    maintenance:parseInt(document.getElementById('p-maint').value)||0,
+    is_vacant_soon:document.getElementById('t-vacant').classList.contains('on'),
+    notes:document.getElementById('p-notes').value||null,
     ip_address:userIP,
   }]).select();
-  btn.disabled=false;btn.textContent='Save Pin';
-  if(error){showToast('Error saving — check Supabase');console.error(error);return;}
-  allPins.unshift(data[0]);renderMarkers(filterLogic(allPins));updateCount(allPins.length);
-  closeModal('pin-modal');resetForm();showToast('Pin added! 🎉');checkMilestones(allPins.length);openDetail(data[0]);
+  btn.disabled=false;btn.textContent='Pin Daalo! 📌';
+  if(error){toast('Kuch gadbad ho gaya, dobara try karo');console.error(error);return;}
+  allPins.unshift(data[0]);
+  renderPins(doFlt(allPins));
+  setCount(allPins.length);
+  closeOverlay('pin-overlay');resetForm();
+  toast('Pin dal diya! Shukriya yaar 🙏');
+  checkMS(allPins.length);
+  openDetail(data[0]);
 }
 
+const SLANGS_CHEAPER=['Arre waah! Tu toh saste mein hai!','Bhai jugaad maar diya tune!','Ekdum perfect deal hai teri!'];
+const SLANGS_EXPENSIVE=['Bhai, thoda zyada de raha hai tu!','Broker ne loot liya kya?','Neighbour se baat karna chahiye tha pehle!'];
+
 async function openDetail(pin){
-  currentPin=pin;
+  curPin=pin;pendRating={loc:0,bld:0};
   const body=document.getElementById('detail-body');
-  body.innerHTML='<div style="color:var(--text-m);text-align:center;padding:20px;">Loading…</div>';
-  openModal('detail-modal');
-  const sameBhk=allPins.filter(p=>p.bhk===pin.bhk);
-  const cheaper=sameBhk.filter(p=>p.rent<pin.rent).length;
-  const ct=sameBhk.length>1?Math.round(((sameBhk.length-1-cheaper)/(sameBhk.length-1))*100):50;
-  const{data:ratings}=await sb.from('ratings').select('*').eq('pin_id',pin.id);
-  const{data:comments}=await sb.from('comments').select('*').eq('pin_id',pin.id).order('created_at',{ascending:false});
+  body.innerHTML='<div style="color:var(--td);text-align:center;padding:20px;font-weight:700;">Loading…</div>';
+  openOverlay('detail-overlay');
+  const same=allPins.filter(p=>p.bhk===pin.bhk);
+  const cheaper=same.filter(p=>p.rent<pin.rent).length;
+  const ct=same.length>1?Math.round(((same.length-1-cheaper)/(same.length-1))*100):50;
+  const isGood=ct>=60;
+  const slang=isGood?SLANGS_CHEAPER[Math.floor(Math.random()*SLANGS_CHEAPER.length)]:SLANGS_EXPENSIVE[Math.floor(Math.random()*SLANGS_EXPENSIVE.length)];
+  const[{data:ratings},{data:comments}]=await Promise.all([
+    sb.from('ratings').select('*').eq('pin_id',pin.id),
+    sb.from('comments').select('*').eq('pin_id',pin.id).order('created_at',{ascending:false}),
+  ]);
   const avgLoc=ratings?.length?(ratings.reduce((s,r)=>s+(r.locality_rating||0),0)/ratings.length).toFixed(1):null;
   const avgBld=ratings?.length?(ratings.reduce((s,r)=>s+(r.build_rating||0),0)/ratings.length).toFixed(1):null;
   const isOwner=pin.ip_address===userIP;
+  const shareMsg=`🏠 Nagpur mein mera rent:\n₹${fmt(pin.rent)}/mahina · ${pin.bhk}BHK${pin.society_name?' · '+pin.society_name:''}\n${pin.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna rent check karo → nagpur.rent`;
+
   body.innerHTML=`
-    <div class="pin-rent">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--text-m)">/mo</span></div>
-    <div class="pin-sub">${pin.bhk}BHK · ₹${fmt(Math.round(pin.rent/pin.bhk))}/BHK${pin.sqft?' · '+pin.sqft+' sqft':''}</div>
-    <div class="badge-row">
-      <span class="badge ${pin.gated?'badge-blue':'badge-orange'}">${pin.gated?'🔒 Gated':'🏘 Non-Gated'}</span>
-      <span class="badge badge-purple">${cap(pin.furnishing||'unfurnished')}</span>
-      ${pin.maintenance_included?'<span class="badge badge-green">Maint Incl.</span>':''}
-      ${pin.is_vacant_soon?'<span class="badge badge-green">🏠 Vacant Soon</span>':''}
-      <span class="badge badge-purple">${cap(pin.occupant_type||'any')}</span>
+    <div class="rent-big">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--td)">/mahina</span></div>
+    <div class="rent-sub">${pin.bhk}BHK · ₹${fmt(Math.round(pin.rent/pin.bhk))}/BHK${pin.sqft?' · '+pin.sqft+' sqft':''}</div>
+    <div class="badges">
+      <span class="badge ${pin.gated?'b-blue':'b-orange'}">${pin.gated?'🔒 Gated':'🏘 Non-Gated'}</span>
+      <span class="badge b-purple">${furLabel(pin.furnishing)}</span>
+      ${pin.maintenance_included?'<span class="badge b-green">Maint Shaamil</span>':''}
+      ${pin.is_vacant_soon?'<span class="badge b-green">🏠 Jald Khaali</span>':''}
+      <span class="badge b-purple">${occLabel(pin.occupant_type)}</span>
     </div>
-    ${pin.society_name?`<div style="font-size:13px;color:var(--text-m);margin-bottom:4px;">📍 ${esc(pin.society_name)}</div>`:''}
-    <div style="font-size:13px;color:var(--text-m);margin:10px 0 4px;">Cheaper than <strong style="color:var(--green)">${ct}%</strong> of ${pin.bhk}BHKs in Nagpur</div>
-    <div class="percentile-bar"><div class="percentile-fill" style="width:${ct}%"></div></div>
-    <div class="range-labels"><span>Cheapest</span><span>Most Expensive</span></div>
-    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="margin-top:8px;font-size:13px;color:var(--text-m);">+ ₹${fmt(pin.maintenance)}/mo maintenance</div>`:''}
-    ${pin.notes?`<div style="margin-top:10px;font-size:13px;color:var(--text-m);background:var(--surface2);border-radius:10px;padding:10px;line-height:1.5;">${esc(pin.notes)}</div>`:''}
-    <hr class="sd"/>
-    <div style="margin-bottom:12px;">
-      <div class="form-label" style="margin-bottom:8px;">Rate This Listing</div>
+    ${pin.society_name?`<div style="font-size:13px;color:var(--td);font-weight:700;margin-bottom:4px;">📍 ${esc(pin.society_name)}</div>`:''}
+    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">+ ₹${fmt(pin.maintenance)}/mahina maintenance</div>`:''}
+    ${avgLoc?`<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:4px;">⭐ Locality ${avgLoc} · Build ${avgBld} (${ratings.length} ratings)</div>`:''}
+
+    <div style="background:${isGood?'rgba(22,163,74,.08)':'rgba(249,115,22,.08)'};border:2px solid ${isGood?'rgba(22,163,74,.2)':'var(--border)'};border-radius:14px;padding:12px;margin:14px 0;">
+      <div style="font-size:13px;font-weight:800;color:${isGood?'var(--green)':'var(--orange2)'};">${slang}</div>
+      <div style="font-size:13px;color:var(--tm);font-weight:600;margin-top:4px;">${pin.bhk}BHK walon mein <strong style="color:${isGood?'var(--green)':'var(--orange2)'};">${ct}%</strong> se sasta hai tera rent</div>
+      <div class="pct-bar" style="margin-top:10px;"><div class="pct-fill" style="width:${ct}%"></div></div>
+      <div class="pct-labels"><span>Sabse Sasta</span><span>Sabse Mahanga</span></div>
+    </div>
+
+    ${pin.notes?`<div style="font-size:13px;color:var(--tm);background:var(--s1);border:2px solid var(--border);border-radius:12px;padding:12px;line-height:1.6;font-weight:600;margin-bottom:12px;">${esc(pin.notes)}</div>`:''}
+
+    <div class="share-card">
+      <div class="sc-title">📲 WhatsApp pe share karo</div>
+      <div class="sc-text">${shareMsg.replace(/\n/g,'<br>')}</div>
+      <button class="btn-wa" onclick="doShare()">📲 WhatsApp pe bhejo</button>
+    </div>
+
+    <hr class="divider"/>
+
+    <div style="margin-bottom:14px;">
+      <div class="fl" style="margin-bottom:8px;">Is jagah ko rate karo</div>
       <div style="display:flex;gap:20px;flex-wrap:wrap;">
-        <div><div style="font-size:12px;color:var(--text-m);margin-bottom:4px;">Locality</div><div class="star-group" id="loc-stars">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('locality',${i})">★</div>`).join('')}</div></div>
-        <div><div style="font-size:12px;color:var(--text-m);margin-bottom:4px;">Build Quality</div><div class="star-group" id="bld-stars">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('build',${i})">★</div>`).join('')}</div></div>
+        <div><div style="font-size:12px;color:var(--td);font-weight:700;margin-bottom:4px;">Area kaisa hai?</div><div class="stars" id="ls">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('loc',${i})">★</div>`).join('')}</div></div>
+        <div><div style="font-size:12px;color:var(--td);font-weight:700;margin-bottom:4px;">Building kaisi hai?</div><div class="stars" id="bs">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('bld',${i})">★</div>`).join('')}</div></div>
       </div>
-      ${avgLoc?`<div style="margin-top:6px;font-size:12px;color:var(--text-m);">Locality: ${avgLoc}★ · Build: ${avgBld}★ · ${ratings.length} rating${ratings.length>1?'s':''}</div>`:''}
-      <button class="btn-secondary" style="margin-top:8px;width:auto;padding:8px 16px;" onclick="submitRating()">Submit Rating</button>
+      <button class="btn-s" style="margin-top:8px;width:auto;padding:8px 16px;" onclick="submitRating()">Rating Submit Karo</button>
     </div>
-    <hr class="sd"/>
+
+    <hr class="divider"/>
+
     <div>
-      <div class="form-label" style="margin-bottom:8px;">Comments (${comments?.length||0})</div>
-      ${comments?.length?comments.slice(0,5).map(c=>`<div class="comment-item"><div class="comment-text">${esc(c.content)}</div><div class="comment-time">${timeAgo(c.created_at)}</div></div>`).join(''):'<div style="font-size:13px;color:var(--text-d);margin-bottom:8px;">No comments yet.</div>'}
-      <div style="display:flex;gap:8px;margin-top:6px;">
-        <input type="text" class="form-input" id="comment-input" placeholder="Add a comment…" style="flex:1;" />
-        <button class="top-btn" onclick="addComment()">Post</button>
+      <div class="fl" style="margin-bottom:8px;">Comments (${comments?.length||0})</div>
+      ${comments?.length?comments.slice(0,5).map(c=>`<div class="comment"><div class="c-text">${esc(c.content)}</div><div class="c-time">${ago(c.created_at)}</div></div>`).join(''):'<div style="font-size:13px;color:var(--td);font-weight:600;margin-bottom:8px;">Pehle comment karo yaar!</div>'}
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <input type="text" class="fi" id="c-in" placeholder="Kuch bolna hai?" style="flex:1;"/>
+        <button class="rb" onclick="addComment()">Post</button>
       </div>
     </div>
-    <hr class="sd"/>
+
+    <hr class="divider"/>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="top-btn" onclick="sharePin()">📲 WhatsApp</button>
-      <button class="top-btn" onclick="reportPin()">🚩 Report</button>
-      ${isOwner?`<button class="top-btn" style="color:var(--red);" onclick="deletePin('${pin.id}')">🗑 Delete</button>`:''}
+      <button class="rb" onclick="reportPin()">🚩 Report</button>
+      ${isOwner?`<button class="rb" style="color:var(--red);border-color:var(--red);" onclick="deletePin('${pin.id}')">🗑 Delete</button>`:''}
     </div>`;
 }
 
-function rateStar(type,val){
-  pendingRating[type]=val;
-  const id=type==='locality'?'loc-stars':'bld-stars';
-  document.querySelectorAll(`#${id} .star`).forEach((s,i)=>s.classList.toggle('filled',i<val));
-}
+function furLabel(f){const m={unfurnished:'Khaali Ghar',semi:'Thoda Saaman',fully:'Fully Bharela'};return m[f]||cap(f||'unfurnished');}
+function occLabel(o){const m={any:'Koi bhi',family:'Family',bachelor:'Bachelor',girls:'Sirf Ladkiyan'};return m[o]||cap(o||'any');}
 
-async function submitRating(){
-  if(!currentPin)return;
-  if(!pendingRating.locality&&!pendingRating.build){showToast('Tap stars to rate');return;}
-  const{error}=await sb.from('ratings').insert([{pin_id:currentPin.id,locality_rating:pendingRating.locality||null,build_rating:pendingRating.build||null,ip_address:userIP}]);
-  if(error){showToast('Rating error');return;}
-  showToast('Rating saved ⭐');pendingRating={locality:0,build:0};
-}
-
-async function addComment(){
-  if(!currentPin)return;
-  const input=document.getElementById('comment-input');
-  const content=input.value.trim();if(!content)return;
-  const{error}=await sb.from('comments').insert([{pin_id:currentPin.id,content,ip_address:userIP}]);
-  if(error){showToast('Error posting');return;}
-  input.value='';showToast('Comment posted');openDetail(currentPin);
-}
-
-async function reportPin(){
-  if(!currentPin)return;
-  const reason=prompt('Reason for reporting (optional):')||'suspicious';
-  await sb.from('reports').insert([{pin_id:currentPin.id,reason,ip_address:userIP}]);
-  showToast('Reported. Thanks!');
-}
-
-async function deletePin(id){
-  if(!confirm('Delete this pin?'))return;
-  await sb.from('pins').delete().eq('id',id);
-  allPins=allPins.filter(p=>p.id!==id);
-  renderMarkers(filterLogic(allPins));updateCount(allPins.length);closeModal('detail-modal');showToast('Pin deleted');
-}
-
-function sharePin(){
-  if(!currentPin)return;
-  const p=currentPin;const same=allPins.filter(x=>x.bhk===p.bhk);
+function doShare(){
+  if(!curPin)return;
+  const p=curPin;const same=allPins.filter(x=>x.bhk===p.bhk);
   const cheaper=same.filter(x=>x.rent<p.rent).length;
   const ct=same.length>1?Math.round(((same.length-1-cheaper)/(same.length-1))*100):50;
-  const msg=`🏠 My rent in Nagpur:\n₹${fmt(p.rent)}/mo · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\nCheaper than ${ct}% of ${p.bhk}BHKs in Nagpur 📊\n\nSee real rents near you → nagpur.rent`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+  const msg=`🏠 Nagpur mein mera rent:\n₹${fmt(p.rent)}/mahina · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\n${p.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna check karo → nagpur.rent`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
-function shareMilestone(){
-  const msg=`🗺 Nagpur's rental map just hit ${allPins.length} community pins!\nCheck real rents near you → nagpur.rent`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');closeModal('milestone-modal');
+function shareWelcome(){
+  const msg=`🍊 Bhai, yeh dekh — nagpur.rent\nNagpur mein kaunse area mein kitna rent hai — real data, real log.\nBroker ka bakwas nahi, seedha sach!\nnagpur.rent`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function shareMS(){
+  const msg=`🎉 Nagpur ka rent map ${allPins.length} pins cross kar gaya!\n🍊 Real rents, real Nagpurkars → nagpur.rent`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  closeOverlay('ms-overlay');
+}
+
+function rateStar(type,val){
+  pendRating[type]=val;
+  const id=type==='loc'?'ls':'bs';
+  document.querySelectorAll('#'+id+' .star').forEach((s,i)=>s.classList.toggle('on',i<val));
+}
+async function submitRating(){
+  if(!curPin)return;
+  if(!pendRating.loc&&!pendRating.bld){toast('Pehle stars pe click karo!');return;}
+  const{error}=await sb.from('ratings').insert([{pin_id:curPin.id,locality_rating:pendRating.loc||null,build_rating:pendRating.bld||null,ip_address:userIP}]);
+  if(error){toast('Kuch gadbad ho gaya');return;}
+  toast('Rating de diya, shukriya! ⭐');pendRating={loc:0,bld:0};
+}
+async function addComment(){
+  if(!curPin)return;
+  const inp=document.getElementById('c-in');
+  const content=inp.value.trim();if(!content)return;
+  const{error}=await sb.from('comments').insert([{pin_id:curPin.id,content,ip_address:userIP}]);
+  if(error){toast('Comment nahi gaya, dobara try karo');return;}
+  inp.value='';toast('Comment ho gaya!');openDetail(curPin);
+}
+async function reportPin(){
+  if(!curPin)return;
+  const reason=prompt('Report kyun kar rahe ho? (optional)')||'suspicious';
+  await sb.from('reports').insert([{pin_id:curPin.id,reason,ip_address:userIP}]);
+  toast('Report ho gaya, shukriya!');
+}
+async function deletePin(id){
+  if(!confirm('Pin delete karna hai pakka?'))return;
+  await sb.from('pins').delete().eq('id',id);
+  allPins=allPins.filter(p=>p.id!==id);
+  renderPins(doFlt(allPins));setCount(allPins.length);closeOverlay('detail-overlay');toast('Delete ho gaya');
 }
 
 async function openStats(){
   const body=document.getElementById('stats-body');
-  body.innerHTML='<div style="color:var(--text-m);text-align:center;padding:20px;">Loading…</div>';
-  openModal('stats-modal');
+  body.innerHTML='<div style="color:var(--td);text-align:center;padding:20px;font-weight:700;">Calculate ho raha hai…</div>';
+  openOverlay('stats-overlay');
   const pins=allPins;
-  if(!pins.length){body.innerHTML='<div style="color:var(--text-m);">No data yet. Add the first pin!</div>';return;}
-  const byBhk={};pins.forEach(p=>{(byBhk[p.bhk]=byBhk[p.bhk]||[]).push(p.rent);});
-  const gated=pins.filter(p=>p.gated),nonGated=pins.filter(p=>!p.gated);
+  if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">Abhi koi pin nahi hai. Pehla pin tum daalo!</div>';return;}
+  const byB={};pins.forEach(p=>{(byB[p.bhk]=byB[p.bhk]||[]).push(p.rent);});
+  const gated=pins.filter(p=>p.gated),ng=pins.filter(p=>!p.gated);
   const avgAll=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
   body.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-      <div class="stat-card"><div class="stat-label">Total Pins</div><div class="stat-value">${pins.length}</div></div>
-      <div class="stat-card"><div class="stat-label">Overall Avg</div><div class="stat-value">₹${shortFmt(avgAll)}</div></div>
-      <div class="stat-card"><div class="stat-label">Gated Avg</div><div class="stat-value">${gated.length?'₹'+shortFmt(Math.round(gated.reduce((s,p)=>s+p.rent,0)/gated.length)):'—'}</div></div>
-      <div class="stat-card"><div class="stat-label">Non-Gated Avg</div><div class="stat-value">${nonGated.length?'₹'+shortFmt(Math.round(nonGated.reduce((s,p)=>s+p.rent,0)/nonGated.length)):'—'}</div></div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-lbl">Total Pins</div><div class="stat-val">${pins.length}</div></div>
+      <div class="stat-box"><div class="stat-lbl">Average Rent</div><div class="stat-val">₹${shortFmt(avgAll)}</div></div>
+      <div class="stat-box"><div class="stat-lbl">Gated Avg</div><div class="stat-val">${gated.length?'₹'+shortFmt(Math.round(gated.reduce((s,p)=>s+p.rent,0)/gated.length)):'—'}</div></div>
+      <div class="stat-box"><div class="stat-lbl">Non-Gated Avg</div><div class="stat-val">${ng.length?'₹'+shortFmt(Math.round(ng.reduce((s,p)=>s+p.rent,0)/ng.length)):'—'}</div></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Average Rent by BHK</div>
-      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>{const rents=byBhk[bhk];const avg=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-label">${bhk} BHK</div><div class="bhk-count">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-avg">₹${fmt(avg)}</div></div>`;}).join('')}
+    <div class="stat-section">
+      <div class="stat-lbl" style="margin-bottom:8px;">BHK-wise Average Rent</div>
+      ${Object.keys(byB).sort((a,b)=>a-b).map(b=>{const rents=byB[b];const avg=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-lbl">${b} BHK</div><div class="bhk-cnt">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-val">₹${fmt(avg)}</div></div>`;}).join('')}
     </div>
-    <div class="stat-card" style="margin-top:10px;">
-      <div class="stat-label">Cheapest per BHK</div>
-      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>`<div class="bhk-row"><div class="bhk-label">${bhk} BHK cheapest</div><div class="bhk-avg" style="color:var(--green)">₹${fmt(Math.min(...byBhk[bhk]))}</div></div>`).join('')}
+    <div class="stat-section">
+      <div class="stat-lbl" style="margin-bottom:8px;">Sabse Sasta BHK</div>
+      ${Object.keys(byB).sort((a,b)=>a-b).map(b=>`<div class="bhk-row"><div class="bhk-lbl">${b} BHK</div><div class="bhk-val" style="color:var(--green)">₹${fmt(Math.min(...byB[b]))}</div></div>`).join('')}
+    </div>
+    <div class="share-card" style="margin-top:4px;">
+      <div class="sc-title">Doston ko batao!</div>
+      <div class="sc-text" style="font-size:12px;">${pins.length} Nagpurkars ne apna rent share kiya. Tu bhi batao, community strong hogi!</div>
+      <button class="btn-wa" onclick="shareWelcome()">📲 Share karo nagpur.rent</button>
     </div>`;
 }
 
-function toggleAreaDraw(){
-  areaDrawMode=!areaDrawMode;
-  document.getElementById('area-draw-hint').style.display=areaDrawMode?'block':'none';
-  if(!areaDrawMode&&areaRect){areaRect.setMap(null);areaRect=null;}
+function toggleArea(){
+  areaDraw=!areaDraw;
+  document.getElementById('area-rb').classList.toggle('active-tool',areaDraw);
+  document.getElementById('hint').textContent=areaDraw?'📐 Map pe click karke rectangle banao':'📍 Yahan tap karo apna area choose karne ke liye';
+  document.getElementById('hint').style.display=areaDraw?'block':'none';
+  if(!areaDraw&&areaRect){areaRect.setMap(null);areaRect=null;}
 }
-
-function onAreaMouseDown(e){
-  if(!areaDrawMode)return;
-  areaMouseDown=true;areaStart=e.latLng;
+function onMD(e){
+  if(!areaDraw)return;
+  areaMD=true;areaStart=e.latLng;
   if(areaRect)areaRect.setMap(null);
-  areaRect=new google.maps.Rectangle({map,bounds:new google.maps.LatLngBounds(areaStart,areaStart),fillColor:'#2563eb',fillOpacity:.08,strokeColor:'#2563eb',strokeWeight:1.5});
+  areaRect=new google.maps.Rectangle({map,bounds:new google.maps.LatLngBounds(areaStart,areaStart),fillColor:'#f97316',fillOpacity:.08,strokeColor:'#f97316',strokeWeight:2});
 }
-
-function onAreaMouseMove(e){
-  if(!areaMouseDown||!areaRect)return;
+function onMM(e){
+  if(!areaMD||!areaRect)return;
   areaRect.setBounds(new google.maps.LatLngBounds({lat:Math.min(areaStart.lat(),e.latLng.lat()),lng:Math.min(areaStart.lng(),e.latLng.lng())},{lat:Math.max(areaStart.lat(),e.latLng.lat()),lng:Math.max(areaStart.lng(),e.latLng.lng())}));
 }
-
-function onAreaMouseUp(e){
-  if(!areaDrawMode||!areaMouseDown)return;
-  areaMouseDown=false;if(!areaRect)return;
+function onMU(e){
+  if(!areaDraw||!areaMD)return;
+  areaMD=false;if(!areaRect)return;
   const bounds=areaRect.getBounds();
   const inside=allPins.filter(p=>bounds.contains({lat:p.lat,lng:p.lng}));
-  showAreaStats(inside);areaDrawMode=false;document.getElementById('area-draw-hint').style.display='none';
+  showAreaStats(inside);areaDraw=false;
+  document.getElementById('hint').style.display='none';
+  document.getElementById('area-rb').classList.remove('active-tool');
 }
-
 function showAreaStats(pins){
-  const body=document.getElementById('area-stats-body');
-  if(!pins.length){body.innerHTML='<div style="color:var(--text-m);">No pins in selected area.</div>';openModal('area-stats-modal');return;}
-  const byBhk={};pins.forEach(p=>{(byBhk[p.bhk]=byBhk[p.bhk]||[]).push(p.rent);});
+  const body=document.getElementById('area-body');
+  if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">Is area mein abhi koi pin nahi hai!</div>';openOverlay('area-overlay');return;}
+  const byB={};pins.forEach(p=>{(byB[p.bhk]=byB[p.bhk]||[]).push(p.rent);});
   const avg=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
-  body.innerHTML=`<div style="font-size:13px;color:var(--text-m);margin-bottom:12px;">${pins.length} pins in selected area</div>
-    <div class="stat-card"><div class="stat-label">Area Average</div><div class="stat-value">₹${fmt(avg)}</div></div>
-    <div class="stat-card" style="margin-top:10px;"><div class="stat-label">By BHK</div>
-      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>{const rents=byBhk[bhk];const a=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-label">${bhk} BHK</div><div class="bhk-count">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-avg">₹${fmt(a)}</div></div>`;}).join('')}
+  body.innerHTML=`
+    <div style="font-size:13px;color:var(--tm);font-weight:700;margin-bottom:14px;">${pins.length} pins selected area mein</div>
+    <div class="stat-section"><div class="stat-lbl">Is Area ka Average</div><div class="stat-val" style="margin-top:4px;">₹${fmt(avg)}</div></div>
+    <div class="stat-section" style="margin-top:10px;"><div class="stat-lbl" style="margin-bottom:8px;">BHK-wise</div>
+      ${Object.keys(byB).sort((a,b)=>a-b).map(b=>{const rents=byB[b];const a=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-lbl">${b} BHK</div><div class="bhk-cnt">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-val">₹${fmt(a)}</div></div>`;}).join('')}
     </div>`;
-  openModal('area-stats-modal');
+  openOverlay('area-overlay');
 }
 
-function openSeekerForm(){openModal('seeker-modal');}
-
-async function saveSeekerPin(){
+async function saveSeeker(){
   const lat=map.getCenter().lat(),lng=map.getCenter().lng();
-  const{error}=await sb.from('seekers').insert([{lat,lng,budget_min:parseInt(document.getElementById('seeker-min').value)||null,budget_max:parseInt(document.getElementById('seeker-max').value)||null,bhk_preference:parseInt(getChip('seeker-bhk'))||null,food_pref:getChip('seeker-food')||'any',gender:getChip('seeker-gender')||'any',contact_email:document.getElementById('seeker-email').value||null,ip_address:userIP}]);
-  if(error){showToast('Error saving seeker pin');return;}
-  closeModal('seeker-modal');showToast('Seeker pin added 🔍');
-  const{data:seekers}=await sb.from('seekers').select('*');renderSeekers(seekers||[]);
+  const{error}=await sb.from('seekers').insert([{lat,lng,budget_min:parseInt(document.getElementById('sk-min').value)||null,budget_max:parseInt(document.getElementById('sk-max').value)||null,bhk_preference:parseInt(cv('sk-b'))||null,food_pref:cv('sk-f')||'any',gender:cv('sk-g')||'any',contact_email:document.getElementById('sk-email').value||null,ip_address:userIP}]);
+  if(error){toast('Kuch gadbad ho gaya');return;}
+  closeOverlay('seeker-overlay');toast('Seeker pin dal diya! Ab landlord milega 🔍');
+  const{data:sk}=await sb.from('seekers').select('*');renderSeekers(sk||[]);
 }
 
-function applyFilters(){
-  activeFilters={bhk:getChip('filter-bhk'),rentMin:parseInt(document.getElementById('flt-min').value),rentMax:parseInt(document.getElementById('flt-max').value),furnishing:getChip('filter-furnishing'),gated:getChip('filter-gated'),avail:getChip('filter-avail')};
-  const filtered=filterLogic(allPins);renderMarkers(filtered);updateCount(filtered.length);closeFilter();showToast(`${filtered.length} pins shown`);
+function applyFlt(){
+  filters={bhk:cv('fb-c'),rMin:parseInt(document.getElementById('flt-min').value),rMax:parseInt(document.getElementById('flt-max').value),fur:cv('ff-c'),gated:cv('fg-c'),avail:cv('fa-c')};
+  const f=doFlt(allPins);renderPins(f);setCount(f.length);closeFP();toast(f.length+' pins dikh rahe hain');
 }
-
-function filterLogic(pins){
+function doFlt(pins){
   return pins.filter(p=>{
-    const bval=activeFilters.bhk;
-    if(bval&&bval!=='all'){if(bval==='4'){if(p.bhk<4)return false;}else if(p.bhk!==parseInt(bval))return false;}
-    if(p.rent<activeFilters.rentMin||p.rent>activeFilters.rentMax)return false;
-    if(activeFilters.furnishing&&activeFilters.furnishing!=='all'&&p.furnishing!==activeFilters.furnishing)return false;
-    if(activeFilters.gated==='gated'&&!p.gated)return false;
-    if(activeFilters.gated==='non-gated'&&p.gated)return false;
-    if(activeFilters.avail==='vacant'&&!p.is_vacant_soon)return false;
+    const bv=filters.bhk;
+    if(bv&&bv!=='all'){if(bv==='4'){if(p.bhk<4)return false;}else if(p.bhk!==parseInt(bv))return false;}
+    if(p.rent<filters.rMin||p.rent>filters.rMax)return false;
+    if(filters.fur&&filters.fur!=='all'&&p.furnishing!==filters.fur)return false;
+    if(filters.gated==='gated'&&!p.gated)return false;
+    if(filters.gated==='non-gated'&&p.gated)return false;
+    if(filters.avail==='vacant'&&!p.is_vacant_soon)return false;
     return true;
   });
 }
-
-function resetFilters(){
-  activeFilters={bhk:'all',rentMin:0,rentMax:100000,furnishing:'all',gated:'all',avail:'all'};
+function resetFlt(){
+  filters={bhk:'all',rMin:0,rMax:100000,fur:'all',gated:'all',avail:'all'};
   document.getElementById('flt-min').value=0;document.getElementById('lbl-min').textContent='0';
   document.getElementById('flt-max').value=100000;document.getElementById('lbl-max').textContent='1,00,000+';
-  ['filter-bhk','filter-furnishing','filter-gated','filter-avail'].forEach(id=>setChip(id,'all'));
-  renderMarkers(allPins);updateCount(allPins.length);closeFilter();
+  ['fb-c','ff-c','fg-c','fa-c'].forEach(id=>setC(id,'all'));
+  renderPins(allPins);setCount(allPins.length);closeFP();
 }
 
-function filterByArea(el,lat,lng){
-  document.querySelectorAll('.n-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
-  if(!lat){renderMarkers(filterLogic(allPins));return;}
+function nbGo(el,lat,lng){
+  document.querySelectorAll('.nb').forEach(c=>c.classList.remove('on'));el.classList.add('on');
+  if(!lat){renderPins(doFlt(allPins));return;}
   map.panTo({lat,lng});map.setZoom(14);
 }
 
-async function loadMsgBoard(){
-  const{data}=await sb.from('message_board').select('*').eq('active',true).limit(1);
-  if(data?.length){document.getElementById('msg-banner-text').textContent=data[0].message;const banner=document.getElementById('msg-banner');banner.style.display='block';setTimeout(()=>{banner.style.display='none';},7000);}
+function onSearch(q){
+  const box=document.getElementById('search-results');
+  q=q.trim().toLowerCase();
+  if(!q){box.style.display='none';return;}
+  const allAreas=[
+    {name:'Dharampeth',lat:21.1362,lng:79.0709},{name:'Civil Lines',lat:21.1543,lng:79.0849},
+    {name:'Sadar',lat:21.1437,lng:79.0918},{name:'Laxmi Nagar',lat:21.1224,lng:79.1068},
+    {name:'Trimurti Nagar',lat:21.1317,lng:79.0766},{name:'Pratap Nagar',lat:21.1250,lng:79.0832},
+    {name:'Manewada',lat:21.1050,lng:79.1050},{name:'Besa',lat:21.0843,lng:79.1011},
+    {name:'Wardha Road',lat:21.1080,lng:79.0745},{name:'Manish Nagar',lat:21.1180,lng:79.0612},
+    {name:'Hingna Road',lat:21.1380,lng:79.0261},{name:'Sitabuldi',lat:21.1458,lng:79.0882},
+    {name:'Dhantoli',lat:21.1383,lng:79.0951},{name:'Ambazari',lat:21.1493,lng:79.0527},
+    {name:'Seminary Hills',lat:21.1612,lng:79.0801},{name:'Bajaj Nagar',lat:21.1350,lng:79.0700},
+    {name:'Itwari',lat:21.1467,lng:79.1033},{name:'Mahal',lat:21.1497,lng:79.0978},
+    {name:'Nandanvan',lat:21.1350,lng:79.1100},{name:'Kalamna',lat:21.1450,lng:79.1200},
+    ...SPOTS.map(s=>({name:s.name,lat:s.lat,lng:s.lng}))
+  ];
+  const matches=allAreas.filter(a=>a.name.toLowerCase().includes(q));
+  if(!matches.length){box.style.display='none';return;}
+  box.innerHTML=matches.slice(0,6).map(a=>`<div class="s-item" onclick="jumpSearch('${a.name}',${a.lat},${a.lng})">📍 ${a.name}</div>`).join('');
+  box.style.display='block';
+}
+function jumpSearch(name,lat,lng){
+  map.panTo({lat,lng});map.setZoom(15);
+  document.getElementById('search-input').value=name;
+  document.getElementById('search-results').style.display='none';
+  toast(name+' aa gaye! 🎯');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#search-wrap'))document.getElementById('search-results').style.display='none';});
+
+const shownMS=new Set(JSON.parse(localStorage.getItem('nag_ms')||'[]'));
+function checkMS(n){
+  const msgs={50:'Waah! 50 Nagpurkars ne rent share kiya!',100:'100 pins! Nagpur jaag raha hai!',200:'200 pins! Broker wala ro raha hoga!',500:'500 pins! Nagpur ka sabse bada rent database!',1000:'1000 pins! Bhai legend ho gaye tum log!'};
+  for(const m of MILESTONES){
+    if(n>=m&&!shownMS.has(m)){
+      shownMS.add(m);localStorage.setItem('nag_ms',JSON.stringify([...shownMS]));
+      document.getElementById('ms-title').textContent=msgs[m]||m+' Pins! 🎉';
+      document.getElementById('ms-desc').textContent='Nagpur ki community strong ho rahi hai. Doston ko bhejo!';
+      openOverlay('ms-overlay');break;
+    }
+  }
 }
 
-const shownMs=new Set(JSON.parse(localStorage.getItem('nag_milestones')||'[]'));
-function checkMilestones(n){for(const m of MILESTONES){if(n>=m&&!shownMs.has(m)){shownMs.add(m);localStorage.setItem('nag_milestones',JSON.stringify([...shownMs]));document.getElementById('milestone-title').textContent=`${m} Pins! 🎉`;document.getElementById('milestone-desc').textContent=`Nagpur's rental map just hit ${m} community pins. Help it grow — share with friends!`;openModal('milestone-modal');break;}}}
-
-function locateMe(){if(!navigator.geolocation){showToast('Geolocation not supported');return;}navigator.geolocation.getCurrentPosition(p=>{map.panTo({lat:p.coords.latitude,lng:p.coords.longitude});map.setZoom(15);},()=>showToast('Could not get location'));}
-function closeWelcome(){closeModal('welcome-modal');localStorage.setItem('nag_welcomed','1');}
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-function openFilter(){document.getElementById('filter-panel').classList.add('open');}
-function closeFilter(){document.getElementById('filter-panel').classList.remove('open');}
-function hideLoading(){const el=document.getElementById('loading');el.classList.add('hidden');setTimeout(()=>el.style.display='none',500);}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+function openFP(){document.getElementById('fp').classList.add('open');}
+function closeFP(){document.getElementById('fp').classList.remove('open');}
+function hideLoad(){const el=document.getElementById('loading');el.classList.add('hidden');setTimeout(()=>el.style.display='none',500);}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function setCount(n){
+  document.getElementById('pin-badge').textContent=n+' pins';
+  document.getElementById('live-n').textContent=n;
+  document.getElementById('w-stat').textContent='🟠 '+n+' Nagpurkars ne apna rent share kiya';
+}
 function fmt(n){return n?.toLocaleString('en-IN')||'0';}
-function fmtNum(n){return n?.toLocaleString('en-IN')||'0';}
-function shortFmt(n){if(!n)return'0';if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(0)+'K';return n;}
+function fmtN(n){return n?.toLocaleString('en-IN')||'0';}
+function shortFmt(n){if(!n)return'0';if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return Math.round(n/1000)+'K';return n;}
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-function timeAgo(ts){const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);if(m<1)return'just now';if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;return`${Math.floor(h/24)}d ago`;}
-function distKm(lat1,lng1,lat2,lng2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lng2-lng1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
-function getChip(id){const el=document.querySelector(`#${id} .chip.selected`);return el?el.dataset.val:null;}
-function selectChip(id,el){document.querySelectorAll(`#${id} .chip`).forEach(c=>c.classList.remove('selected'));el.classList.add('selected');}
-function setChip(id,val){document.querySelectorAll(`#${id} .chip`).forEach(c=>c.classList.toggle('selected',c.dataset.val===val));}
-function updateCount(n){document.getElementById('pin-count-badge').textContent=`${n} pin${n!==1?'s':''}`;}
-function resetForm(){['pin-rent','pin-society','pin-sqft','pin-maintenance','pin-notes'].forEach(id=>document.getElementById(id).value='');['gated-toggle','maint-toggle','vacant-toggle'].forEach(id=>document.getElementById(id).classList.remove('on'));setChip('furnishing-chips','unfurnished');setChip('occupant-chips','any');document.querySelectorAll('#bhk-chips .chip').forEach(c=>c.classList.remove('selected'));newLatLng=null;if(pendingMarker){pendingMarker.setMap(null);pendingMarker=null;}}
+function ago(ts){const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);if(m<1)return'abhi abhi';if(m<60)return m+' min pehle';const h=Math.floor(m/60);if(h<24)return h+' ghante pehle';return Math.floor(h/24)+' din pehle';}
+function dKm(a,b,c,d){const R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;const x=Math.sin(dl/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function cv(id){const el=document.querySelector('#'+id+' .chip.on');return el?el.dataset.v:null;}
+function pick(id,el){document.querySelectorAll('#'+id+' .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function setC(id,val){document.querySelectorAll('#'+id+' .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===val));}
+function resetForm(){
+  ['pin-rent','p-soc','p-sqft','p-maint','p-notes'].forEach(id=>document.getElementById(id).value='');
+  ['t-gated','t-maint','t-vacant'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  setC('fur-c','unfurnished');setC('occ-c','any');
+  document.querySelectorAll('#bhk-c .chip').forEach(c=>c.classList.remove('on'));
+  newLL=null;if(pendM){pendM.setMap(null);pendM=null;}
+}
 
-document.querySelectorAll('.modal-overlay').forEach(ov=>{ov.addEventListener('click',e=>{if(e.target===ov){ov.classList.remove('open');if(ov.id==='pin-modal'){stopPlacing();resetForm();}}});});
-if(!localStorage.getItem('nag_welcomed')){setTimeout(()=>openModal('welcome-modal'),1200);}
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{
+    if(e.target===ov){ov.classList.remove('open');if(ov.id==='pin-overlay'){stopPlacing();resetForm();}}
+  });
+});
+
+// Spots button in right panel - add to right-btns
+const spotsBtn=document.createElement('div');
+spotsBtn.className='rb';
+spotsBtn.innerHTML='🍊 <span>Nagpur Spots</span>';
+spotsBtn.onclick=()=>openOverlay('spots-overlay');
+document.getElementById('right-btns').appendChild(spotsBtn);
+
+if(!localStorage.getItem('nag_v3')){
+  setTimeout(()=>{openOverlay('welcome-overlay');localStorage.setItem('nag_v3','1');},1000);
+}
 </script>
 
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhEIPGnMDU2PRHWhMwSlT0qPBVgRPWeU&callback=initMap&libraries=drawing"></script>
