@@ -218,7 +218,33 @@
     ::-webkit-scrollbar{width:4px;}
     ::-webkit-scrollbar-track{background:transparent;}
     ::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px;}
-    @media(max-width:480px){#live-pill{display:none;}.rb span{display:none;}}
+    #about-btn{width:34px;height:34px;border-radius:50%;background:white;border:2px solid var(--border);color:var(--orange2);font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh1);transition:all .15s;flex-shrink:0;}
+    #about-btn:hover{background:var(--orange);color:white;border-color:var(--orange);transform:scale(1.08);}
+    /* ── MOBILE ── */
+    @media(max-width:600px){
+      #live-pill{display:none;}
+      .rb span{display:none;}
+      #search-wrap{max-width:none;flex:1;}
+      #about-btn{display:none;}
+      #topbar{gap:6px;padding:8px 10px;}
+      #logo-pill{padding:6px 11px 6px 8px;}
+      #logo-text{font-size:13px;}
+      #pin-badge{display:none;}
+      #nb-bar{top:50px;padding:0 10px 8px;}
+      .nb{font-size:11px;padding:4px 10px;}
+      #bottom-bar{padding:10px 10px;padding-bottom:max(16px,env(safe-area-inset-bottom));}
+      #add-btn{padding:13px 18px;font-size:14px;}
+      .rb{padding:8px 10px;min-width:40px;justify-content:center;}
+      .sheet{padding:16px;padding-bottom:max(20px,env(safe-area-inset-bottom));}
+      .sheet-title{font-size:17px;}
+      .rent-big{font-size:28px;}
+      .stat-grid{grid-template-columns:1fr 1fr;}
+      .spots-grid{grid-template-columns:1fr 1fr;}
+      #fp{max-width:100%;}
+      .fr{flex-direction:column;gap:0;}
+      .chips{gap:5px;}
+      .chip{font-size:12px;padding:6px 10px;}
+    }
   </style>
 </head>
 <body>
@@ -252,6 +278,8 @@
     <div class="dot"></div>
     <span id="live-n">0</span> pins live
   </div>
+
+  <div id="about-btn" onclick="openOverlay('welcome-overlay')" title="About nagpur.rent">?</div>
 </div>
 
 <!-- Neighborhood bar -->
@@ -287,6 +315,24 @@
 </div>
 
 <div id="hint">📍 Yahan tap karo apna area choose karne ke liye</div>
+
+<!-- Crosshair picker -->
+<div id="crosshair" style="display:none;position:fixed;inset:0;z-index:180;pointer-events:none;">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);">
+    <div style="width:2px;height:36px;background:var(--orange);margin:0 auto;"></div>
+    <div style="width:36px;height:2px;background:var(--orange);margin-top:-19px;"></div>
+    <div style="width:16px;height:16px;border-radius:50%;background:var(--orange);border:3px solid white;box-shadow:0 2px 10px rgba(249,115,22,.6);margin:-8px auto 0;"></div>
+  </div>
+  <div style="position:absolute;top:calc(50% - 68px);left:50%;transform:translateX(-50%);background:white;border:2px solid var(--orange);border-radius:50px;padding:7px 18px;font-size:13px;font-weight:800;color:var(--orange2);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+    Move map · pin is at centre
+  </div>
+</div>
+
+<!-- Confirm location CTA -->
+<div id="confirm-wrap" style="display:none;position:fixed;bottom:96px;left:0;right:0;z-index:190;display:none;justify-content:center;gap:10px;padding:0 16px;">
+  <button id="confirm-loc-btn" onclick="confirmLocation()" style="background:var(--orange);color:white;border:none;padding:14px 28px;border-radius:50px;font-family:var(--fm);font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 4px 20px rgba(249,115,22,.5);flex:1;max-width:260px;">✓ Confirm Location</button>
+  <button onclick="cancelLocationPick()" style="background:white;color:var(--tm);border:2px solid var(--border);padding:14px 18px;border-radius:50px;font-family:var(--fm);font-weight:800;font-size:14px;cursor:pointer;">✕</button>
+</div>
 <div id="toast"></div>
 
 <!-- ══════════ WELCOME ══════════ -->
@@ -320,6 +366,11 @@
   <div class="sheet">
     <div class="handle"></div>
     <div class="sheet-title">🏠 Add Your Rent</div>
+    <div style="background:var(--green-dim);border:2px solid var(--green);border-radius:12px;padding:9px 13px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      <span>📍</span>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:800;color:var(--green);">Location confirmed</div><div style="font-size:11px;color:var(--td);font-weight:600;" id="pin-loc-text">—</div></div>
+      <button onclick="cancelPin();togglePlacing();" style="background:var(--s2);border:none;color:var(--tm);font-size:11px;font-weight:800;cursor:pointer;padding:4px 10px;border-radius:8px;">Change</button>
+    </div>
     <div class="fg"><label class="fl">Monthly Rent (₹)</label><input type="number" class="fi" id="pin-rent" placeholder="e.g. 12000"/></div>
     <div class="fg"><label class="fl">BHK</label>
       <div class="chips" id="bhk-c">
@@ -432,7 +483,18 @@
   <div class="sheet">
     <div class="handle"></div>
     <div class="sheet-title">🔍 Looking for a Flat?</div>
-    <div class="sk-note">Drop a green pin where you want to live. Landlords and residents in that area can see your preferences and reach out directly.</div>
+
+    <div id="sk-loc-pick" onclick="startSeekerPick()" style="background:var(--orange-dim);border:2px dashed var(--orange);border-radius:14px;padding:14px;margin-bottom:14px;text-align:center;cursor:pointer;transition:all .15s;">
+      <div style="font-size:22px;margin-bottom:4px;">📍</div>
+      <div style="font-weight:800;font-size:14px;color:var(--orange2);">Tap to pick location on map</div>
+      <div style="font-size:12px;color:var(--td);margin-top:2px;font-weight:600;">Where do you want to live?</div>
+    </div>
+    <div id="sk-loc-confirm" style="display:none;background:var(--green-dim);border:2px solid var(--green);border-radius:14px;padding:10px 14px;margin-bottom:14px;display:none;align-items:center;gap:10px;">
+      <div style="font-size:20px;">✅</div>
+      <div><div style="font-weight:800;font-size:13px;color:var(--green);">Location selected!</div><div style="font-size:12px;color:var(--td);font-weight:600;" id="sk-loc-text">Tap the box above to change</div></div>
+    </div>
+
+    <div class="sk-note">Landlords and residents in that area can see your budget and reach out directly. No middleman.</div>
     <div class="fr">
       <div class="fg"><label class="fl">Min Budget (₹)</label><input type="number" class="fi" id="sk-min" placeholder="5000"/></div>
       <div class="fg"><label class="fl">Max Budget (₹)</label><input type="number" class="fi" id="sk-max" placeholder="20000"/></div>
@@ -596,8 +658,25 @@ function renderSeekers(list){
 }
 
 function onMapClick(e){
-  if(!placing||areaDraw)return;
   const lat=e.latLng.lat(),lng=e.latLng.lng();
+
+  // Seeker pick mode
+  if(seekerPickMode){
+    seekerPickMode=false;
+    document.getElementById('hint').style.display='none';
+    seekerLL={lat,lng};
+    // Get approximate area name
+    const areaName=getNearestArea(lat,lng);
+    document.getElementById('sk-loc-pick').style.display='none';
+    const confirm=document.getElementById('sk-loc-confirm');
+    confirm.style.display='flex';
+    document.getElementById('sk-loc-text').textContent='Near '+areaName+' ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';
+    openOverlay('seeker-overlay');
+    toast('Location set! Fill in the rest 🔍');
+    return;
+  }
+
+  if(!placing||areaDraw)return;
   if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Pin within Nagpur only, bhai 😄');return;}
   newLL={lat,lng};
   if(pendM)pendM.setMap(null);
@@ -612,21 +691,94 @@ function onMapClick(e){
   openOverlay('pin-overlay');stopPlacing();
 }
 
+function getNearestArea(lat,lng){
+  const areas=[
+    {name:'Dharampeth',lat:21.1362,lng:79.0709},{name:'Civil Lines',lat:21.1543,lng:79.0849},
+    {name:'Sadar',lat:21.1437,lng:79.0918},{name:'Laxmi Nagar',lat:21.1224,lng:79.1068},
+    {name:'Trimurti Nagar',lat:21.1317,lng:79.0766},{name:'Pratap Nagar',lat:21.1250,lng:79.0832},
+    {name:'Manewada',lat:21.1050,lng:79.1050},{name:'Besa',lat:21.0843,lng:79.1011},
+    {name:'Wardha Road',lat:21.1080,lng:79.0745},{name:'Manish Nagar',lat:21.1180,lng:79.0612},
+    {name:'Hingna Road',lat:21.1380,lng:79.0261},{name:'Sitabuldi',lat:21.1458,lng:79.0882},
+    {name:'Dhantoli',lat:21.1383,lng:79.0951},{name:'Ambazari',lat:21.1493,lng:79.0527},
+    {name:'Seminary Hills',lat:21.1612,lng:79.0801},{name:'Bajaj Nagar',lat:21.1350,lng:79.0700},
+  ];
+  let nearest=areas[0],minD=999;
+  areas.forEach(a=>{const d=dKm(lat,lng,a.lat,a.lng);if(d<minD){minD=d;nearest=a;}});
+  return nearest.name;
+}
+
+let pickMode=null; // 'rent' or 'seeker'
+
 function togglePlacing(){
-  if(placing){stopPlacing();return;}
-  placing=true;
+  if(placing){cancelLocationPick();return;}
+  startPick('rent');
+}
+
+function startPick(mode){
+  pickMode=mode;placing=true;
   document.getElementById('add-btn').classList.add('placing');
   document.getElementById('add-text').textContent='Cancel';
   document.getElementById('add-icon').textContent='✕';
-  document.getElementById('hint').style.display='block';
+  document.getElementById('crosshair').style.display='block';
+  document.getElementById('confirm-wrap').style.display='flex';
+  document.getElementById('hint').style.display='none';
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+  toast('Move map so the pin is on your area, then tap Confirm');
 }
+
+function confirmLocation(){
+  const c=map.getCenter();
+  const lat=c.lat(),lng=c.lng();
+  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Pin within Nagpur only, bhai');return;}
+  document.getElementById('crosshair').style.display='none';
+  document.getElementById('confirm-wrap').style.display='none';
+  placing=false;
+  document.getElementById('add-btn').classList.remove('placing');
+  document.getElementById('add-text').textContent='Add My Rent';
+  document.getElementById('add-icon').textContent='＋';
+  const area=getNearestArea(lat,lng);
+  if(pickMode==='rent'){
+    newLL={lat,lng};
+    if(pendM)pendM.setMap(null);
+    pendM=new google.maps.Marker({
+      position:newLL,map,
+      icon:{url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="14" cy="14" r="12" fill="#f97316" stroke="white" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="white"/></svg>'),
+      scaledSize:new google.maps.Size(28,28),anchor:new google.maps.Point(14,14)},
+      animation:google.maps.Animation.BOUNCE,zIndex:10,
+    });
+    setTimeout(()=>{if(pendM)pendM.setAnimation(null);},700);
+    const lt=document.getElementById('pin-loc-text');
+    if(lt)lt.textContent='Near '+area;
+    openOverlay('pin-overlay');
+  } else if(pickMode==='seeker'){
+    seekerLL={lat,lng};
+    document.getElementById('sk-loc-pick').style.display='none';
+    const cd=document.getElementById('sk-loc-confirm');
+    cd.style.display='flex';
+    document.getElementById('sk-loc-text').textContent='Near '+area;
+    openOverlay('seeker-overlay');
+    toast('Location set! Fill in the rest');
+  }
+  pickMode=null;
+}
+
+function cancelLocationPick(){
+  pickMode=null;placing=false;seekerPickMode=false;
+  document.getElementById('crosshair').style.display='none';
+  document.getElementById('confirm-wrap').style.display='none';
+  document.getElementById('hint').style.display='none';
+  document.getElementById('add-btn').classList.remove('placing');
+  document.getElementById('add-text').textContent='Add My Rent';
+  document.getElementById('add-icon').textContent='＋';
+}
+
 function stopPlacing(){
   placing=false;
   document.getElementById('add-btn').classList.remove('placing');
   document.getElementById('add-text').textContent='Add My Rent';
   document.getElementById('add-icon').textContent='＋';
-  document.getElementById('hint').style.display='none';
 }
+
 function cancelPin(){closeOverlay('pin-overlay');stopPlacing();resetForm();}
 
 async function savePin(){
@@ -980,7 +1132,7 @@ function resetForm(){
 
 document.querySelectorAll('.overlay').forEach(ov=>{
   ov.addEventListener('click',e=>{
-    if(e.target===ov){ov.classList.remove('open');if(ov.id==='pin-overlay'){stopPlacing();resetForm();}}
+    if(e.target===ov){ov.classList.remove('open');if(ov.id==='pin-overlay'){stopPlacing();resetForm();}if(ov.id==='seeker-overlay'){cancelLocationPick();}}
   });
 });
 
