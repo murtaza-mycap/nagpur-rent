@@ -4,340 +4,175 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>nagpur.rent — Community Rental Map</title>
-  <meta name="description" content="Community-driven rental price map for Nagpur. See real rents, add your own, find flats." />
-
-  <!-- Supabase -->
+  <meta name="description" content="Community-driven rental price map for Nagpur. Real rents, shared by residents." />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     :root {
-      --bg: #0a0a0a;
-      --surface: #141414;
-      --surface2: #1e1e1e;
-      --border: #2a2a2a;
-      --accent: #7c3aed;
-      --accent-light: #9d5cf6;
-      --accent-dim: rgba(124,58,237,0.15);
-      --green: #10b981;
-      --orange: #f59e0b;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --text: #f0f0f0;
-      --text-muted: #888;
-      --text-dim: #555;
-      --radius: 12px;
-      --font-mono: 'Space Mono', monospace;
-      --font-sans: 'Syne', sans-serif;
+      --bg:#f0f2f5;--surface:#fff;--surface2:#f5f6fa;--border:#e8eaed;
+      --accent:#2563eb;--accent-h:#1d4ed8;--accent-dim:rgba(37,99,235,0.08);
+      --green:#059669;--green-dim:rgba(5,150,105,0.1);
+      --orange:#d97706;--orange-dim:rgba(217,119,6,0.1);
+      --red:#dc2626;--text:#111827;--text-m:#6b7280;--text-d:#9ca3af;
+      --sh1:0 1px 4px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+      --sh2:0 4px 16px rgba(0,0,0,0.09),0 2px 6px rgba(0,0,0,0.05);
+      --sh3:0 12px 40px rgba(0,0,0,0.11),0 4px 12px rgba(0,0,0,0.06);
+      --fm:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-    }
-
-    #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--fm);background:var(--bg);color:var(--text);height:100vh;height:100dvh;overflow:hidden;}
+    #map{width:100%;height:100%;position:absolute;top:0;left:0;}
 
     /* TOP BAR */
-    #topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 14px;
-      padding-top: max(10px, env(safe-area-inset-top));
-      background: linear-gradient(to bottom, rgba(10,10,10,0.96), transparent);
-      pointer-events: none;
-    }
-    #topbar > * { pointer-events: all; }
-
-    #logo {
-      font-family: var(--font-mono); font-weight: 700; font-size: 18px;
-      color: var(--text); letter-spacing: -0.5px; flex-shrink: 0;
-    }
-    #logo span { color: var(--accent-light); }
-
-    #pin-count-badge {
-      font-family: var(--font-mono); font-size: 11px;
-      background: var(--accent-dim); border: 1px solid var(--accent);
-      color: var(--accent-light); padding: 3px 8px; border-radius: 20px; flex-shrink: 0;
-    }
-
-    .spacer { flex: 1; }
-
-    .top-btn {
-      background: rgba(20,20,20,0.92); border: 1px solid var(--border);
-      color: var(--text); padding: 7px 12px; border-radius: 8px;
-      font-family: var(--font-sans); font-size: 13px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; white-space: nowrap;
-      backdrop-filter: blur(10px);
-    }
-    .top-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+    #topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));pointer-events:none;}
+    #topbar>*{pointer-events:all;}
+    #logo-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:50px;padding:7px 14px 7px 8px;box-shadow:var(--sh2);flex-shrink:0;}
+    #logo-icon{width:28px;height:28px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    #logo{font-family:var(--fm);font-weight:800;font-size:15px;color:var(--text);letter-spacing:-0.3px;}
+    #logo span{color:var(--accent);}
+    #pin-count-badge{font-family:var(--mono);font-size:11px;background:var(--accent-dim);color:var(--accent);padding:2px 8px;border-radius:20px;font-weight:500;flex-shrink:0;margin-left:2px;}
+    .spacer{flex:1;}
+    .top-btn{background:var(--surface);box-shadow:var(--sh2);border:none;color:var(--text);padding:9px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+    .top-btn:hover{background:var(--accent);color:#fff;transform:translateY(-1px);box-shadow:var(--sh3);}
 
     /* NEIGHBORHOOD BAR */
-    #neighborhood-bar {
-      position: fixed; top: 54px; left: 0; right: 0; z-index: 90;
-      padding: 8px 14px; overflow-x: auto; display: flex; gap: 6px;
-      scrollbar-width: none; pointer-events: none;
-    }
-    #neighborhood-bar > * { pointer-events: all; }
-    #neighborhood-bar::-webkit-scrollbar { display: none; }
+    #neighborhood-bar{position:fixed;top:62px;left:0;right:0;z-index:90;padding:0 16px 10px;overflow-x:auto;display:flex;gap:6px;scrollbar-width:none;pointer-events:none;}
+    #neighborhood-bar>*{pointer-events:all;}
+    #neighborhood-bar::-webkit-scrollbar{display:none;}
+    .n-chip{padding:6px 13px;border-radius:50px;background:var(--surface);box-shadow:var(--sh1);border:1.5px solid transparent;color:var(--text-m);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+    .n-chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);box-shadow:none;}
+    .n-chip:hover:not(.active){border-color:var(--border);color:var(--text);}
 
-    .n-chip {
-      padding: 5px 12px; border-radius: 20px;
-      background: rgba(20,20,20,0.88); border: 1px solid var(--border);
-      color: var(--text-muted); font-size: 12px; font-weight: 600;
-      cursor: pointer; white-space: nowrap; transition: all 0.15s;
-      backdrop-filter: blur(10px); flex-shrink: 0;
-    }
-    .n-chip.active, .n-chip:hover {
-      border-color: var(--accent); color: var(--accent-light); background: var(--accent-dim);
-    }
-
-    /* BOTTOM CONTROLS */
-    #bottom-controls {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: flex-end; justify-content: space-between;
-      padding: 12px 14px;
-      padding-bottom: max(16px, env(safe-area-inset-bottom));
-      pointer-events: none;
-    }
-    #bottom-controls > * { pointer-events: all; }
-
-    #add-pin-btn {
-      background: var(--accent); color: white; border: none;
-      padding: 14px 22px; border-radius: 50px;
-      font-family: var(--font-sans); font-weight: 700; font-size: 15px;
-      cursor: pointer; box-shadow: 0 4px 20px rgba(124,58,237,0.5);
-      transition: all 0.2s; display: flex; align-items: center; gap: 8px;
-    }
-    #add-pin-btn:hover { background: var(--accent-light); transform: translateY(-2px); }
-    #add-pin-btn.placing { background: var(--orange); box-shadow: 0 4px 20px rgba(245,158,11,0.5); }
-
-    #bottom-right-btns { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
-
-    .circle-btn {
-      width: 44px; height: 44px; border-radius: 50%;
-      background: rgba(20,20,20,0.92); border: 1px solid var(--border);
-      color: var(--text); font-size: 18px; display: flex;
-      align-items: center; justify-content: center; cursor: pointer;
-      transition: all 0.15s; backdrop-filter: blur(10px);
-    }
-    .circle-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+    /* BOTTOM */
+    #bottom-controls{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:flex-end;justify-content:space-between;padding:16px;padding-bottom:max(20px,env(safe-area-inset-bottom));pointer-events:none;}
+    #bottom-controls>*{pointer-events:all;}
+    #add-pin-btn{background:var(--accent);color:#fff;border:none;padding:15px 24px;border-radius:50px;font-family:var(--fm);font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.4);transition:all .2s;display:flex;align-items:center;gap:8px;}
+    #add-pin-btn:hover{background:var(--accent-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(37,99,235,.5);}
+    #add-pin-btn.placing{background:#d97706;box-shadow:0 4px 20px rgba(217,119,6,.4);}
+    #bottom-right-btns{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+    .circle-btn{width:46px;height:46px;border-radius:50%;background:var(--surface);box-shadow:var(--sh2);border:none;color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+    .circle-btn:hover{background:var(--accent);color:#fff;transform:translateY(-1px);box-shadow:var(--sh3);}
 
     /* MODAL */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 200;
-      display: flex; align-items: flex-end; justify-content: center;
-      backdrop-filter: blur(4px); opacity: 0; pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-    .modal {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius) var(--radius) 0 0;
-      width: 100%; max-width: 540px; max-height: 90vh;
-      overflow-y: auto; padding: 20px;
-      padding-bottom: max(20px, env(safe-area-inset-bottom));
-      transform: translateY(30px); transition: transform 0.25s;
-    }
-    .modal-overlay.open .modal { transform: translateY(0); }
-
-    .modal-center { align-items: center; padding: 20px; }
-    .modal-center .modal { border-radius: var(--radius); max-height: 85vh; }
-
-    .modal-handle {
-      width: 36px; height: 4px; background: var(--border);
-      border-radius: 2px; margin: 0 auto 16px;
-    }
-
-    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-
-    .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text-muted); width: 32px; height: 32px; border-radius: 50%;
-      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
-    }
+    .modal-overlay{position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s;}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:20px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(30px);transition:transform .25s;box-shadow:var(--sh3);}
+    .modal-overlay.open .modal{transform:translateY(0);}
+    .modal-center{align-items:center;padding:20px;}
+    .modal-center .modal{border-radius:24px;max-height:85vh;}
+    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px;}
+    .modal-title{font-size:19px;font-weight:800;margin-bottom:18px;color:var(--text);}
+    .modal-close{position:absolute;top:18px;right:18px;background:var(--surface2);border:none;color:var(--text-m);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .modal-close:hover{background:var(--border);color:var(--text);}
 
     /* FORM */
-    .form-group { margin-bottom: 14px; }
-    .form-label {
-      display: block; font-size: 12px; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
-    }
-    .form-input, .form-select, .form-textarea {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 12px; border-radius: 8px;
-      font-family: var(--font-sans); font-size: 14px; outline: none; transition: border-color 0.15s;
-    }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-    .form-select option { background: var(--surface2); }
-    .form-textarea { resize: vertical; min-height: 70px; }
-    .form-row { display: flex; gap: 10px; }
-    .form-row .form-group { flex: 1; }
-
-    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip {
-      padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);
-      background: var(--surface2); color: var(--text-muted); font-size: 13px;
-      font-weight: 600; cursor: pointer; transition: all 0.15s;
-    }
-    .chip.selected {
-      border-color: var(--accent); background: var(--accent-dim); color: var(--accent-light);
-    }
-
-    .toggle-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 0; border-bottom: 1px solid var(--border);
-    }
-    .toggle-label { font-size: 14px; font-weight: 600; }
-    .toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-    .toggle {
-      width: 44px; height: 24px; background: var(--border); border-radius: 12px;
-      position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
-    }
-    .toggle.on { background: var(--accent); }
-    .toggle::after {
-      content: ''; position: absolute; width: 18px; height: 18px;
-      background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s;
-    }
-    .toggle.on::after { left: 23px; }
-
-    .btn-primary {
-      width: 100%; background: var(--accent); color: white; border: none;
-      padding: 14px; border-radius: 10px; font-family: var(--font-sans);
-      font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 16px; transition: all 0.15s;
-    }
-    .btn-primary:hover { background: var(--accent-light); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-secondary {
-      width: 100%; background: transparent; color: var(--text-muted);
-      border: 1px solid var(--border); padding: 12px; border-radius: 10px;
-      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
-      cursor: pointer; margin-top: 8px; transition: all 0.15s;
-    }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent-light); }
+    .form-group{margin-bottom:15px;}
+    .form-label{display:block;font-size:11px;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+    .form-input,.form-textarea{width:100%;background:var(--surface2);border:1.5px solid transparent;color:var(--text);padding:11px 13px;border-radius:10px;font-family:var(--fm);font-size:14px;outline:none;transition:all .15s;}
+    .form-input:focus,.form-textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+    .form-textarea{resize:vertical;min-height:70px;}
+    .form-row{display:flex;gap:10px;}
+    .form-row .form-group{flex:1;}
+    .chip-group{display:flex;flex-wrap:wrap;gap:6px;}
+    .chip{padding:7px 13px;border-radius:50px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-m);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+    .chip:hover{border-color:var(--accent);color:var(--accent);}
+    .chip.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+    .toggle-label{font-size:14px;font-weight:600;}
+    .toggle-desc{font-size:12px;color:var(--text-m);margin-top:2px;}
+    .toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+    .toggle.on{background:var(--accent);}
+    .toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+    .toggle.on::after{left:23px;}
+    .btn-primary{width:100%;background:var(--accent);color:#fff;border:none;padding:14px;border-radius:12px;font-family:var(--fm);font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;transition:all .15s;box-shadow:0 2px 8px rgba(37,99,235,.3);}
+    .btn-primary:hover{background:var(--accent-h);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.4);}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .btn-secondary{width:100%;background:var(--surface2);color:var(--text-m);border:none;padding:13px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .15s;}
+    .btn-secondary:hover{background:var(--border);color:var(--text);}
 
     /* PIN DETAIL */
-    .pin-rent { font-family: var(--font-mono); font-size: 32px; font-weight: 700; }
-    .pin-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; font-family: var(--font-mono); }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
-    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
-    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
-    .badge-green { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-    .badge-orange { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-    .badge-purple { background: var(--accent-dim); color: var(--accent-light); border: 1px solid rgba(124,58,237,0.3); }
-    .badge-red { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-
-    .percentile-bar { background: var(--surface2); border-radius: 6px; height: 8px; margin: 8px 0 4px; overflow: hidden; }
-    .percentile-fill { height: 100%; background: linear-gradient(to right, var(--green), var(--accent)); border-radius: 6px; transition: width 0.6s ease; }
-    .range-labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
-    hr.section-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .pin-rent{font-family:var(--mono);font-size:34px;font-weight:500;color:var(--text);}
+    .pin-sub{font-size:13px;color:var(--text-m);margin-top:3px;font-family:var(--mono);}
+    .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
+    .badge{padding:5px 11px;border-radius:50px;font-size:12px;font-weight:600;}
+    .badge-blue{background:var(--accent-dim);color:var(--accent);}
+    .badge-green{background:var(--green-dim);color:var(--green);}
+    .badge-orange{background:var(--orange-dim);color:var(--orange);}
+    .badge-purple{background:rgba(124,58,237,.08);color:#7c3aed;}
+    .badge-red{background:rgba(220,38,38,.08);color:var(--red);}
+    .percentile-bar{background:var(--surface2);border-radius:50px;height:8px;margin:10px 0 4px;overflow:hidden;}
+    .percentile-fill{height:100%;background:linear-gradient(to right,#059669,#2563eb);border-radius:50px;transition:width .6s ease;}
+    .range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-d);margin-top:4px;}
+    hr.sd{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
     /* STATS */
-    .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; }
-    .stat-value { font-family: var(--font-mono); font-size: 22px; font-weight: 700; }
-    .bhk-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .bhk-row:last-child { border-bottom: none; }
-    .bhk-label { font-weight: 700; font-size: 14px; }
-    .bhk-avg { font-family: var(--font-mono); font-size: 16px; color: var(--accent-light); }
-    .bhk-count { font-size: 12px; color: var(--text-muted); }
+    .stat-card{background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:10px;}
+    .stat-label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:6px;}
+    .stat-value{font-family:var(--mono);font-size:24px;font-weight:500;}
+    .bhk-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+    .bhk-row:last-child{border-bottom:none;}
+    .bhk-label{font-weight:700;font-size:14px;}
+    .bhk-avg{font-family:var(--mono);font-size:16px;color:var(--accent);}
+    .bhk-count{font-size:12px;color:var(--text-m);}
 
     /* FILTER PANEL */
-    #filter-panel {
-      position: fixed; top: 0; left: 0; width: 100%; max-width: 360px; height: 100%;
-      background: var(--surface); border-right: 1px solid var(--border); z-index: 300;
-      padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
-      overflow-y: auto; transform: translateX(-100%); transition: transform 0.3s;
-    }
-    #filter-panel.open { transform: translateX(0); }
-    .filter-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+    #filter-panel{position:fixed;top:0;left:0;width:100%;max-width:360px;height:100%;background:var(--surface);z-index:300;padding:20px;padding-top:max(20px,env(safe-area-inset-top));overflow-y:auto;transform:translateX(-100%);transition:transform .3s;box-shadow:var(--sh3);}
+    #filter-panel.open{transform:translateX(0);}
+    .filter-title{font-size:20px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
 
     /* STARS */
-    .star-group { display: flex; gap: 4px; }
-    .star { font-size: 22px; cursor: pointer; color: var(--border); transition: color 0.1s; }
-    .star.filled { color: var(--orange); }
+    .star-group{display:flex;gap:4px;}
+    .star{font-size:24px;cursor:pointer;color:var(--border);transition:color .1s;}
+    .star.filled{color:#f59e0b;}
 
     /* COMMENTS */
-    .comment-item { background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-    .comment-text { font-size: 13px; line-height: 1.5; }
-    .comment-time { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+    .comment-item{background:var(--surface2);border-radius:10px;padding:10px 13px;margin-bottom:8px;}
+    .comment-text{font-size:13px;line-height:1.5;}
+    .comment-time{font-size:11px;color:var(--text-d);margin-top:4px;}
 
     /* HINTS */
-    #placing-hint, #area-draw-hint {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(20,20,20,0.95); color: var(--text);
-      padding: 12px 20px; border-radius: 50px; font-size: 14px; font-weight: 600;
-      z-index: 150; display: none; backdrop-filter: blur(10px); pointer-events: none;
-    }
-    #placing-hint { border: 1px solid var(--accent); }
-    #area-draw-hint { border: 1px solid var(--orange); }
+    #placing-hint,#area-draw-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:var(--text);padding:13px 22px;border-radius:50px;font-size:14px;font-weight:600;z-index:150;display:none;pointer-events:none;box-shadow:var(--sh3);}
+    #placing-hint{border-left:4px solid var(--accent);}
+    #area-draw-hint{border-left:4px solid var(--orange);}
 
     /* TOAST */
-    #toast {
-      position: fixed; bottom: 100px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 20px; border-radius: 50px;
-      font-size: 13px; font-weight: 600; z-index: 500;
-      opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap;
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:11px 22px;border-radius:50px;font-size:13px;font-weight:600;z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:var(--sh3);}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
     /* LOADING */
-    #loading {
-      position: fixed; inset: 0; background: var(--bg); z-index: 999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-      transition: opacity 0.4s;
-    }
-    #loading.hidden { opacity: 0; pointer-events: none; }
-    .loading-logo { font-family: var(--font-mono); font-size: 28px; font-weight: 700; }
-    .loading-logo span { color: var(--accent-light); }
-    .loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 13px; color: var(--text-muted); }
+    #loading{position:fixed;inset:0;background:#fff;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s;}
+    #loading.hidden{opacity:0;pointer-events:none;}
+    .loading-logo{font-family:var(--fm);font-size:28px;font-weight:800;}
+    .loading-logo span{color:var(--accent);}
+    .loading-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading-text{font-size:13px;color:var(--text-m);}
 
     /* WELCOME */
-    .welcome-icon { font-size: 48px; margin-bottom: 12px; text-align: center; }
-    .welcome-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; text-align: center; }
-    .welcome-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; text-align: center; }
-    .welcome-steps { background: var(--surface2); border-radius: 10px; padding: 14px; margin-bottom: 20px; }
-    .welcome-step { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 13px; color: var(--text-muted); }
-    .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-dim); border: 1px solid var(--accent); color: var(--accent-light); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .welcome-icon{font-size:52px;margin-bottom:12px;text-align:center;}
+    .welcome-title{font-size:26px;font-weight:800;margin-bottom:8px;text-align:center;}
+    .welcome-desc{font-size:14px;color:var(--text-m);line-height:1.6;margin-bottom:20px;text-align:center;}
+    .welcome-steps{background:var(--surface2);border-radius:14px;padding:16px;margin-bottom:20px;}
+    .welcome-step{display:flex;align-items:flex-start;gap:12px;padding:7px 0;font-size:13px;color:var(--text-m);}
+    .step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
     /* MSG BANNER */
-    #msg-banner { position: fixed; top: 92px; left: 50%; transform: translateX(-50%); z-index: 95; display: none; }
-    .msg-banner-inner { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.4); color: var(--accent-light); font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(10px); white-space: nowrap; }
+    #msg-banner{position:fixed;top:96px;left:50%;transform:translateX(-50%);z-index:95;display:none;}
+    .msg-banner-inner{background:#fff;color:var(--text);font-size:13px;font-weight:600;padding:7px 16px;border-radius:50px;white-space:nowrap;box-shadow:var(--sh2);border-left:3px solid var(--accent);}
 
     /* SEEKER */
-    .seeker-note { font-size: 12px; color: var(--text-muted); background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.5; }
+    .seeker-note{font-size:12px;color:var(--text-m);background:var(--accent-dim);border-radius:10px;padding:10px 13px;margin-bottom:16px;line-height:1.6;border-left:3px solid var(--accent);}
 
-    input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--border); border-radius: 2px; outline: none; margin: 8px 0; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; }
-
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    @media (max-width: 480px) {
-      .top-btn span { display: none; }
-    }
+    input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none;margin:8px 0;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(37,99,235,.3);}
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    @media(max-width:480px){.top-btn span{display:none;}}
   </style>
 </head>
 <body>
 
-<!-- Loading -->
 <div id="loading">
   <div class="loading-logo">nagpur<span>.rent</span></div>
   <div class="loading-spinner"></div>
@@ -346,17 +181,18 @@
 
 <div id="map"></div>
 
-<!-- Top bar -->
 <div id="topbar">
-  <div id="logo">nagpur<span>.rent</span></div>
-  <div id="pin-count-badge">0 pins</div>
+  <div id="logo-pill">
+    <div id="logo-icon">🏠</div>
+    <div id="logo">nagpur<span>.rent</span></div>
+    <div id="pin-count-badge">0 pins</div>
+  </div>
   <div class="spacer"></div>
   <button class="top-btn" onclick="openFilter()">⚙ <span>Filters</span></button>
   <button class="top-btn" onclick="openStats()">📊 <span>Stats</span></button>
   <button class="top-btn" id="area-btn" onclick="toggleAreaDraw()">📐 <span>Area</span></button>
 </div>
 
-<!-- Neighborhood bar -->
 <div id="neighborhood-bar">
   <div class="n-chip active" onclick="filterByArea(this,null,null)">All Areas</div>
   <div class="n-chip" onclick="filterByArea(this,21.1362,79.0709)">Dharampeth</div>
@@ -373,10 +209,8 @@
   <div class="n-chip" onclick="filterByArea(this,21.1458,79.0882)">Sitabuldi</div>
 </div>
 
-<!-- Message banner -->
 <div id="msg-banner"><div class="msg-banner-inner" id="msg-banner-text"></div></div>
 
-<!-- Bottom controls -->
 <div id="bottom-controls">
   <button id="add-pin-btn" onclick="togglePlacingPin()">
     <span id="add-icon">＋</span>
@@ -388,42 +222,35 @@
   </div>
 </div>
 
-<!-- Hints -->
 <div id="placing-hint">📍 Tap on the map to place your pin</div>
 <div id="area-draw-hint">📐 Click and drag to draw a rectangle</div>
-
-<!-- Toast -->
 <div id="toast"></div>
 
-<!-- ═══ MODALS ═══ -->
-
-<!-- Welcome -->
+<!-- WELCOME -->
 <div class="modal-overlay modal-center" id="welcome-modal">
   <div class="modal" style="position:relative;">
     <div class="welcome-icon">🏠</div>
     <div class="welcome-title">Welcome to nagpur.rent</div>
-    <div class="welcome-desc">A community map of real rental prices in Nagpur — shared by residents, for residents. No brokers. No ads.</div>
+    <div class="welcome-desc">A community map of real rental prices in Nagpur — by residents, for residents. No brokers. No ads.</div>
     <div class="welcome-steps">
       <div class="welcome-step"><div class="step-num">1</div><div>Tap <strong>Add My Rent</strong> and drop a pin on your area</div></div>
       <div class="welcome-step"><div class="step-num">2</div><div>Fill in your rent, BHK, furnishing details</div></div>
       <div class="welcome-step"><div class="step-num">3</div><div>See how your rent compares to the neighbourhood</div></div>
-      <div class="welcome-step"><div class="step-num">4</div><div>Share on WhatsApp and help others make smarter decisions</div></div>
+      <div class="welcome-step"><div class="step-num">4</div><div>Share on WhatsApp and help others decide smarter</div></div>
     </div>
     <button class="btn-primary" onclick="closeWelcome()">Explore the Map →</button>
   </div>
 </div>
 
-<!-- Add Pin -->
+<!-- ADD PIN -->
 <div class="modal-overlay" id="pin-modal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Add Your Rent</div>
-
     <div class="form-group">
       <label class="form-label">Monthly Rent (₹)</label>
       <input type="number" class="form-input" id="pin-rent" placeholder="e.g. 12000" />
     </div>
-
     <div class="form-group">
       <label class="form-label">BHK</label>
       <div class="chip-group" id="bhk-chips">
@@ -434,7 +261,6 @@
         <div class="chip" data-val="5" onclick="selectChip('bhk-chips',this)">5+ BHK</div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Furnishing</label>
       <div class="chip-group" id="furnishing-chips">
@@ -443,7 +269,6 @@
         <div class="chip" data-val="fully" onclick="selectChip('furnishing-chips',this)">Fully Furnished</div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Occupant Type</label>
       <div class="chip-group" id="occupant-chips">
@@ -453,18 +278,10 @@
         <div class="chip" data-val="girls" onclick="selectChip('occupant-chips',this)">Girls Only</div>
       </div>
     </div>
-
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Society Name</label>
-        <input type="text" class="form-input" id="pin-society" placeholder="Optional" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Area (sqft)</label>
-        <input type="number" class="form-input" id="pin-sqft" placeholder="Optional" />
-      </div>
+      <div class="form-group"><label class="form-label">Society Name</label><input type="text" class="form-input" id="pin-society" placeholder="Optional" /></div>
+      <div class="form-group"><label class="form-label">Area (sqft)</label><input type="number" class="form-input" id="pin-sqft" placeholder="Optional" /></div>
     </div>
-
     <div class="toggle-row">
       <div><div class="toggle-label">Gated Society</div><div class="toggle-desc">Has security / compound wall</div></div>
       <div class="toggle" id="gated-toggle" onclick="this.classList.toggle('on')"></div>
@@ -473,28 +290,24 @@
       <div><div class="toggle-label">Maintenance Included</div><div class="toggle-desc">In the rent amount</div></div>
       <div class="toggle" id="maint-toggle" onclick="this.classList.toggle('on')"></div>
     </div>
-
     <div class="form-group" style="margin-top:14px;">
       <label class="form-label">Maintenance (₹/month if separate)</label>
       <input type="number" class="form-input" id="pin-maintenance" placeholder="0 if none" />
     </div>
-
     <div class="toggle-row">
       <div><div class="toggle-label">Vacant Soon</div><div class="toggle-desc">Flat will be available</div></div>
       <div class="toggle" id="vacant-toggle" onclick="this.classList.toggle('on')"></div>
     </div>
-
     <div class="form-group" style="margin-top:14px;">
       <label class="form-label">Notes (optional)</label>
       <textarea class="form-textarea" id="pin-notes" placeholder="Parking, water issues, landlord info, area vibe…"></textarea>
     </div>
-
     <button class="btn-primary" id="save-pin-btn" onclick="savePin()">Save Pin</button>
     <button class="btn-secondary" onclick="cancelPin()">Cancel</button>
   </div>
 </div>
 
-<!-- Pin Detail -->
+<!-- DETAIL -->
 <div class="modal-overlay" id="detail-modal">
   <div class="modal" id="detail-content" style="position:relative;">
     <div class="modal-handle"></div>
@@ -503,7 +316,7 @@
   </div>
 </div>
 
-<!-- Stats -->
+<!-- STATS -->
 <div class="modal-overlay" id="stats-modal">
   <div class="modal" style="position:relative;">
     <div class="modal-handle"></div>
@@ -513,7 +326,7 @@
   </div>
 </div>
 
-<!-- Area Stats -->
+<!-- AREA STATS -->
 <div class="modal-overlay" id="area-stats-modal">
   <div class="modal" style="position:relative;">
     <div class="modal-handle"></div>
@@ -523,13 +336,9 @@
   </div>
 </div>
 
-<!-- Filters -->
+<!-- FILTERS -->
 <div id="filter-panel">
-  <div class="filter-title">
-    Filters
-    <button class="modal-close" style="position:static;" onclick="closeFilter()">✕</button>
-  </div>
-
+  <div class="filter-title">Filters <button class="modal-close" style="position:static;" onclick="closeFilter()">✕</button></div>
   <div class="form-group">
     <label class="form-label">BHK</label>
     <div class="chip-group" id="filter-bhk">
@@ -540,7 +349,6 @@
       <div class="chip" data-val="4" onclick="selectChip('filter-bhk',this)">4+</div>
     </div>
   </div>
-
   <div class="form-group">
     <label class="form-label">Min Rent: ₹<span id="lbl-min">0</span></label>
     <input type="range" id="flt-min" min="0" max="50000" step="1000" value="0" oninput="document.getElementById('lbl-min').textContent=fmtNum(+this.value)" />
@@ -549,7 +357,6 @@
     <label class="form-label">Max Rent: ₹<span id="lbl-max">1,00,000+</span></label>
     <input type="range" id="flt-max" min="5000" max="100000" step="1000" value="100000" oninput="document.getElementById('lbl-max').textContent=(+this.value>=100000?'1,00,000+':fmtNum(+this.value))" />
   </div>
-
   <div class="form-group">
     <label class="form-label">Furnishing</label>
     <div class="chip-group" id="filter-furnishing">
@@ -559,7 +366,6 @@
       <div class="chip" data-val="fully" onclick="selectChip('filter-furnishing',this)">Fully</div>
     </div>
   </div>
-
   <div class="form-group">
     <label class="form-label">Gated Status</label>
     <div class="chip-group" id="filter-gated">
@@ -568,7 +374,6 @@
       <div class="chip" data-val="non-gated" onclick="selectChip('filter-gated',this)">Non-Gated</div>
     </div>
   </div>
-
   <div class="form-group">
     <label class="form-label">Availability</label>
     <div class="chip-group" id="filter-avail">
@@ -576,23 +381,20 @@
       <div class="chip" data-val="vacant" onclick="selectChip('filter-avail',this)">Vacant Soon</div>
     </div>
   </div>
-
   <button class="btn-primary" onclick="applyFilters()">Apply Filters</button>
   <button class="btn-secondary" onclick="resetFilters()">Reset All</button>
 </div>
 
-<!-- Seeker -->
+<!-- SEEKER -->
 <div class="modal-overlay" id="seeker-modal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">🔍 Looking for a Flat?</div>
-    <div class="seeker-note">Drop a seeker pin (green) showing where you want to live. Your budget and preferences will be visible to others who check your pin.</div>
-
+    <div class="seeker-note">Drop a seeker pin (green) showing where you want to live. Landlords and residents can see your budget and preferences.</div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Min Budget (₹)</label><input type="number" class="form-input" id="seeker-min" placeholder="5000" /></div>
       <div class="form-group"><label class="form-label">Max Budget (₹)</label><input type="number" class="form-input" id="seeker-max" placeholder="20000" /></div>
     </div>
-
     <div class="form-group">
       <label class="form-label">BHK Preference</label>
       <div class="chip-group" id="seeker-bhk">
@@ -601,7 +403,6 @@
         <div class="chip" data-val="3" onclick="selectChip('seeker-bhk',this)">3 BHK</div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Food Preference</label>
       <div class="chip-group" id="seeker-food">
@@ -610,7 +411,6 @@
         <div class="chip" data-val="non-veg" onclick="selectChip('seeker-food',this)">Non-Veg OK</div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Gender</label>
       <div class="chip-group" id="seeker-gender">
@@ -619,237 +419,165 @@
         <div class="chip" data-val="female" onclick="selectChip('seeker-gender',this)">Female</div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Contact Email (optional)</label>
       <input type="email" class="form-input" id="seeker-email" placeholder="for landlords to reach you" />
     </div>
-
-    <button class="btn-primary" onclick="saveSeekerPin()">Drop Seeker Pin on Map Centre</button>
+    <button class="btn-primary" onclick="saveSeekerPin()">Drop Seeker Pin</button>
     <button class="btn-secondary" onclick="closeModal('seeker-modal')">Cancel</button>
   </div>
 </div>
 
-<!-- Milestone -->
+<!-- MILESTONE -->
 <div class="modal-overlay modal-center" id="milestone-modal">
   <div class="modal" style="position:relative;text-align:center;">
     <button class="modal-close" onclick="closeModal('milestone-modal')">✕</button>
     <div style="font-size:52px;margin-bottom:10px;">🎉</div>
     <div class="modal-title" id="milestone-title">Community Milestone!</div>
-    <div style="font-size:14px;color:var(--text-muted);margin-bottom:20px;" id="milestone-desc"></div>
+    <div style="font-size:14px;color:var(--text-m);margin-bottom:20px;" id="milestone-desc"></div>
     <button class="btn-primary" onclick="shareMilestone()">Share on WhatsApp 📲</button>
     <button class="btn-secondary" onclick="closeModal('milestone-modal')">Maybe Later</button>
   </div>
 </div>
 
 <script>
-// ── CONFIG — replace these 3 values ──
-const SUPABASE_URL = 'https://artqzjmizytoxxaqzadw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_p-edGtM9F4SBjiObS6AxKA_bciZUdIF';
-// Google Maps key is in the <script> tag at the bottom of this file
+const SUPABASE_URL='https://artqzjmizytoxxaqzadw.supabase.co';
+const SUPABASE_KEY='sb_publishable_p-edGtM9F4SBjiObS6AxKA_bciZUdIF';
+const NAGPUR={lat:21.1458,lng:79.0882};
+const GEOFENCE_KM=50;
+const MILESTONES=[50,100,200,500,1000];
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+let map,allPins=[],markers=[],seekerMarkers=[];
+let placingPin=false,newLatLng=null,pendingMarker=null;
+let activeFilters={bhk:'all',rentMin:0,rentMax:100000,furnishing:'all',gated:'all',avail:'all'};
+let areaDrawMode=false,areaRect=null,areaMouseDown=false,areaStart=null;
+let currentPin=null,userIP='';
+let pendingRating={locality:0,build:0};
 
-const NAGPUR = { lat: 21.1458, lng: 79.0882 };
-const GEOFENCE_KM = 50;
-const MILESTONES = [50, 100, 200, 500, 1000];
-
-// ── SUPABASE ──
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ── STATE ──
-let map, allPins = [], markers = [], seekerMarkers = [];
-let placingPin = false, newLatLng = null, pendingMarker = null;
-let activeFilters = { bhk:'all', rentMin:0, rentMax:100000, furnishing:'all', gated:'all', avail:'all' };
-let areaDrawMode = false, areaRect = null, areaMouseDown = false, areaStart = null;
-let currentPin = null, userIP = '';
-let pendingRating = { locality:0, build:0 };
-
-// ── MAP INIT ──
-function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: NAGPUR, zoom: 13,
-    disableDefaultUI: true,
-    gestureHandling: 'greedy',
-    styles: [
-      {elementType:'geometry',stylers:[{color:'#0d0d0d'}]},
-      {elementType:'labels.text.fill',stylers:[{color:'#666'}]},
-      {elementType:'labels.text.stroke',stylers:[{color:'#0d0d0d'}]},
-      {featureType:'administrative',elementType:'geometry',stylers:[{color:'#333'}]},
-      {featureType:'road',elementType:'geometry',stylers:[{color:'#1e1e1e'}]},
-      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#2a2a2a'}]},
+function initMap(){
+  map=new google.maps.Map(document.getElementById('map'),{
+    center:NAGPUR,zoom:13,disableDefaultUI:true,gestureHandling:'greedy',
+    styles:[
       {featureType:'poi',stylers:[{visibility:'off'}]},
       {featureType:'transit',stylers:[{visibility:'off'}]},
-      {featureType:'water',elementType:'geometry',stylers:[{color:'#060d18'}]},
-      {featureType:'landscape',elementType:'geometry',stylers:[{color:'#0d0d0d'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#ffffff'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#f8f8f8'}]},
+      {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#9ca3af'}]},
+      {featureType:'landscape',elementType:'geometry',stylers:[{color:'#f3f4f6'}]},
+      {featureType:'water',elementType:'geometry',stylers:[{color:'#bfdbfe'}]},
+      {featureType:'administrative',elementType:'geometry.stroke',stylers:[{color:'#d1d5db'}]},
+      {elementType:'labels.text.fill',stylers:[{color:'#374151'}]},
+      {elementType:'labels.text.stroke',stylers:[{color:'#ffffff'}]},
     ]
   });
-
-  map.addListener('click', onMapClick);
-  map.addListener('mousedown', onAreaMouseDown);
-  map.addListener('mousemove', onAreaMouseMove);
-  map.addListener('mouseup', onAreaMouseUp);
-
-  getUserIP().then(() => { loadPins(); loadMsgBoard(); });
+  map.addListener('click',onMapClick);
+  map.addListener('mousedown',onAreaMouseDown);
+  map.addListener('mousemove',onAreaMouseMove);
+  map.addListener('mouseup',onAreaMouseUp);
+  getUserIP().then(()=>{loadPins();loadMsgBoard();});
 }
 
-async function getUserIP() {
-  try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); userIP = d.ip; } catch { userIP='unknown'; }
+async function getUserIP(){try{const r=await fetch('https://api.ipify.org?format=json');const d=await r.json();userIP=d.ip;}catch{userIP='unknown';}}
+
+async function loadPins(){
+  const{data,error}=await sb.from('pins').select('*').order('created_at',{ascending:false});
+  if(error){console.error(error);hideLoading();return;}
+  allPins=data||[];renderMarkers(allPins);updateCount(allPins.length);checkMilestones(allPins.length);hideLoading();
+  const{data:seekers}=await sb.from('seekers').select('*');
+  renderSeekers(seekers||[]);
 }
 
-// ── LOAD PINS ──
-async function loadPins() {
-  const { data, error } = await sb.from('pins').select('*').order('created_at',{ascending:false});
-  if (error) { console.error(error); hideLoading(); return; }
-  allPins = data || [];
-  renderMarkers(allPins);
-  updateCount(allPins.length);
-  checkMilestones(allPins.length);
-  hideLoading();
-
-  const { data: seekers } = await sb.from('seekers').select('*');
-  renderSeekers(seekers || []);
-}
-
-// ── MARKERS ──
-function renderMarkers(pins) {
-  markers.forEach(m => m.setMap(null));
-  markers = [];
-
-  pins.forEach(pin => {
-    const color = pin.gated ? '#3b82f6' : '#f59e0b';
-    const dot = new google.maps.Marker({
-      position: {lat:pin.lat, lng:pin.lng}, map,
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale:10, fillColor:color, fillOpacity:0.9, strokeColor:'#fff', strokeWeight:1.5 },
-      zIndex: 2,
-    });
-    const lbl = new google.maps.Marker({
-      position: {lat:pin.lat, lng:pin.lng}, map,
-      label: { text:`₹${shortFmt(pin.rent)}`, color:'#fff', fontSize:'10px', fontFamily:'Space Mono,monospace', fontWeight:'bold' },
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale:0 },
-      zIndex: 3,
-    });
-    dot.addListener('click', () => openDetail(pin));
-    lbl.addListener('click', () => openDetail(pin));
-    markers.push(dot, lbl);
+function renderMarkers(pins){
+  markers.forEach(m=>m.setMap(null));markers=[];
+  pins.forEach(pin=>{
+    const color=pin.gated?'#2563eb':'#d97706';
+    const dot=new google.maps.Marker({position:{lat:pin.lat,lng:pin.lng},map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:11,fillColor:color,fillOpacity:1,strokeColor:'#fff',strokeWeight:2},zIndex:2});
+    const lbl=new google.maps.Marker({position:{lat:pin.lat,lng:pin.lng},map,label:{text:'₹'+shortFmt(pin.rent),color:'#fff',fontSize:'10px',fontFamily:'DM Mono,monospace',fontWeight:'500'},icon:{path:google.maps.SymbolPath.CIRCLE,scale:0},zIndex:3});
+    dot.addListener('click',()=>openDetail(pin));lbl.addListener('click',()=>openDetail(pin));
+    markers.push(dot,lbl);
   });
 }
 
-function renderSeekers(list) {
-  seekerMarkers.forEach(m => m.setMap(null));
-  seekerMarkers = [];
-  list.forEach(s => {
-    const m = new google.maps.Marker({
-      position: {lat:s.lat, lng:s.lng}, map,
-      icon: { path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:'#10b981', fillOpacity:0.8, strokeColor:'#fff', strokeWeight:1.5 },
-      zIndex: 1,
-    });
-    seekerMarkers.push(m);
-  });
+function renderSeekers(list){
+  seekerMarkers.forEach(m=>m.setMap(null));seekerMarkers=[];
+  list.forEach(s=>{const m=new google.maps.Marker({position:{lat:s.lat,lng:s.lng},map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:9,fillColor:'#059669',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},zIndex:1});seekerMarkers.push(m);});
 }
 
-// ── MAP CLICK ──
-function onMapClick(e) {
-  if (!placingPin || areaDrawMode) return;
-  const lat = e.latLng.lat(), lng = e.latLng.lng();
-  if (distKm(lat,lng,NAGPUR.lat,NAGPUR.lng) > GEOFENCE_KM) { showToast('Please pin within Nagpur'); return; }
-  newLatLng = {lat,lng};
-  if (pendingMarker) pendingMarker.setMap(null);
-  pendingMarker = new google.maps.Marker({
-    position: newLatLng, map,
-    icon: {path:google.maps.SymbolPath.CIRCLE,scale:12,fillColor:'#7c3aed',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},
-    animation: google.maps.Animation.BOUNCE,
-  });
-  setTimeout(()=>{ if(pendingMarker) pendingMarker.setAnimation(null); }, 700);
+function onMapClick(e){
+  if(!placingPin||areaDrawMode)return;
+  const lat=e.latLng.lat(),lng=e.latLng.lng();
+  if(distKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEOFENCE_KM){showToast('Please pin within Nagpur');return;}
+  newLatLng={lat,lng};
+  if(pendingMarker)pendingMarker.setMap(null);
+  pendingMarker=new google.maps.Marker({position:newLatLng,map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:12,fillColor:'#2563eb',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},animation:google.maps.Animation.BOUNCE});
+  setTimeout(()=>{if(pendingMarker)pendingMarker.setAnimation(null);},700);
   document.getElementById('placing-hint').style.display='none';
-  openModal('pin-modal');
-  stopPlacing();
+  openModal('pin-modal');stopPlacing();
 }
 
-// ── PLACING PIN ──
-function togglePlacingPin() {
-  if (placingPin) { stopPlacing(); return; }
-  placingPin = true;
+function togglePlacingPin(){
+  if(placingPin){stopPlacing();return;}
+  placingPin=true;
   document.getElementById('add-pin-btn').classList.add('placing');
-  document.getElementById('add-text').textContent = 'Cancel';
-  document.getElementById('add-icon').textContent = '✕';
-  document.getElementById('placing-hint').style.display = 'block';
+  document.getElementById('add-text').textContent='Cancel';
+  document.getElementById('add-icon').textContent='✕';
+  document.getElementById('placing-hint').style.display='block';
 }
 
-function stopPlacing() {
-  placingPin = false;
+function stopPlacing(){
+  placingPin=false;
   document.getElementById('add-pin-btn').classList.remove('placing');
-  document.getElementById('add-text').textContent = 'Add My Rent';
-  document.getElementById('add-icon').textContent = '＋';
-  document.getElementById('placing-hint').style.display = 'none';
+  document.getElementById('add-text').textContent='Add My Rent';
+  document.getElementById('add-icon').textContent='＋';
+  document.getElementById('placing-hint').style.display='none';
 }
 
-function cancelPin() {
-  closeModal('pin-modal');
-  stopPlacing();
-  resetForm();
-}
+function cancelPin(){closeModal('pin-modal');stopPlacing();resetForm();}
 
-// ── SAVE PIN ──
-async function savePin() {
-  const rent = parseInt(document.getElementById('pin-rent').value);
-  const bhk = parseInt(getChip('bhk-chips'));
-  if (!rent || rent < 500) { showToast('Enter a valid rent'); return; }
-  if (!bhk) { showToast('Select BHK type'); return; }
-  if (!newLatLng) { showToast('No location — tap Add My Rent first'); return; }
-
-  const btn = document.getElementById('save-pin-btn');
-  btn.disabled = true; btn.textContent = 'Saving…';
-
-  const { data, error } = await sb.from('pins').insert([{
-    lat: newLatLng.lat, lng: newLatLng.lng, rent, bhk,
-    furnishing: getChip('furnishing-chips') || 'unfurnished',
-    occupant_type: getChip('occupant-chips') || 'any',
-    society_name: document.getElementById('pin-society').value || null,
-    sqft: parseInt(document.getElementById('pin-sqft').value) || null,
-    gated: document.getElementById('gated-toggle').classList.contains('on'),
-    maintenance_included: document.getElementById('maint-toggle').classList.contains('on'),
-    maintenance: parseInt(document.getElementById('pin-maintenance').value) || 0,
-    is_vacant_soon: document.getElementById('vacant-toggle').classList.contains('on'),
-    notes: document.getElementById('pin-notes').value || null,
-    ip_address: userIP,
+async function savePin(){
+  const rent=parseInt(document.getElementById('pin-rent').value);
+  const bhk=parseInt(getChip('bhk-chips'));
+  if(!rent||rent<500){showToast('Enter a valid rent');return;}
+  if(!bhk){showToast('Select BHK type');return;}
+  if(!newLatLng){showToast('No location — tap Add My Rent first');return;}
+  const btn=document.getElementById('save-pin-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  const{data,error}=await sb.from('pins').insert([{
+    lat:newLatLng.lat,lng:newLatLng.lng,rent,bhk,
+    furnishing:getChip('furnishing-chips')||'unfurnished',
+    occupant_type:getChip('occupant-chips')||'any',
+    society_name:document.getElementById('pin-society').value||null,
+    sqft:parseInt(document.getElementById('pin-sqft').value)||null,
+    gated:document.getElementById('gated-toggle').classList.contains('on'),
+    maintenance_included:document.getElementById('maint-toggle').classList.contains('on'),
+    maintenance:parseInt(document.getElementById('pin-maintenance').value)||0,
+    is_vacant_soon:document.getElementById('vacant-toggle').classList.contains('on'),
+    notes:document.getElementById('pin-notes').value||null,
+    ip_address:userIP,
   }]).select();
-
-  btn.disabled = false; btn.textContent = 'Save Pin';
-
-  if (error) { showToast('Error saving — check Supabase setup'); console.error(error); return; }
-
-  allPins.unshift(data[0]);
-  renderMarkers(filterLogic(allPins));
-  updateCount(allPins.length);
-  closeModal('pin-modal');
-  resetForm();
-  showToast('Pin added! 🎉');
-  checkMilestones(allPins.length);
-  openDetail(data[0]);
+  btn.disabled=false;btn.textContent='Save Pin';
+  if(error){showToast('Error saving — check Supabase');console.error(error);return;}
+  allPins.unshift(data[0]);renderMarkers(filterLogic(allPins));updateCount(allPins.length);
+  closeModal('pin-modal');resetForm();showToast('Pin added! 🎉');checkMilestones(allPins.length);openDetail(data[0]);
 }
 
-// ── DETAIL ──
-async function openDetail(pin) {
-  currentPin = pin;
-  const body = document.getElementById('detail-body');
-  body.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Loading…</div>';
+async function openDetail(pin){
+  currentPin=pin;
+  const body=document.getElementById('detail-body');
+  body.innerHTML='<div style="color:var(--text-m);text-align:center;padding:20px;">Loading…</div>';
   openModal('detail-modal');
-
-  const sameBhk = allPins.filter(p => p.bhk === pin.bhk);
-  const cheaper = sameBhk.filter(p => p.rent < pin.rent).length;
-  const cheaperThan = sameBhk.length > 1 ? Math.round(((sameBhk.length-1-cheaper)/(sameBhk.length-1))*100) : 50;
-
-  const { data: ratings } = await sb.from('ratings').select('*').eq('pin_id', pin.id);
-  const { data: comments } = await sb.from('comments').select('*').eq('pin_id', pin.id).order('created_at',{ascending:false});
-
-  const avgLoc = ratings?.length ? (ratings.reduce((s,r)=>s+(r.locality_rating||0),0)/ratings.length).toFixed(1) : null;
-  const avgBld = ratings?.length ? (ratings.reduce((s,r)=>s+(r.build_rating||0),0)/ratings.length).toFixed(1) : null;
-  const isOwner = pin.ip_address === userIP;
-
-  body.innerHTML = `
-    <div class="pin-rent">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--text-muted)">/mo</span></div>
-    <div class="pin-sub">${pin.bhk}BHK · ₹${fmt(Math.round(pin.rent/pin.bhk))}/BHK${pin.sqft ? ` · ${pin.sqft} sqft` : ''}</div>
-
+  const sameBhk=allPins.filter(p=>p.bhk===pin.bhk);
+  const cheaper=sameBhk.filter(p=>p.rent<pin.rent).length;
+  const ct=sameBhk.length>1?Math.round(((sameBhk.length-1-cheaper)/(sameBhk.length-1))*100):50;
+  const{data:ratings}=await sb.from('ratings').select('*').eq('pin_id',pin.id);
+  const{data:comments}=await sb.from('comments').select('*').eq('pin_id',pin.id).order('created_at',{ascending:false});
+  const avgLoc=ratings?.length?(ratings.reduce((s,r)=>s+(r.locality_rating||0),0)/ratings.length).toFixed(1):null;
+  const avgBld=ratings?.length?(ratings.reduce((s,r)=>s+(r.build_rating||0),0)/ratings.length).toFixed(1):null;
+  const isOwner=pin.ip_address===userIP;
+  body.innerHTML=`
+    <div class="pin-rent">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--text-m)">/mo</span></div>
+    <div class="pin-sub">${pin.bhk}BHK · ₹${fmt(Math.round(pin.rent/pin.bhk))}/BHK${pin.sqft?' · '+pin.sqft+' sqft':''}</div>
     <div class="badge-row">
       <span class="badge ${pin.gated?'badge-blue':'badge-orange'}">${pin.gated?'🔒 Gated':'🏘 Non-Gated'}</span>
       <span class="badge badge-purple">${cap(pin.furnishing||'unfurnished')}</span>
@@ -857,145 +585,100 @@ async function openDetail(pin) {
       ${pin.is_vacant_soon?'<span class="badge badge-green">🏠 Vacant Soon</span>':''}
       <span class="badge badge-purple">${cap(pin.occupant_type||'any')}</span>
     </div>
-
-    ${pin.society_name ? `<div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">📍 ${esc(pin.society_name)}</div>` : ''}
-
-    <div style="font-size:13px;color:var(--text-muted);margin:10px 0 4px;">
-      Cheaper than <strong style="color:var(--green)">${cheaperThan}%</strong> of ${pin.bhk}BHKs in Nagpur
-    </div>
-    <div class="percentile-bar"><div class="percentile-fill" style="width:${cheaperThan}%"></div></div>
+    ${pin.society_name?`<div style="font-size:13px;color:var(--text-m);margin-bottom:4px;">📍 ${esc(pin.society_name)}</div>`:''}
+    <div style="font-size:13px;color:var(--text-m);margin:10px 0 4px;">Cheaper than <strong style="color:var(--green)">${ct}%</strong> of ${pin.bhk}BHKs in Nagpur</div>
+    <div class="percentile-bar"><div class="percentile-fill" style="width:${ct}%"></div></div>
     <div class="range-labels"><span>Cheapest</span><span>Most Expensive</span></div>
-
-    ${pin.maintenance>0&&!pin.maintenance_included ? `<div style="margin-top:8px;font-size:13px;color:var(--text-muted);">+ ₹${fmt(pin.maintenance)}/mo maintenance</div>` : ''}
-    ${pin.notes ? `<div style="margin-top:10px;font-size:13px;color:var(--text-muted);background:var(--surface2);border-radius:8px;padding:10px;line-height:1.5;">${esc(pin.notes)}</div>` : ''}
-
-    <hr class="section-divider" />
-
+    ${pin.maintenance>0&&!pin.maintenance_included?`<div style="margin-top:8px;font-size:13px;color:var(--text-m);">+ ₹${fmt(pin.maintenance)}/mo maintenance</div>`:''}
+    ${pin.notes?`<div style="margin-top:10px;font-size:13px;color:var(--text-m);background:var(--surface2);border-radius:10px;padding:10px;line-height:1.5;">${esc(pin.notes)}</div>`:''}
+    <hr class="sd"/>
     <div style="margin-bottom:12px;">
       <div class="form-label" style="margin-bottom:8px;">Rate This Listing</div>
       <div style="display:flex;gap:20px;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Locality</div>
-          <div class="star-group" id="loc-stars">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('locality',${i})">★</div>`).join('')}</div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Build Quality</div>
-          <div class="star-group" id="bld-stars">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('build',${i})">★</div>`).join('')}</div>
-        </div>
+        <div><div style="font-size:12px;color:var(--text-m);margin-bottom:4px;">Locality</div><div class="star-group" id="loc-stars">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('locality',${i})">★</div>`).join('')}</div></div>
+        <div><div style="font-size:12px;color:var(--text-m);margin-bottom:4px;">Build Quality</div><div class="star-group" id="bld-stars">${[1,2,3,4,5].map(i=>`<div class="star" onclick="rateStar('build',${i})">★</div>`).join('')}</div></div>
       </div>
-      ${avgLoc ? `<div style="margin-top:6px;font-size:12px;color:var(--text-muted);">Locality: ${avgLoc}★ · Build: ${avgBld}★ · ${ratings.length} rating${ratings.length>1?'s':''}</div>` : ''}
+      ${avgLoc?`<div style="margin-top:6px;font-size:12px;color:var(--text-m);">Locality: ${avgLoc}★ · Build: ${avgBld}★ · ${ratings.length} rating${ratings.length>1?'s':''}</div>`:''}
       <button class="btn-secondary" style="margin-top:8px;width:auto;padding:8px 16px;" onclick="submitRating()">Submit Rating</button>
     </div>
-
-    <hr class="section-divider" />
-
+    <hr class="sd"/>
     <div>
       <div class="form-label" style="margin-bottom:8px;">Comments (${comments?.length||0})</div>
-      ${comments?.length ? comments.slice(0,5).map(c=>`
-        <div class="comment-item">
-          <div class="comment-text">${esc(c.content)}</div>
-          <div class="comment-time">${timeAgo(c.created_at)}</div>
-        </div>`).join('') : '<div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">No comments yet.</div>'}
+      ${comments?.length?comments.slice(0,5).map(c=>`<div class="comment-item"><div class="comment-text">${esc(c.content)}</div><div class="comment-time">${timeAgo(c.created_at)}</div></div>`).join(''):'<div style="font-size:13px;color:var(--text-d);margin-bottom:8px;">No comments yet.</div>'}
       <div style="display:flex;gap:8px;margin-top:6px;">
         <input type="text" class="form-input" id="comment-input" placeholder="Add a comment…" style="flex:1;" />
         <button class="top-btn" onclick="addComment()">Post</button>
       </div>
     </div>
-
-    <hr class="section-divider" />
-
+    <hr class="sd"/>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="top-btn" onclick="sharePin()">📲 WhatsApp</button>
       <button class="top-btn" onclick="reportPin()">🚩 Report</button>
-      ${isOwner ? `<button class="top-btn" style="color:var(--red);" onclick="deletePin('${pin.id}')">🗑 Delete</button>` : ''}
-    </div>
-  `;
+      ${isOwner?`<button class="top-btn" style="color:var(--red);" onclick="deletePin('${pin.id}')">🗑 Delete</button>`:''}
+    </div>`;
 }
 
-// ── RATING ──
-function rateStar(type, val) {
-  pendingRating[type] = val;
-  const id = type==='locality' ? 'loc-stars' : 'bld-stars';
-  document.querySelectorAll(`#${id} .star`).forEach((s,i) => s.classList.toggle('filled', i<val));
+function rateStar(type,val){
+  pendingRating[type]=val;
+  const id=type==='locality'?'loc-stars':'bld-stars';
+  document.querySelectorAll(`#${id} .star`).forEach((s,i)=>s.classList.toggle('filled',i<val));
 }
 
-async function submitRating() {
-  if (!currentPin) return;
-  if (!pendingRating.locality && !pendingRating.build) { showToast('Tap stars to rate'); return; }
-  const { error } = await sb.from('ratings').insert([{
-    pin_id: currentPin.id,
-    locality_rating: pendingRating.locality || null,
-    build_rating: pendingRating.build || null,
-    ip_address: userIP,
-  }]);
-  if (error) { showToast('Rating error'); return; }
-  showToast('Rating saved ⭐'); pendingRating = {locality:0, build:0};
+async function submitRating(){
+  if(!currentPin)return;
+  if(!pendingRating.locality&&!pendingRating.build){showToast('Tap stars to rate');return;}
+  const{error}=await sb.from('ratings').insert([{pin_id:currentPin.id,locality_rating:pendingRating.locality||null,build_rating:pendingRating.build||null,ip_address:userIP}]);
+  if(error){showToast('Rating error');return;}
+  showToast('Rating saved ⭐');pendingRating={locality:0,build:0};
 }
 
-// ── COMMENTS ──
-async function addComment() {
-  if (!currentPin) return;
-  const input = document.getElementById('comment-input');
-  const content = input.value.trim();
-  if (!content) return;
-  const { error } = await sb.from('comments').insert([{pin_id:currentPin.id, content, ip_address:userIP}]);
-  if (error) { showToast('Error posting comment'); return; }
-  input.value = '';
-  showToast('Comment posted');
-  openDetail(currentPin);
+async function addComment(){
+  if(!currentPin)return;
+  const input=document.getElementById('comment-input');
+  const content=input.value.trim();if(!content)return;
+  const{error}=await sb.from('comments').insert([{pin_id:currentPin.id,content,ip_address:userIP}]);
+  if(error){showToast('Error posting');return;}
+  input.value='';showToast('Comment posted');openDetail(currentPin);
 }
 
-// ── REPORT / DELETE ──
-async function reportPin() {
-  if (!currentPin) return;
-  const reason = prompt('Reason for reporting (optional):') || 'suspicious';
-  await sb.from('reports').insert([{pin_id:currentPin.id, reason, ip_address:userIP}]);
+async function reportPin(){
+  if(!currentPin)return;
+  const reason=prompt('Reason for reporting (optional):')||'suspicious';
+  await sb.from('reports').insert([{pin_id:currentPin.id,reason,ip_address:userIP}]);
   showToast('Reported. Thanks!');
 }
 
-async function deletePin(id) {
-  if (!confirm('Delete this pin? This cannot be undone.')) return;
-  await sb.from('pins').delete().eq('id', id);
-  allPins = allPins.filter(p => p.id !== id);
-  renderMarkers(filterLogic(allPins));
-  updateCount(allPins.length);
-  closeModal('detail-modal');
-  showToast('Pin deleted');
+async function deletePin(id){
+  if(!confirm('Delete this pin?'))return;
+  await sb.from('pins').delete().eq('id',id);
+  allPins=allPins.filter(p=>p.id!==id);
+  renderMarkers(filterLogic(allPins));updateCount(allPins.length);closeModal('detail-modal');showToast('Pin deleted');
 }
 
-// ── SHARE ──
-function sharePin() {
-  if (!currentPin) return;
-  const p = currentPin;
-  const same = allPins.filter(x => x.bhk===p.bhk);
-  const cheaper = same.filter(x => x.rent<p.rent).length;
-  const ct = same.length>1 ? Math.round(((same.length-1-cheaper)/(same.length-1))*100) : 50;
-  const msg = `🏠 My rent in Nagpur:\n₹${fmt(p.rent)}/mo · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\nCheaper than ${ct}% of ${p.bhk}BHKs in Nagpur 📊\n\nSee real rents near you → nagpur.rent`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+function sharePin(){
+  if(!currentPin)return;
+  const p=currentPin;const same=allPins.filter(x=>x.bhk===p.bhk);
+  const cheaper=same.filter(x=>x.rent<p.rent).length;
+  const ct=same.length>1?Math.round(((same.length-1-cheaper)/(same.length-1))*100):50;
+  const msg=`🏠 My rent in Nagpur:\n₹${fmt(p.rent)}/mo · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\nCheaper than ${ct}% of ${p.bhk}BHKs in Nagpur 📊\n\nSee real rents near you → nagpur.rent`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
-function shareMilestone() {
-  const msg = `🗺 Nagpur's rental map just hit ${allPins.length} community pins!\nCheck real rents near you → nagpur.rent`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-  closeModal('milestone-modal');
+function shareMilestone(){
+  const msg=`🗺 Nagpur's rental map just hit ${allPins.length} community pins!\nCheck real rents near you → nagpur.rent`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');closeModal('milestone-modal');
 }
 
-// ── STATS ──
-async function openStats() {
-  const body = document.getElementById('stats-body');
-  body.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Loading…</div>';
+async function openStats(){
+  const body=document.getElementById('stats-body');
+  body.innerHTML='<div style="color:var(--text-m);text-align:center;padding:20px;">Loading…</div>';
   openModal('stats-modal');
-
-  const pins = allPins;
-  if (!pins.length) { body.innerHTML = '<div style="color:var(--text-muted);">No data yet. Add the first pin!</div>'; return; }
-
-  const byBhk = {};
-  pins.forEach(p => { (byBhk[p.bhk] = byBhk[p.bhk]||[]).push(p.rent); });
-  const gated = pins.filter(p=>p.gated);
-  const nonGated = pins.filter(p=>!p.gated);
-  const avgAll = Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
-
-  body.innerHTML = `
+  const pins=allPins;
+  if(!pins.length){body.innerHTML='<div style="color:var(--text-m);">No data yet. Add the first pin!</div>';return;}
+  const byBhk={};pins.forEach(p=>{(byBhk[p.bhk]=byBhk[p.bhk]||[]).push(p.rent);});
+  const gated=pins.filter(p=>p.gated),nonGated=pins.filter(p=>!p.gated);
+  const avgAll=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
+  body.innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
       <div class="stat-card"><div class="stat-label">Total Pins</div><div class="stat-value">${pins.length}</div></div>
       <div class="stat-card"><div class="stat-label">Overall Avg</div><div class="stat-value">₹${shortFmt(avgAll)}</div></div>
@@ -1004,251 +687,128 @@ async function openStats() {
     </div>
     <div class="stat-card">
       <div class="stat-label">Average Rent by BHK</div>
-      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk => {
-        const rents = byBhk[bhk];
-        const avg = Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);
-        return `<div class="bhk-row">
-          <div><div class="bhk-label">${bhk} BHK</div><div class="bhk-count">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div>
-          <div class="bhk-avg">₹${fmt(avg)}</div>
-        </div>`;
-      }).join('')}
+      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>{const rents=byBhk[bhk];const avg=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-label">${bhk} BHK</div><div class="bhk-count">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-avg">₹${fmt(avg)}</div></div>`;}).join('')}
     </div>
     <div class="stat-card" style="margin-top:10px;">
       <div class="stat-label">Cheapest per BHK</div>
-      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk => `
-        <div class="bhk-row">
-          <div class="bhk-label">${bhk} BHK cheapest</div>
-          <div class="bhk-avg" style="color:var(--green)">₹${fmt(Math.min(...byBhk[bhk]))}</div>
-        </div>`).join('')}
-    </div>
-  `;
+      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>`<div class="bhk-row"><div class="bhk-label">${bhk} BHK cheapest</div><div class="bhk-avg" style="color:var(--green)">₹${fmt(Math.min(...byBhk[bhk]))}</div></div>`).join('')}
+    </div>`;
 }
 
-// ── AREA STATS ──
-function toggleAreaDraw() {
-  areaDrawMode = !areaDrawMode;
-  document.getElementById('area-draw-hint').style.display = areaDrawMode ? 'block' : 'none';
-  document.getElementById('area-btn').style.borderColor = areaDrawMode ? 'var(--orange)' : '';
-  if (!areaDrawMode && areaRect) { areaRect.setMap(null); areaRect=null; }
+function toggleAreaDraw(){
+  areaDrawMode=!areaDrawMode;
+  document.getElementById('area-draw-hint').style.display=areaDrawMode?'block':'none';
+  if(!areaDrawMode&&areaRect){areaRect.setMap(null);areaRect=null;}
 }
 
-function onAreaMouseDown(e) {
-  if (!areaDrawMode) return;
-  areaMouseDown = true; areaStart = e.latLng;
-  if (areaRect) areaRect.setMap(null);
-  areaRect = new google.maps.Rectangle({
-    map, bounds: new google.maps.LatLngBounds(areaStart, areaStart),
-    fillColor:'#f59e0b', fillOpacity:0.12, strokeColor:'#f59e0b', strokeWeight:1.5,
-  });
+function onAreaMouseDown(e){
+  if(!areaDrawMode)return;
+  areaMouseDown=true;areaStart=e.latLng;
+  if(areaRect)areaRect.setMap(null);
+  areaRect=new google.maps.Rectangle({map,bounds:new google.maps.LatLngBounds(areaStart,areaStart),fillColor:'#2563eb',fillOpacity:.08,strokeColor:'#2563eb',strokeWeight:1.5});
 }
 
-function onAreaMouseMove(e) {
-  if (!areaMouseDown || !areaRect) return;
-  areaRect.setBounds(new google.maps.LatLngBounds(
-    {lat:Math.min(areaStart.lat(),e.latLng.lat()), lng:Math.min(areaStart.lng(),e.latLng.lng())},
-    {lat:Math.max(areaStart.lat(),e.latLng.lat()), lng:Math.max(areaStart.lng(),e.latLng.lng())}
-  ));
+function onAreaMouseMove(e){
+  if(!areaMouseDown||!areaRect)return;
+  areaRect.setBounds(new google.maps.LatLngBounds({lat:Math.min(areaStart.lat(),e.latLng.lat()),lng:Math.min(areaStart.lng(),e.latLng.lng())},{lat:Math.max(areaStart.lat(),e.latLng.lat()),lng:Math.max(areaStart.lng(),e.latLng.lng())}));
 }
 
-function onAreaMouseUp(e) {
-  if (!areaDrawMode || !areaMouseDown) return;
-  areaMouseDown = false;
-  if (!areaRect) return;
-  const bounds = areaRect.getBounds();
-  const inside = allPins.filter(p => bounds.contains({lat:p.lat, lng:p.lng}));
-  showAreaStats(inside);
-  areaDrawMode = false;
-  document.getElementById('area-draw-hint').style.display = 'none';
-  document.getElementById('area-btn').style.borderColor = '';
+function onAreaMouseUp(e){
+  if(!areaDrawMode||!areaMouseDown)return;
+  areaMouseDown=false;if(!areaRect)return;
+  const bounds=areaRect.getBounds();
+  const inside=allPins.filter(p=>bounds.contains({lat:p.lat,lng:p.lng}));
+  showAreaStats(inside);areaDrawMode=false;document.getElementById('area-draw-hint').style.display='none';
 }
 
-function showAreaStats(pins) {
-  const body = document.getElementById('area-stats-body');
-  if (!pins.length) { body.innerHTML='<div style="color:var(--text-muted);">No pins in selected area.</div>'; openModal('area-stats-modal'); return; }
-  const byBhk = {};
-  pins.forEach(p => { (byBhk[p.bhk]=byBhk[p.bhk]||[]).push(p.rent); });
-  const avg = Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
-  body.innerHTML = `
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">${pins.length} pins in selected area</div>
+function showAreaStats(pins){
+  const body=document.getElementById('area-stats-body');
+  if(!pins.length){body.innerHTML='<div style="color:var(--text-m);">No pins in selected area.</div>';openModal('area-stats-modal');return;}
+  const byBhk={};pins.forEach(p=>{(byBhk[p.bhk]=byBhk[p.bhk]||[]).push(p.rent);});
+  const avg=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
+  body.innerHTML=`<div style="font-size:13px;color:var(--text-m);margin-bottom:12px;">${pins.length} pins in selected area</div>
     <div class="stat-card"><div class="stat-label">Area Average</div><div class="stat-value">₹${fmt(avg)}</div></div>
-    <div class="stat-card" style="margin-top:10px;">
-      <div class="stat-label">By BHK</div>
-      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>{
-        const rents = byBhk[bhk];
-        const a = Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);
-        return `<div class="bhk-row">
-          <div><div class="bhk-label">${bhk} BHK</div><div class="bhk-count">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div>
-          <div class="bhk-avg">₹${fmt(a)}</div>
-        </div>`;
-      }).join('')}
+    <div class="stat-card" style="margin-top:10px;"><div class="stat-label">By BHK</div>
+      ${Object.keys(byBhk).sort((a,b)=>a-b).map(bhk=>{const rents=byBhk[bhk];const a=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-label">${bhk} BHK</div><div class="bhk-count">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-avg">₹${fmt(a)}</div></div>`;}).join('')}
     </div>`;
   openModal('area-stats-modal');
 }
 
-// ── SEEKER ──
-function openSeekerForm() { openModal('seeker-modal'); }
+function openSeekerForm(){openModal('seeker-modal');}
 
-async function saveSeekerPin() {
-  const lat = map.getCenter().lat(), lng = map.getCenter().lng();
-  const { error } = await sb.from('seekers').insert([{
-    lat, lng,
-    budget_min: parseInt(document.getElementById('seeker-min').value)||null,
-    budget_max: parseInt(document.getElementById('seeker-max').value)||null,
-    bhk_preference: parseInt(getChip('seeker-bhk'))||null,
-    food_pref: getChip('seeker-food')||'any',
-    gender: getChip('seeker-gender')||'any',
-    contact_email: document.getElementById('seeker-email').value||null,
-    ip_address: userIP,
-  }]);
-  if (error) { showToast('Error saving seeker pin'); return; }
-  closeModal('seeker-modal');
-  showToast('Seeker pin added 🔍');
-  const { data: seekers } = await sb.from('seekers').select('*');
-  renderSeekers(seekers||[]);
+async function saveSeekerPin(){
+  const lat=map.getCenter().lat(),lng=map.getCenter().lng();
+  const{error}=await sb.from('seekers').insert([{lat,lng,budget_min:parseInt(document.getElementById('seeker-min').value)||null,budget_max:parseInt(document.getElementById('seeker-max').value)||null,bhk_preference:parseInt(getChip('seeker-bhk'))||null,food_pref:getChip('seeker-food')||'any',gender:getChip('seeker-gender')||'any',contact_email:document.getElementById('seeker-email').value||null,ip_address:userIP}]);
+  if(error){showToast('Error saving seeker pin');return;}
+  closeModal('seeker-modal');showToast('Seeker pin added 🔍');
+  const{data:seekers}=await sb.from('seekers').select('*');renderSeekers(seekers||[]);
 }
 
-// ── FILTERS ──
-function applyFilters() {
-  activeFilters = {
-    bhk: getChip('filter-bhk'),
-    rentMin: parseInt(document.getElementById('flt-min').value),
-    rentMax: parseInt(document.getElementById('flt-max').value),
-    furnishing: getChip('filter-furnishing'),
-    gated: getChip('filter-gated'),
-    avail: getChip('filter-avail'),
-  };
-  const filtered = filterLogic(allPins);
-  renderMarkers(filtered);
-  updateCount(filtered.length);
-  closeFilter();
-  showToast(`${filtered.length} pins shown`);
+function applyFilters(){
+  activeFilters={bhk:getChip('filter-bhk'),rentMin:parseInt(document.getElementById('flt-min').value),rentMax:parseInt(document.getElementById('flt-max').value),furnishing:getChip('filter-furnishing'),gated:getChip('filter-gated'),avail:getChip('filter-avail')};
+  const filtered=filterLogic(allPins);renderMarkers(filtered);updateCount(filtered.length);closeFilter();showToast(`${filtered.length} pins shown`);
 }
 
-function filterLogic(pins) {
-  return pins.filter(p => {
-    const bval = activeFilters.bhk;
-    if (bval && bval!=='all') { if (bval==='4'){ if(p.bhk<4)return false; } else if(p.bhk!==parseInt(bval))return false; }
-    if (p.rent < activeFilters.rentMin || p.rent > activeFilters.rentMax) return false;
-    if (activeFilters.furnishing && activeFilters.furnishing!=='all' && p.furnishing!==activeFilters.furnishing) return false;
-    if (activeFilters.gated==='gated' && !p.gated) return false;
-    if (activeFilters.gated==='non-gated' && p.gated) return false;
-    if (activeFilters.avail==='vacant' && !p.is_vacant_soon) return false;
+function filterLogic(pins){
+  return pins.filter(p=>{
+    const bval=activeFilters.bhk;
+    if(bval&&bval!=='all'){if(bval==='4'){if(p.bhk<4)return false;}else if(p.bhk!==parseInt(bval))return false;}
+    if(p.rent<activeFilters.rentMin||p.rent>activeFilters.rentMax)return false;
+    if(activeFilters.furnishing&&activeFilters.furnishing!=='all'&&p.furnishing!==activeFilters.furnishing)return false;
+    if(activeFilters.gated==='gated'&&!p.gated)return false;
+    if(activeFilters.gated==='non-gated'&&p.gated)return false;
+    if(activeFilters.avail==='vacant'&&!p.is_vacant_soon)return false;
     return true;
   });
 }
 
-function resetFilters() {
-  activeFilters = {bhk:'all',rentMin:0,rentMax:100000,furnishing:'all',gated:'all',avail:'all'};
-  document.getElementById('flt-min').value=0; document.getElementById('lbl-min').textContent='0';
-  document.getElementById('flt-max').value=100000; document.getElementById('lbl-max').textContent='1,00,000+';
-  ['filter-bhk','filter-furnishing','filter-gated','filter-avail'].forEach(id => setChip(id,'all'));
-  renderMarkers(allPins); updateCount(allPins.length); closeFilter();
+function resetFilters(){
+  activeFilters={bhk:'all',rentMin:0,rentMax:100000,furnishing:'all',gated:'all',avail:'all'};
+  document.getElementById('flt-min').value=0;document.getElementById('lbl-min').textContent='0';
+  document.getElementById('flt-max').value=100000;document.getElementById('lbl-max').textContent='1,00,000+';
+  ['filter-bhk','filter-furnishing','filter-gated','filter-avail'].forEach(id=>setChip(id,'all'));
+  renderMarkers(allPins);updateCount(allPins.length);closeFilter();
 }
 
-function filterByArea(el, lat, lng) {
-  document.querySelectorAll('.n-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  if (!lat) { renderMarkers(filterLogic(allPins)); return; }
-  map.panTo({lat,lng}); map.setZoom(14);
+function filterByArea(el,lat,lng){
+  document.querySelectorAll('.n-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
+  if(!lat){renderMarkers(filterLogic(allPins));return;}
+  map.panTo({lat,lng});map.setZoom(14);
 }
 
-// ── MESSAGE BOARD ──
-async function loadMsgBoard() {
-  const { data } = await sb.from('message_board').select('*').eq('active',true).limit(1);
-  if (data?.length) {
-    document.getElementById('msg-banner-text').textContent = data[0].message;
-    const banner = document.getElementById('msg-banner');
-    banner.style.display = 'block';
-    setTimeout(()=>{ banner.style.display='none'; }, 7000);
-  }
+async function loadMsgBoard(){
+  const{data}=await sb.from('message_board').select('*').eq('active',true).limit(1);
+  if(data?.length){document.getElementById('msg-banner-text').textContent=data[0].message;const banner=document.getElementById('msg-banner');banner.style.display='block';setTimeout(()=>{banner.style.display='none';},7000);}
 }
 
-// ── MILESTONES ──
-const shownMs = new Set(JSON.parse(localStorage.getItem('nag_milestones')||'[]'));
+const shownMs=new Set(JSON.parse(localStorage.getItem('nag_milestones')||'[]'));
+function checkMilestones(n){for(const m of MILESTONES){if(n>=m&&!shownMs.has(m)){shownMs.add(m);localStorage.setItem('nag_milestones',JSON.stringify([...shownMs]));document.getElementById('milestone-title').textContent=`${m} Pins! 🎉`;document.getElementById('milestone-desc').textContent=`Nagpur's rental map just hit ${m} community pins. Help it grow — share with friends!`;openModal('milestone-modal');break;}}}
 
-function checkMilestones(n) {
-  for (const m of MILESTONES) {
-    if (n >= m && !shownMs.has(m)) {
-      shownMs.add(m);
-      localStorage.setItem('nag_milestones', JSON.stringify([...shownMs]));
-      document.getElementById('milestone-title').textContent = `${m} Pins! 🎉`;
-      document.getElementById('milestone-desc').textContent = `Nagpur's rental map just hit ${m} community pins. Help it grow — share with friends!`;
-      openModal('milestone-modal');
-      break;
-    }
-  }
-}
+function locateMe(){if(!navigator.geolocation){showToast('Geolocation not supported');return;}navigator.geolocation.getCurrentPosition(p=>{map.panTo({lat:p.coords.latitude,lng:p.coords.longitude});map.setZoom(15);},()=>showToast('Could not get location'));}
+function closeWelcome(){closeModal('welcome-modal');localStorage.setItem('nag_welcomed','1');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openFilter(){document.getElementById('filter-panel').classList.add('open');}
+function closeFilter(){document.getElementById('filter-panel').classList.remove('open');}
+function hideLoading(){const el=document.getElementById('loading');el.classList.add('hidden');setTimeout(()=>el.style.display='none',500);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function fmt(n){return n?.toLocaleString('en-IN')||'0';}
+function fmtNum(n){return n?.toLocaleString('en-IN')||'0';}
+function shortFmt(n){if(!n)return'0';if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(0)+'K';return n;}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function timeAgo(ts){const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);if(m<1)return'just now';if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;return`${Math.floor(h/24)}d ago`;}
+function distKm(lat1,lng1,lat2,lng2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lng2-lng1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function getChip(id){const el=document.querySelector(`#${id} .chip.selected`);return el?el.dataset.val:null;}
+function selectChip(id,el){document.querySelectorAll(`#${id} .chip`).forEach(c=>c.classList.remove('selected'));el.classList.add('selected');}
+function setChip(id,val){document.querySelectorAll(`#${id} .chip`).forEach(c=>c.classList.toggle('selected',c.dataset.val===val));}
+function updateCount(n){document.getElementById('pin-count-badge').textContent=`${n} pin${n!==1?'s':''}`;}
+function resetForm(){['pin-rent','pin-society','pin-sqft','pin-maintenance','pin-notes'].forEach(id=>document.getElementById(id).value='');['gated-toggle','maint-toggle','vacant-toggle'].forEach(id=>document.getElementById(id).classList.remove('on'));setChip('furnishing-chips','unfurnished');setChip('occupant-chips','any');document.querySelectorAll('#bhk-chips .chip').forEach(c=>c.classList.remove('selected'));newLatLng=null;if(pendingMarker){pendingMarker.setMap(null);pendingMarker=null;}}
 
-// ── LOCATE ──
-function locateMe() {
-  if (!navigator.geolocation) { showToast('Geolocation not supported'); return; }
-  navigator.geolocation.getCurrentPosition(p => { map.panTo({lat:p.coords.latitude,lng:p.coords.longitude}); map.setZoom(15); }, ()=>showToast('Could not get location'));
-}
-
-// ── WELCOME ──
-function closeWelcome() { closeModal('welcome-modal'); localStorage.setItem('nag_welcomed','1'); }
-
-// ── HELPERS ──
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function openFilter() { document.getElementById('filter-panel').classList.add('open'); }
-function closeFilter() { document.getElementById('filter-panel').classList.remove('open'); }
-function hideLoading() { const el=document.getElementById('loading'); el.classList.add('hidden'); setTimeout(()=>el.style.display='none',500); }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
-}
-
-function fmt(n) { return n?.toLocaleString('en-IN')||'0'; }
-function fmtNum(n) { return n?.toLocaleString('en-IN')||'0'; }
-function shortFmt(n) { if(!n)return'0'; if(n>=100000)return(n/100000).toFixed(1)+'L'; if(n>=1000)return(n/1000).toFixed(0)+'K'; return n; }
-function cap(s) { return s?s.charAt(0).toUpperCase()+s.slice(1):''; }
-function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function timeAgo(ts) {
-  const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);
-  if(m<1)return'just now'; if(m<60)return`${m}m ago`;
-  const h=Math.floor(m/60); if(h<24)return`${h}h ago`;
-  return`${Math.floor(h/24)}d ago`;
-}
-function distKm(lat1,lng1,lat2,lng2) {
-  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lng2-lng1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function getChip(id) { const el=document.querySelector(`#${id} .chip.selected`); return el?el.dataset.val:null; }
-function selectChip(id, el) { document.querySelectorAll(`#${id} .chip`).forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); }
-function setChip(id, val) { document.querySelectorAll(`#${id} .chip`).forEach(c=>c.classList.toggle('selected',c.dataset.val===val)); }
-function updateCount(n) { document.getElementById('pin-count-badge').textContent=`${n} pin${n!==1?'s':''}`; }
-
-function resetForm() {
-  ['pin-rent','pin-society','pin-sqft','pin-maintenance','pin-notes'].forEach(id=>document.getElementById(id).value='');
-  ['gated-toggle','maint-toggle','vacant-toggle'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  setChip('furnishing-chips','unfurnished'); setChip('occupant-chips','any');
-  document.querySelectorAll('#bhk-chips .chip').forEach(c=>c.classList.remove('selected'));
-  newLatLng=null;
-  if(pendingMarker){pendingMarker.setMap(null);pendingMarker=null;}
-}
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(ov => {
-  ov.addEventListener('click', e => {
-    if (e.target===ov) { ov.classList.remove('open'); if(ov.id==='pin-modal'){stopPlacing();resetForm();} }
-  });
-});
-
-// Welcome on first visit
-if (!localStorage.getItem('nag_welcomed')) {
-  setTimeout(()=>openModal('welcome-modal'), 1200);
-}
+document.querySelectorAll('.modal-overlay').forEach(ov=>{ov.addEventListener('click',e=>{if(e.target===ov){ov.classList.remove('open');if(ov.id==='pin-modal'){stopPlacing();resetForm();}}});});
+if(!localStorage.getItem('nag_welcomed')){setTimeout(()=>openModal('welcome-modal'),1200);}
 </script>
 
-<!-- Replace YOUR_GOOGLE_MAPS_KEY below -->
-<script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhEIPGnMDU2PRHWhMwSlT0qPBVgRPWeU&callback=initMap&libraries=drawing">
-</script>
-
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhEIPGnMDU2PRHWhMwSlT0qPBVgRPWeU&callback=initMap&libraries=drawing"></script>
 </body>
 </html>
