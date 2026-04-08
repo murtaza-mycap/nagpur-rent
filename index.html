@@ -236,32 +236,34 @@
     .naka-confirm-btn{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);color:#b91c1c;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;}
     .naka-confirm-btn:hover{background:rgba(220,38,38,.15);}
     /* ── MOBILE ── */
-    /* ── BOTTOM NAV (mobile only) ── */
+    /* ── BOTTOM NAV — hidden on desktop ── */
     #mobile-nav{display:none;}
+    .mnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;cursor:pointer;transition:all .15s;font-size:10px;font-weight:800;color:var(--td);gap:3px;border:none;background:none;font-family:var(--fm);}
+    .mnav-item.primary{color:white;background:var(--orange);}
+    .mnav-icon{font-size:20px;line-height:1;}
 
     @media(max-width:640px){
-      /* Hide desktop right-side buttons */
-      #right-btns{display:none;}
-      #live-pill{display:none;}
-      #about-btn{display:none;}
-      #add-btn{display:none;}
-
-      /* Compact top bar */
+      /* ── TOP BAR ── */
       #topbar{gap:6px;padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top));}
       #logo-pill{padding:6px 10px 6px 8px;}
       #logo-text{font-size:13px;}
       #pin-badge{font-size:10px;padding:2px 6px;}
+      #live-pill{display:none;}
+      #about-btn{display:none;}
       #search-wrap{flex:1;max-width:none;}
       #search-input{font-size:13px;padding:8px 12px 8px 34px;}
 
-      /* Neighbourhood bar */
+      /* ── NEIGHBOURHOOD BAR ── */
       #nb-bar{top:48px;padding:0 8px 6px;}
       .nb{font-size:11px;padding:4px 10px;}
 
-      /* Bottom bar — hide desktop version */
-      #bottom-bar{display:none;}
+      /* ── HIDE DESKTOP BOTTOM CONTROLS ── */
+      #bottom-bar{display:none !important;}
 
-      /* Mobile bottom nav */
+      /* ── HIDE DESKTOP RIGHT BUTTONS ── */
+      #right-btns{display:none !important;}
+
+      /* ── SHOW MOBILE NAV ── */
       #mobile-nav{
         display:flex;
         position:fixed;
@@ -270,21 +272,11 @@
         background:white;
         border-top:2px solid var(--border);
         padding-bottom:max(8px,env(safe-area-inset-bottom));
-        box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+        box-shadow:0 -4px 20px rgba(0,0,0,0.1);
       }
-      .mnav-item{
-        flex:1;display:flex;flex-direction:column;align-items:center;
-        padding:8px 4px 6px;cursor:pointer;transition:all .15s;
-        font-size:10px;font-weight:800;color:var(--td);gap:3px;
-        border:none;background:none;font-family:var(--fm);
-      }
-      .mnav-item:active{background:var(--s2);}
-      .mnav-item.primary{color:white;background:var(--orange);border-radius:0;}
-      .mnav-item.naka-nav{color:#dc2626;}
-      .mnav-icon{font-size:20px;line-height:1;}
 
-      /* Sheets go full width on mobile */
-      .sheet{border-radius:20px 20px 0 0;padding:16px 14px;padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 72px));}
+      /* ── SHEETS ── */
+      .sheet{border-radius:20px 20px 0 0;padding:16px 14px;padding-bottom:max(88px,calc(env(safe-area-inset-bottom) + 80px));}
       .sheet-center .sheet{border-radius:20px;max-height:88vh;padding-bottom:20px;}
       .sheet-title{font-size:17px;}
       .rent-big{font-size:26px;}
@@ -295,11 +287,9 @@
       .chips{gap:5px;}
       .chip{font-size:12px;padding:6px 10px;}
 
-      /* Crosshair confirm button above nav */
+      /* ── MISC ── */
       #confirm-wrap{bottom:80px !important;}
-      #toast{bottom:90px;}
-
-      /* Hint text */
+      #toast{bottom:86px !important;}
       #hint{top:40%;font-size:13px;}
     }
   </style>
