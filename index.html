@@ -924,6 +924,11 @@ function confirmLocation(){
     document.getElementById('sk-loc-text').textContent='Near '+area;
     openOverlay('seeker-overlay');
     toast('Location set! Fill in the rest');
+  } else if(pickMode==='naka'){
+    nakaLL={lat,lng};
+    document.getElementById('naka-loc-text').textContent='Near '+area;
+    openOverlay('naka-form-overlay');
+    toast('Location set! Fill in naka details 🚨');
   }
   pickMode=null;
 }
@@ -1290,16 +1295,7 @@ let nakaPickMode=false;
 
 function startNakaPick(){
   nakaPickMode=true;
-  pickMode='naka';
-  placing=true;
-  document.getElementById('add-btn').classList.add('placing');
-  document.getElementById('add-text').textContent='Cancel';
-  document.getElementById('add-icon').textContent='✕';
-  document.getElementById('crosshair').style.display='block';
-  document.getElementById('confirm-wrap').style.display='flex';
-  document.getElementById('confirm-loc-btn').style.innerHTML='✓ Confirm Naka Location';
-  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
-  toast('Move map to the naka location, then confirm');
+  startPick('naka');
 }
 
 async function loadNakas(){
