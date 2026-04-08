@@ -1332,9 +1332,7 @@ async function openNakaList(){
     </div>`).join('');
 }
 
-// Override the naka-list-overlay open to load data
-document.getElementById('naka-list-overlay').addEventListener('click',function(){});
-const origOpen=window.openOverlay;
+// Naka list loads when overlay opens (handled in openOverlay function)
 
 function renderNakaMarkers(nakas){
   nakaMs.forEach(m=>m.setMap(null));nakaMs=[];
@@ -1477,18 +1475,7 @@ document.getElementById('logo-pill').addEventListener('click',function(){
   if(logoTaps>=5){logoTaps=0;openAdminPanel();}
 });
 
-// Spots button in right panel - add to right-btns
-const spotsBtn=document.createElement('div');
-spotsBtn.className='rb';
-spotsBtn.innerHTML='🍊 <span>Nagpur Spots</span>';
-spotsBtn.onclick=()=>openOverlay('spots-overlay');
-
-const nakaBtn=document.createElement('div');
-nakaBtn.className='rb';
-nakaBtn.innerHTML='🚨 <span>Naka Alert</span>';
-nakaBtn.onclick=()=>openOverlay('naka-list-overlay');
-document.getElementById('right-btns').insertBefore(nakaBtn,spotsBtn);
-document.getElementById('right-btns').appendChild(spotsBtn);
+// All sidebar buttons are in HTML
 
 // ── ADMIN ──
 const ADMIN_PASS='nagpur2024admin'; // change this!
