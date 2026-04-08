@@ -236,29 +236,71 @@
     .naka-confirm-btn{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);color:#b91c1c;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;}
     .naka-confirm-btn:hover{background:rgba(220,38,38,.15);}
     /* ── MOBILE ── */
-    @media(max-width:600px){
+    /* ── BOTTOM NAV (mobile only) ── */
+    #mobile-nav{display:none;}
+
+    @media(max-width:640px){
+      /* Hide desktop right-side buttons */
+      #right-btns{display:none;}
       #live-pill{display:none;}
-      .rb span{display:none;}
-      #search-wrap{max-width:none;flex:1;}
       #about-btn{display:none;}
-      #topbar{gap:6px;padding:8px 10px;}
-      #logo-pill{padding:6px 11px 6px 8px;}
+      #add-btn{display:none;}
+
+      /* Compact top bar */
+      #topbar{gap:6px;padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top));}
+      #logo-pill{padding:6px 10px 6px 8px;}
       #logo-text{font-size:13px;}
-      #pin-badge{display:none;}
-      #nb-bar{top:50px;padding:0 10px 8px;}
+      #pin-badge{font-size:10px;padding:2px 6px;}
+      #search-wrap{flex:1;max-width:none;}
+      #search-input{font-size:13px;padding:8px 12px 8px 34px;}
+
+      /* Neighbourhood bar */
+      #nb-bar{top:48px;padding:0 8px 6px;}
       .nb{font-size:11px;padding:4px 10px;}
-      #bottom-bar{padding:10px 10px;padding-bottom:max(16px,env(safe-area-inset-bottom));}
-      #add-btn{padding:13px 18px;font-size:14px;}
-      .rb{padding:8px 10px;min-width:40px;justify-content:center;}
-      .sheet{padding:16px;padding-bottom:max(20px,env(safe-area-inset-bottom));}
+
+      /* Bottom bar — hide desktop version */
+      #bottom-bar{display:none;}
+
+      /* Mobile bottom nav */
+      #mobile-nav{
+        display:flex;
+        position:fixed;
+        bottom:0;left:0;right:0;
+        z-index:200;
+        background:white;
+        border-top:2px solid var(--border);
+        padding-bottom:max(8px,env(safe-area-inset-bottom));
+        box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+      }
+      .mnav-item{
+        flex:1;display:flex;flex-direction:column;align-items:center;
+        padding:8px 4px 6px;cursor:pointer;transition:all .15s;
+        font-size:10px;font-weight:800;color:var(--td);gap:3px;
+        border:none;background:none;font-family:var(--fm);
+      }
+      .mnav-item:active{background:var(--s2);}
+      .mnav-item.primary{color:white;background:var(--orange);border-radius:0;}
+      .mnav-item.naka-nav{color:#dc2626;}
+      .mnav-icon{font-size:20px;line-height:1;}
+
+      /* Sheets go full width on mobile */
+      .sheet{border-radius:20px 20px 0 0;padding:16px 14px;padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 72px));}
+      .sheet-center .sheet{border-radius:20px;max-height:88vh;padding-bottom:20px;}
       .sheet-title{font-size:17px;}
-      .rent-big{font-size:28px;}
+      .rent-big{font-size:26px;}
       .stat-grid{grid-template-columns:1fr 1fr;}
       .spots-grid{grid-template-columns:1fr 1fr;}
       #fp{max-width:100%;}
       .fr{flex-direction:column;gap:0;}
       .chips{gap:5px;}
       .chip{font-size:12px;padding:6px 10px;}
+
+      /* Crosshair confirm button above nav */
+      #confirm-wrap{bottom:80px !important;}
+      #toast{bottom:90px;}
+
+      /* Hint text */
+      #hint{top:40%;font-size:13px;}
     }
   </style>
 </head>
@@ -328,6 +370,52 @@
     <div class="rb" onclick="openOverlay('naka-list-overlay')">🚨 <span>Naka Alert</span></div>
     <div class="rb" onclick="openOverlay('spots-overlay')">🍊 <span>Nagpur Spots</span></div>
     <div class="rb" onclick="openFP()">⚙ <span>Filters</span></div>
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<div id="mobile-nav">
+  <button class="mnav-item primary" onclick="togglePlacing()">
+    <div class="mnav-icon" id="mob-add-icon">＋</div>
+    <div id="mob-add-text">Add Rent</div>
+  </button>
+  <button class="mnav-item" onclick="openOverlay('naka-list-overlay')">
+    <div class="mnav-icon">🚨</div>
+    <div>Naka</div>
+  </button>
+  <button class="mnav-item" onclick="startSeekerPick()">
+    <div class="mnav-icon">🔍</div>
+    <div>Flat Hunt</div>
+  </button>
+  <button class="mnav-item" onclick="openOverlay('stats-overlay')">
+    <div class="mnav-icon">📊</div>
+    <div>Stats</div>
+  </button>
+  <button class="mnav-item" onclick="openMobileMore()">
+    <div class="mnav-icon">☰</div>
+    <div>More</div>
+  </button>
+</div>
+
+<!-- Mobile More menu -->
+<div class="overlay" id="more-overlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">More</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+      <button onclick="closeOverlay('more-overlay');toggleArea();" style="background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:16px 12px;font-family:var(--fm);font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:24px;">📐</span>Area Stats
+      </button>
+      <button onclick="closeOverlay('more-overlay');openOverlay('spots-overlay');" style="background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:16px 12px;font-family:var(--fm);font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:24px;">🍊</span>Nagpur Spots
+      </button>
+      <button onclick="closeOverlay('more-overlay');openFP();" style="background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:16px 12px;font-family:var(--fm);font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:24px;">⚙</span>Filters
+      </button>
+      <button onclick="closeOverlay('more-overlay');openOverlay('welcome-overlay');" style="background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:16px 12px;font-family:var(--fm);font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:24px;">❓</span>About
+      </button>
+    </div>
   </div>
 </div>
 
@@ -879,17 +967,24 @@ function togglePlacing(){
   if(placing){cancelLocationPick();return;}
   startPick('rent');
 }
+function openMobileMore(){openOverlay('more-overlay');}
 
 function startPick(mode){
   pickMode=mode;placing=true;
   document.getElementById('add-btn').classList.add('placing');
   document.getElementById('add-text').textContent='Cancel';
   document.getElementById('add-icon').textContent='✕';
+  // Mobile nav button
+  const mobIcon=document.getElementById('mob-add-icon');
+  const mobText=document.getElementById('mob-add-text');
+  if(mobIcon){mobIcon.textContent='✕';}
+  if(mobText){mobText.textContent='Cancel';}
   document.getElementById('crosshair').style.display='block';
   document.getElementById('confirm-wrap').style.display='flex';
   document.getElementById('hint').style.display='none';
   document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
-  toast('Move map so the pin is on your area, then tap Confirm');
+  const msg=mode==='naka'?'Move map to the naka spot, then tap Confirm':'Move map so the pin is on your area, then tap Confirm';
+  toast(msg);
 }
 
 function confirmLocation(){
@@ -941,6 +1036,10 @@ function cancelLocationPick(){
   document.getElementById('add-btn').classList.remove('placing');
   document.getElementById('add-text').textContent='Add My Rent';
   document.getElementById('add-icon').textContent='＋';
+  const mobIcon=document.getElementById('mob-add-icon');
+  const mobText=document.getElementById('mob-add-text');
+  if(mobIcon){mobIcon.textContent='＋';}
+  if(mobText){mobText.textContent='Add Rent';}
 }
 
 function stopPlacing(){
@@ -948,6 +1047,10 @@ function stopPlacing(){
   document.getElementById('add-btn').classList.remove('placing');
   document.getElementById('add-text').textContent='Add My Rent';
   document.getElementById('add-icon').textContent='＋';
+  const mobIcon=document.getElementById('mob-add-icon');
+  const mobText=document.getElementById('mob-add-text');
+  if(mobIcon){mobIcon.textContent='＋';}
+  if(mobText){mobText.textContent='Add Rent';}
 }
 
 function cancelPin(){closeOverlay('pin-overlay');stopPlacing();resetForm();}
