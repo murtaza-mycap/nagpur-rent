@@ -315,7 +315,7 @@
 
   <div id="search-wrap">
     <div id="search-icon">🔍</div>
-    <input id="search-input" type="text" placeholder="Kaunsa area dhundh raha hai?" autocomplete="off" oninput="onSearch(this.value)"/>
+    <input id="search-input" type="text" placeholder="Search area or locality..." autocomplete="off" oninput="onSearch(this.value)"/>
     <div id="search-results"></div>
   </div>
 
@@ -355,7 +355,6 @@
   </button>
   <div id="right-btns">
     <div class="rb" onclick="openOverlay('stats-overlay')">📊 <span>Stats</span></div>
-    <div class="rb" id="area-rb" onclick="toggleArea()">📐 <span>Area Stats</span></div>
     <div class="rb" onclick="openOverlay('seeker-overlay')">🔍 <span>Flat Hunt</span></div>
     <div class="rb" onclick="openOverlay('naka-list-overlay')">🚨 <span>Naka Alert</span></div>
     <div class="rb" onclick="openOverlay('spots-overlay')">🍊 <span>Nagpur Spots</span></div>
@@ -393,9 +392,6 @@
     <div class="handle"></div>
     <div class="sheet-title">More</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
-      <button onclick="closeOverlay('more-overlay');toggleArea();" style="background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:16px 12px;font-family:var(--fm);font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;">
-        <span style="font-size:24px;">📐</span>Area Stats
-      </button>
       <button onclick="closeOverlay('more-overlay');openOverlay('spots-overlay');" style="background:var(--s1);border:2px solid var(--border);border-radius:14px;padding:16px 12px;font-family:var(--fm);font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;">
         <span style="font-size:24px;">🍊</span>Nagpur Spots
       </button>
@@ -409,7 +405,7 @@
   </div>
 </div>
 
-<div id="hint">📍 Yahan tap karo apna area choose karne ke liye</div>
+<div id="hint">📍 Move the map to your area, then tap Confirm</div>
 
 <!-- Crosshair picker -->
 <div id="crosshair" style="display:none;position:fixed;inset:0;z-index:180;pointer-events:none;">
@@ -438,14 +434,13 @@
     <div class="w-top">
       <div class="w-emoji">🍊</div>
       <div class="w-title">nagpur.rent</div>
-      <div class="w-tagline">Broker says ₹22K. Your neighbour pays ₹14K.<br>Now you can know the difference, bhai.</div>
+      <div class="w-tagline">Broker says ₹22K. Your neighbour pays ₹14K.<br>Now you can know the difference.</div>
       <div class="w-count" id="w-stat">🟠 0 Nagpurkars shared their rent</div>
     </div>
 
     <div class="feat-list">
       <div class="feat"><div class="feat-icon">📌</div><div class="feat-text"><strong>Pin your rent</strong> — 30 seconds. No login, no tracking.</div></div>
       <div class="feat"><div class="feat-icon">📊</div><div class="feat-text"><strong>See your percentile</strong> — instantly know if you're overpaying.</div></div>
-      <div class="feat"><div class="feat-icon">📐</div><div class="feat-text"><strong>Area Stats</strong> — draw a box on the map, get avg rent by BHK.</div></div>
       <div class="feat"><div class="feat-icon">🔍</div><div class="feat-text"><strong>Flat Hunt</strong> — looking for a flat? Drop a seeker pin, get found by landlords.</div></div>
       <div class="feat"><div class="feat-icon">🚨</div><div class="feat-text"><strong>Naka Alert</strong> — report police checkpoints. Community-verified, auto-expires in 7 days.</div></div>
     </div>
@@ -615,7 +610,7 @@
   <div class="sheet" style="position:relative;">
     <div class="xbtn" onclick="closeOverlay('spots-overlay')">✕</div>
     <div class="sheet-title">🍊 Nagpur ke Famous Spots</div>
-    <div style="font-size:13px;color:var(--tm);font-weight:600;margin-bottom:14px;">Yahan click karo aur map pe jump karo!</div>
+    <div style="font-size:13px;color:var(--tm);font-weight:600;margin-bottom:14px;">Click any spot to jump there on the map.</div>
     <div class="spots-grid" id="spots-grid"></div>
     <div style="font-size:12px;color:var(--td);text-align:center;font-weight:600;margin-top:8px;">🍊 Orange City — India ka center!</div>
   </div>
@@ -701,7 +696,7 @@
     <div class="sheet-title" id="ms-title"></div>
     <div style="font-size:14px;color:var(--tm);margin-bottom:16px;font-weight:600;" id="ms-desc"></div>
     <button class="btn-wa" onclick="shareMS()">📲 Share on WhatsApp</button>
-    <button class="btn-s" onclick="closeOverlay('ms-overlay')">Baad mein</button>
+    <button class="btn-s" onclick="closeOverlay('ms-overlay')">Maybe later</button>
   </div>
 </div>
 
@@ -721,7 +716,7 @@ const SPOTS=[
   {emoji:'🌳',name:'Futala Lake',desc:'Evening hangout',lat:21.1607,lng:79.0604},
   {emoji:'🕌',name:'Shukrawari Talav',desc:'Old city vibes',lat:21.1502,lng:79.0897},
   {emoji:'✈️',name:'Dr Ambedkar Airport',desc:'Uda chalein!',lat:21.0922,lng:79.0472},
-  {emoji:'🏪',name:'Dharampeth Market',desc:'Sabse sasta',lat:21.1362,lng:79.0709},
+  {emoji:'🏪',name:'Dharampeth Market',desc:'Most affordable',lat:21.1362,lng:79.0709},
   {emoji:'🎓',name:'VNIT Campus',desc:'Engineer ki factory',lat:21.1349,lng:79.0514},
 ];
 
@@ -921,7 +916,7 @@ function onMapClick(e){
   }
 
   if(!placing||areaDraw)return;
-  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Pin within Nagpur only, bhai 😄');return;}
+  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Please pin within Nagpur');return;}
   newLL={lat,lng};
   if(pendM)pendM.setMap(null);
   pendM=new google.maps.Marker({
@@ -980,7 +975,7 @@ function startPick(mode){
 function confirmLocation(){
   const c=map.getCenter();
   const lat=c.lat(),lng=c.lng();
-  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Pin within Nagpur only, bhai');return;}
+  if(dKm(lat,lng,NAGPUR.lat,NAGPUR.lng)>GEO_KM){toast('Please pin within Nagpur');return;}
   document.getElementById('crosshair').style.display='none';
   document.getElementById('confirm-wrap').style.display='none';
   placing=false;
@@ -1097,7 +1092,7 @@ async function openDetail(pin){
   const avgLoc=ratings?.length?(ratings.reduce((s,r)=>s+(r.locality_rating||0),0)/ratings.length).toFixed(1):null;
   const avgBld=ratings?.length?(ratings.reduce((s,r)=>s+(r.build_rating||0),0)/ratings.length).toFixed(1):null;
   const isOwner=pin.ip_address===userIP;
-  const shareMsg=`🏠 Nagpur mein mera rent:\n₹${fmt(pin.rent)}/month · ${pin.bhk}BHK${pin.society_name?' · '+pin.society_name:''}\n${pin.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna rent check karo → nagpur.rent`;
+  const shareMsg=`🏠 My rent in Nagpur:\n₹${fmt(pin.rent)}/month · ${pin.bhk}BHK${pin.society_name?' · '+pin.society_name:''}\n${pin.bhk}Cheaper than ${ct}% of ${pin.bhk}BHKs in Nagpur 📊\n\nCheck yours → nagpur.rent`;
 
   body.innerHTML=`
     <div class="rent-big">₹${fmt(pin.rent)}<span style="font-size:16px;color:var(--td)">/mo</span></div>
@@ -1165,12 +1160,12 @@ function doShare(){
   const p=curPin;const same=allPins.filter(x=>x.bhk===p.bhk);
   const cheaper=same.filter(x=>x.rent<p.rent).length;
   const ct=same.length>1?Math.round(((same.length-1-cheaper)/(same.length-1))*100):50;
-  const msg=`🏠 Nagpur mein mera rent:\n₹${fmt(p.rent)}/month · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\n${p.bhk}BHK walon mein ${ct}% se sasta hai mera rent 📊\n\nApna check karo → nagpur.rent`;
+  const msg=`🏠 My rent in Nagpur:\n₹${fmt(p.rent)}/month · ${p.bhk}BHK${p.society_name?' · '+p.society_name:''}\n${p.bhk}Cheaper than ${ct}% of ${pin.bhk}BHKs in Nagpur 📊\n\nCheck yours → nagpur.rent`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
 function shareWelcome(){
-  const msg=`🍊 Bhai, yeh dekh — nagpur.rent\nNagpur mein kaunse area mein kitna rent hai — real data, real log.\nBroker ka bakwas nahi, seedha sach!\nnagpur.rent`;
+  const msg=`🍊 Check this out — nagpur.rent\nReal rents across Nagpur, shared by actual residents. No broker BS, just real numbers.\nnagpur.rent`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -1207,7 +1202,7 @@ async function reportPin(){
   toast('Reported. Thanks!');
 }
 async function deletePin(id){
-  if(!confirm('Pin delete karna hai pakka?'))return;
+  if(!confirm('Delete this pin?'))return;
   await sb.from('pins').delete().eq('id',id);
   allPins=allPins.filter(p=>p.id!==id);
   renderPins(doFlt(allPins));setCount(allPins.length);closeOverlay('detail-overlay');toast('Delete ho gaya');
@@ -1219,36 +1214,82 @@ async function openStats(){
   openOverlay('stats-overlay');
   const pins=allPins;
   if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">No pins yet. Be the first to add one!</div>';return;}
+
   const byB={};pins.forEach(p=>{(byB[p.bhk]=byB[p.bhk]||[]).push(p.rent);});
   const gated=pins.filter(p=>p.gated),ng=pins.filter(p=>!p.gated);
   const avgAll=Math.round(pins.reduce((s,p)=>s+p.rent,0)/pins.length);
+  const avgGated=gated.length?Math.round(gated.reduce((s,p)=>s+p.rent,0)/gated.length):0;
+  const avgNg=ng.length?Math.round(ng.reduce((s,p)=>s+p.rent,0)/ng.length):0;
+  const gatedPremium=avgGated&&avgNg?Math.round(((avgGated-avgNg)/avgNg)*100):0;
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayPins=pins.filter(p=>new Date(p.created_at)>=today).length;
+  const areaRents={};
+  pins.forEach(p=>{const a=getNearestArea(p.lat,p.lng);(areaRents[a]=areaRents[a]||[]).push(p.rent);});
+  const areaAvgs=Object.entries(areaRents).filter(([,r])=>r.length>=2).map(([a,r])=>({area:a,avg:Math.round(r.reduce((s,v)=>s+v,0)/r.length),count:r.length})).sort((a,b)=>b.avg-a.avg);
+
   body.innerHTML=`
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-lbl">Total Pins</div><div class="stat-val">${pins.length}</div></div>
-      <div class="stat-box"><div class="stat-lbl">Average Rent</div><div class="stat-val">₹${shortFmt(avgAll)}</div></div>
-      <div class="stat-box"><div class="stat-lbl">Gated Avg</div><div class="stat-val">${gated.length?'₹'+shortFmt(Math.round(gated.reduce((s,p)=>s+p.rent,0)/gated.length)):'—'}</div></div>
-      <div class="stat-box"><div class="stat-lbl">Non-Gated Avg</div><div class="stat-val">${ng.length?'₹'+shortFmt(Math.round(ng.reduce((s,p)=>s+p.rent,0)/ng.length)):'—'}</div></div>
+    <div class="stat-grid" style="margin-bottom:14px;">
+      <div class="stat-box"><div class="stat-lbl">Total Pins</div><div class="stat-val" style="color:var(--orange2)">${pins.length}</div></div>
+      <div class="stat-box"><div class="stat-lbl">Added Today</div><div class="stat-val">${todayPins}</div></div>
+      <div class="stat-box"><div class="stat-lbl">City Average</div><div class="stat-val">&#8377;${shortFmt(avgAll)}</div></div>
+      <div class="stat-box"><div class="stat-lbl">Gated Premium</div><div class="stat-val" style="color:var(--blue)">+${gatedPremium}%</div></div>
     </div>
+
     <div class="stat-section">
-      <div class="stat-lbl" style="margin-bottom:8px;">Average Rent by BHK</div>
-      ${Object.keys(byB).sort((a,b)=>a-b).map(b=>{const rents=byB[b];const avg=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);return`<div class="bhk-row"><div><div class="bhk-lbl">${b} BHK</div><div class="bhk-cnt">${rents.length} pins · ₹${fmt(Math.min(...rents))}–₹${fmt(Math.max(...rents))}</div></div><div class="bhk-val">₹${fmt(avg)}</div></div>`;}).join('')}
+      <div class="stat-lbl" style="margin-bottom:10px;">Average Rent by BHK</div>
+      ${Object.keys(byB).sort((a,b)=>a-b).map(b=>{
+        const rents=byB[b];
+        const avg=Math.round(rents.reduce((s,r)=>s+r,0)/rents.length);
+        const min=Math.min(...rents),max=Math.max(...rents);
+        return`<div class="bhk-row">
+          <div><div class="bhk-lbl">${b} BHK</div><div class="bhk-cnt">${rents.length} pin${rents.length>1?'s':''} &nbsp;&#8377;${fmt(min)} &ndash; &#8377;${fmt(max)}</div></div>
+          <div style="text-align:right;"><div class="bhk-val">&#8377;${fmt(avg)}</div></div>
+        </div>`;
+      }).join('')}
     </div>
-    <div class="stat-section">
-      <div class="stat-lbl" style="margin-bottom:8px;">Cheapest per BHK</div>
-      ${Object.keys(byB).sort((a,b)=>a-b).map(b=>`<div class="bhk-row"><div class="bhk-lbl">${b} BHK</div><div class="bhk-val" style="color:var(--green)">₹${fmt(Math.min(...byB[b]))}</div></div>`).join('')}
+
+    <div class="stat-section" style="margin-top:10px;">
+      <div class="stat-lbl" style="margin-bottom:10px;">Gated vs Non-Gated</div>
+      <div class="bhk-row">
+        <div><div class="bhk-lbl">Gated Society</div><div class="bhk-cnt">${gated.length} pins</div></div>
+        <div class="bhk-val" style="color:var(--blue)">&#8377;${fmt(avgGated||0)}</div>
+      </div>
+      <div class="bhk-row">
+        <div><div class="bhk-lbl">Non-Gated</div><div class="bhk-cnt">${ng.length} pins</div></div>
+        <div class="bhk-val" style="color:var(--orange2)">&#8377;${fmt(avgNg||0)}</div>
+      </div>
+      ${gatedPremium>0?`<div style="font-size:12px;color:var(--td);font-weight:600;padding:8px 0 0;">Gated costs <strong style="color:var(--blue)">${gatedPremium}% more</strong> on average.</div>`:''}
     </div>
-    <div class="share-card" style="margin-top:4px;">
-      <div class="sc-title">Spread the word!</div>
-      <div class="sc-text" style="font-size:12px;">${pins.length} Nagpurkars ne apna rent share kiya. Tu bhi batao, community strong hogi!</div>
-      <button class="btn-wa" onclick="shareWelcome()">📲 Share nagpur.rent</button>
+
+    ${areaAvgs.length>=2?`
+    <div class="stat-section" style="margin-top:10px;">
+      <div class="stat-lbl" style="margin-bottom:10px;">Priciest vs Cheapest Areas</div>
+      ${areaAvgs.slice(0,3).map((a,i)=>`
+        <div class="bhk-row">
+          <div><div class="bhk-lbl">${['Most expensive','2nd most','3rd most'][i]}</div><div class="bhk-cnt">${a.area} &middot; ${a.count} pins</div></div>
+          <div class="bhk-val" style="color:var(--red)">&#8377;${fmt(a.avg)}</div>
+        </div>`).join('')}
+      ${[...areaAvgs].reverse().slice(0,3).map((a,i)=>`
+        <div class="bhk-row">
+          <div><div class="bhk-lbl">${['Most affordable','2nd most affordable','3rd most affordable'][i]}</div><div class="bhk-cnt">${a.area} &middot; ${a.count} pins</div></div>
+          <div class="bhk-val" style="color:var(--green)">&#8377;${fmt(a.avg)}</div>
+        </div>`).join('')}
+    </div>`:''}
+
+    <div class="share-card" style="margin-top:10px;">
+      <div class="sc-title">Help the map grow</div>
+      <div class="sc-text" style="font-size:12px;">${pins.length} Nagpurkars have shared their real rent. Every pin makes the data more useful for everyone.</div>
+      <button class="btn-wa" onclick="shareWelcome()">Share nagpur.rent</button>
     </div>`;
+}
+
 }
 
 function toggleArea(){
   areaDraw=!areaDraw;
   document.getElementById('area-rb').classList.toggle('active-tool',areaDraw);
-  document.getElementById('hint').textContent=areaDraw?'📐 Map pe click karke rectangle banao':'📍 Yahan tap karo apna area choose karne ke liye';
-  document.getElementById('hint').style.display=areaDraw?'block':'none';
+  document.getElementById('hint').textContent=areaDraw?'📐 Map pe click karke rectangle banao':'📍 Move the map to your area, then tap Confirm';
+  document.getElementById('hint').style.display='none';
   if(!areaDraw&&areaRect){areaRect.setMap(null);areaRect=null;}
 }
 function onMD(e){
@@ -1354,12 +1395,12 @@ document.addEventListener('click',e=>{if(!e.target.closest('#search-wrap'))docum
 
 const shownMS=new Set(JSON.parse(localStorage.getItem('nag_ms')||'[]'));
 function checkMS(n){
-  const msgs={50:'Waah! 50 Nagpurkars ne rent share kiya!',100:'100 pins! Nagpur jaag raha hai!',200:'200 pins! Broker wala ro raha hoga!',500:'500 pins! Nagpur ka sabse bada rent database!',1000:'1000 pins! Bhai legend ho gaye tum log!'};
+  const msgs={50:'50 Nagpurkars shared their rent!',100:'100 pins! Nagpur is on the map! 🍊',200:'200 pins! The community is growing!',500:'500 pins! Nagpur biggest rent database!',1000:'1000 pins! Nagpur legend! 🎉'};
   for(const m of MILESTONES){
     if(n>=m&&!shownMS.has(m)){
       shownMS.add(m);localStorage.setItem('nag_ms',JSON.stringify([...shownMS]));
       document.getElementById('ms-title').textContent=msgs[m]||m+' Pins! 🎉';
-      document.getElementById('ms-desc').textContent='Nagpur ki community strong ho rahi hai. Doston ko bhejo!';
+      document.getElementById('ms-desc').textContent='Help it grow — share with your friends!';
       openOverlay('ms-overlay');break;
     }
   }
@@ -1533,14 +1574,14 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 function setCount(n){
   document.getElementById('pin-badge').textContent=n+' pins';
   document.getElementById('live-n').textContent=n;
-  document.getElementById('w-stat').textContent='🟠 '+n+' Nagpurkars ne apna rent share kiya';
+  document.getElementById('w-stat').textContent='🟠 '+n+' Nagpurkars shared their rent';
 }
 function fmt(n){return n?.toLocaleString('en-IN')||'0';}
 function fmtN(n){return n?.toLocaleString('en-IN')||'0';}
 function shortFmt(n){if(!n)return'0';if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return Math.round(n/1000)+'K';return n;}
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-function ago(ts){const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);if(m<1)return'abhi abhi';if(m<60)return m+' min pehle';const h=Math.floor(m/60);if(h<24)return h+' ghante pehle';return Math.floor(h/24)+' din pehle';}
+function ago(ts){const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);if(m<1)return'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
 function dKm(a,b,c,d){const R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;const x=Math.sin(dl/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function cv(id){const el=document.querySelector('#'+id+' .chip.on');return el?el.dataset.v:null;}
 function pick(id,el){document.querySelectorAll('#'+id+' .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
