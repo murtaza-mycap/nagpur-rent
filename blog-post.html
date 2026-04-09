@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Blog | nagpur.rent</title>
+  <meta name="description" content="Read this article on nagpur.rent — Nagpur's community rental platform."/>
+  <link rel="canonical" id="canonical" href="https://nagpur.rent/blog/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:site_name" content="nagpur.rent"/>
+  <meta property="og:title" id="og-title" content="Blog | nagpur.rent"/>
+  <meta property="og:description" id="og-desc" content="Read this article on nagpur.rent"/>
+  <meta property="og:url" id="og-url" content="https://nagpur.rent/blog/"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D2PRRL89Q"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-5D2PRRL89Q');</script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+    :root{--orange:#f97316;--orange2:#ea580c;--orange-light:#fff7ed;--border:#ffe8d0;--text:#1c0a00;--tm:#78350f;--td:#a16207;--s1:#fffaf5;--s2:#fff3e6;--fm:'Nunito',sans-serif;--sh:0 2px 12px rgba(249,115,22,.08);--sh2:0 8px 32px rgba(0,0,0,.1);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--fm);background:#fafafa;color:var(--text);}
+    #topnav{background:white;border-bottom:2px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+    .logo{font-size:20px;font-weight:900;color:var(--text);text-decoration:none;}.logo span{color:var(--orange);}
+    #site-nav{position:relative;}
+    .nav-toggle{background:white;border:2px solid var(--border);padding:7px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;}
+    .nav-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border:2px solid var(--border);border-radius:16px;padding:8px;min-width:180px;box-shadow:var(--sh2);z-index:200;}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:var(--text);text-decoration:none;}
+    .nav-item:hover{background:var(--orange-light);}
+    .breadcrumb{max-width:720px;margin:0 auto;padding:14px 24px;font-size:12px;color:var(--td);font-weight:600;}
+    .breadcrumb a{color:var(--orange2);text-decoration:none;}
+    #main{max-width:720px;margin:0 auto;padding:0 24px 60px;}
+    .post-hero{width:100%;height:240px;background:linear-gradient(135deg,#1c0a00,var(--orange2));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:72px;margin-bottom:28px;}
+    .post-tag{display:inline-block;background:var(--orange);color:white;font-size:11px;font-weight:800;padding:3px 14px;border-radius:20px;margin-bottom:14px;}
+    h1{font-size:32px;font-weight:900;line-height:1.3;margin-bottom:10px;}
+    .post-meta{font-size:13px;color:var(--td);font-weight:600;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;}
+    .post-body{font-size:16px;line-height:1.85;color:var(--tm);}
+    .post-body h2{font-size:22px;font-weight:900;color:var(--text);margin:28px 0 12px;}
+    .post-body h3{font-size:18px;font-weight:800;color:var(--text);margin:22px 0 10px;}
+    .post-body p{margin-bottom:16px;}
+    .post-body ul,.post-body ol{margin:12px 0 16px 22px;}
+    .post-body li{margin-bottom:8px;}
+    .post-body strong{color:var(--text);font-weight:800;}
+    .post-body a{color:var(--orange2);font-weight:700;}
+    .cta-box{background:linear-gradient(135deg,#1c0a00,#3d1a00);border-radius:20px;padding:28px;text-align:center;margin-top:36px;}
+    .cta-title{font-size:20px;font-weight:900;color:white;margin-bottom:8px;}
+    .cta-sub{font-size:14px;color:#fed7aa;margin-bottom:18px;line-height:1.6;}
+    .btn-cta{display:inline-block;background:var(--orange);color:white;padding:12px 26px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:800;text-decoration:none;}
+    #loading{text-align:center;padding:80px 24px;color:var(--td);}
+    .spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    footer{background:#1c0a00;color:#a16207;text-align:center;padding:32px 20px;font-size:13px;font-weight:600;}
+    footer a{color:var(--orange);text-decoration:none;}
+    .fl-logo{font-size:22px;font-weight:900;color:white;margin-bottom:8px;}.fl-logo span{color:var(--orange);}
+    @media(max-width:640px){h1{font-size:24px;}.post-hero{height:180px;font-size:56px;}}
+  </style>
+</head>
+<body>
+<nav id="topnav">
+  <a href="/" class="logo">nagpur<span>.rent</span></a>
+  <div id="site-nav">
+    <button class="nav-toggle" onclick="toggleNav()">☰ Menu</button>
+    <div class="nav-dropdown" id="nav-dd">
+      <a href="/" class="nav-item">🗺 Map</a>
+      <a href="/listings.html" class="nav-item">🏠 Listings</a>
+      <a href="/blog.html" class="nav-item active">✍️ Blog</a>
+      <a href="/about.html" class="nav-item">💛 About</a>
+    </div>
+  </div>
+</nav>
+
+<div id="loading"><div class="spinner"></div><p>Loading article...</p></div>
+<div id="page-content" style="display:none;">
+  <div class="breadcrumb"><a href="/">nagpur.rent</a> › <a href="/blog.html">Blog</a> › <span id="bc-title"></span></div>
+  <main id="main">
+    <div class="post-hero" id="post-hero">✍️</div>
+    <div id="post-content"></div>
+  </main>
+</div>
+
+<footer>
+  <div class="fl-logo">nagpur<span>.rent</span></div>
+  <p>Real rents. Real people. No broker. 🍊</p>
+  <p style="margin-top:12px;"><a href="/">Map</a> &nbsp;·&nbsp; <a href="/listings.html">Listings</a> &nbsp;·&nbsp; <a href="/blog.html">Blog</a> &nbsp;·&nbsp; <a href="/about.html">About</a></p>
+  <div style="margin-top:16px;padding-top:14px;border-top:1px solid #3d1a00;">
+    <p style="color:#fed7aa;font-weight:700;margin-bottom:6px;">Contact Us</p>
+    <p>Murtaza Rangwala</p>
+    <p><a href="https://wa.me/917350299845">+91 73502 99845</a> &nbsp;·&nbsp; <a href="mailto:murtaza.mycap@gmail.com">murtaza.mycap@gmail.com</a></p>
+  </div>
+  <p style="margin-top:14px;font-size:11px;">© 2025 nagpur.rent · Built with 🍊 in Nagpur</p>
+</footer>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient('https://artqzjmizytoxxaqzadw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFydHF6am1penl0b3h4YXF6YWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MjE2MDQsImV4cCI6MjA5MTE5NzYwNH0.dVluFoXQGAKKFUL894F-R-VoITCD14vVJ6R2YyGiYzE');
+
+const SEED={
+  id:'seed-what-is-nagpur-rent',slug:'what-is-nagpur-rent',
+  title:'What is nagpur.rent?',category:'About',emoji:'🍊',
+  author:'nagpur.rent Team',date:'April 2025',
+  excerpt:'A community-built rent map for Nagpur where real residents anonymously share what they actually pay.',
+  content:`<p>If you've ever moved to a new neighbourhood in Nagpur and asked a broker "what's the going rate for a 2BHK here?" — you already know the problem. The number they give you is whatever they think you'll pay, not what the market actually is.</p>
+<h2>The problem with rent in India</h2>
+<p>Rent information in Indian cities is completely opaque. Unlike buying property — where sale prices are somewhat registered — rental prices exist entirely off the record. There's no public database, no registry. The only people who consistently know real prices are brokers, and they have every incentive to keep that information to themselves.</p>
+<p>The result? Tenants negotiate blind. New residents have no reference point. People pay 20–30% above market rate simply because they didn't know better.</p>
+<h2>What is nagpur.rent?</h2>
+<p>nagpur.rent is a community rental price map for Nagpur. Residents drop a pin on the map at their location and share what they actually pay — anonymously. No login, no account, no personal details required.</p>
+<p>The result is a growing, crowdsourced database of real rental prices across Nagpur's neighbourhoods — visible to anyone on the map.</p>
+<h2>What can you do on it?</h2>
+<ul>
+<li><strong>See real rents</strong> — blue pins are gated societies, orange are non-gated. Each shows BHK type and monthly rent.</li>
+<li><strong>Check your percentile</strong> — tap any pin to see how that rent compares to all other pins in the same BHK category city-wide.</li>
+<li><strong>Flat Hunt</strong> — looking for a flat? Drop a seeker pin, get found by landlords and residents.</li>
+<li><strong>Live Stats</strong> — city average, BHK-wise breakdown, gated vs non-gated premium, cheapest and most expensive areas.</li>
+<li><strong>Naka Alert</strong> — report police checkpoints across the city. Community-verified, auto-expires in 7 days.</li>
+</ul>
+<h2>Who built this?</h2>
+<p>nagpur.rent was built by Murtaza Rangwala, a performance marketing expert based in Nagpur. He built it as a side project — believing Nagpur deserved a community-powered rent map.</p>
+<h2>Is it free?</h2>
+<p>Yes, completely. No ads, no subscriptions, no broker fees. The map runs on community participation — the more people add their rent, the more useful it becomes for everyone.</p>
+<h2>How do I contribute?</h2>
+<p>Open the map at <a href="/">nagpur.rent</a>, tap <strong>Add My Rent</strong>, drop a pin on your location, and fill in your rent details. Takes about 30 seconds. No login required. Your data is anonymised — we don't collect names for rent pins.</p>
+<p>The more Nagpurkars add their rent, the harder it becomes for brokers to overcharge the next person. That's the whole point.</p>`
+};
+
+function getSlug(){
+  const path=window.location.pathname;
+  const parts=path.split('/').filter(Boolean);
+  if(parts[0]==='blog'&&parts[1])return parts[1];
+  return new URLSearchParams(window.location.search).get('slug')||'';
+}
+
+async function init(){
+  const slug=getSlug();
+  if(!slug){window.location.href='/blog.html';return;}
+
+  let post=null;
+  if(slug===SEED.slug){post=SEED;}
+  else{
+    const{data}=await sb.from('blog_posts').select('*').eq('slug',slug).eq('published',true).single();
+    post=data;
+  }
+
+  if(!post){
+    document.getElementById('loading').innerHTML='<p style="color:var(--td);font-size:16px;">Post not found. <a href="/blog.html" style="color:var(--orange2);">View all posts →</a></p>';
+    return;
+  }
+
+  const pageUrl=`https://nagpur.rent/blog/${post.slug||slug}`;
+  const metaTitle=`${post.title} | nagpur.rent Blog`;
+  const metaDesc=post.excerpt||post.meta_desc||`Read ${post.title} on nagpur.rent — Nagpur's community rental platform.`;
+
+  document.title=metaTitle;
+  document.querySelector('meta[name="description"]').content=metaDesc;
+  document.getElementById('canonical').href=pageUrl;
+  document.getElementById('og-title').content=metaTitle;
+  document.getElementById('og-desc').content=metaDesc;
+  document.getElementById('og-url').content=pageUrl;
+  if(post.og_image||post.cover_image){
+    const m=document.createElement('meta');m.property='og:image';m.content=post.og_image||post.cover_image;
+    document.head.appendChild(m);
+  }
+
+  document.getElementById('post-hero').textContent=post.emoji||'✍️';
+  document.getElementById('bc-title').textContent=post.title;
+
+  const fmtDate=ts=>ts?new Date(ts).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}):post.date||'';
+
+  document.getElementById('post-content').innerHTML=`
+    <div class="post-tag">${post.category||'Article'}</div>
+    <h1>${esc(post.title)}</h1>
+    <div class="post-meta">
+      <span>✍️ ${post.author||'nagpur.rent'}</span>
+      <span>📅 ${post.date||fmtDate(post.created_at)}</span>
+    </div>
+    <div class="post-body">${post.content||''}</div>
+    <div class="cta-box">
+      <div class="cta-title">🍊 Try nagpur.rent</div>
+      <div class="cta-sub">See real rents across Nagpur. Add yours in 30 seconds. No login required.</div>
+      <a href="/" class="btn-cta">Open the Map →</a>
+    </div>`;
+
+  document.getElementById('loading').style.display='none';
+  document.getElementById('page-content').style.display='block';
+  gtag('event','post_view',{post_id:post.id,slug});
+}
+
+function toggleNav(){const d=document.getElementById('nav-dd');d.style.display=d.style.display==='block'?'none':'block';}
+document.addEventListener('click',e=>{if(!document.getElementById('site-nav').contains(e.target))document.getElementById('nav-dd').style.display='none';});
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+init();
+</script>
+</body>
+</html>
