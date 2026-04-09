@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin — nagpur.rent</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+    :root{
+      --bg:#f5f6fa;--surface:#fff;--surface2:#f0f1f6;--border:#e4e6ef;
+      --accent:#f97316;--accent2:#ea580c;--accent-dim:rgba(249,115,22,0.1);
+      --blue:#2563eb;--green:#16a34a;--red:#dc2626;--purple:#7c3aed;
+      --text:#111827;--tm:#6b7280;--td:#9ca3af;
+      --sidebar:220px;--fm:'Inter',sans-serif;--mono:'DM Mono',monospace;
+      --sh:0 1px 4px rgba(0,0,0,0.07);--sh2:0 4px 16px rgba(0,0,0,0.09);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--fm);background:var(--bg);color:var(--text);min-height:100vh;}
+
+    /* ── LOGIN ── */
+    #login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;}
+    .login-box{background:var(--surface);border-radius:20px;padding:40px;width:100%;max-width:380px;box-shadow:var(--sh2);text-align:center;}
+    .login-logo{font-size:32px;font-weight:800;margin-bottom:4px;color:var(--text);}
+    .login-logo span{color:var(--accent);}
+    .login-sub{font-size:13px;color:var(--tm);margin-bottom:28px;}
+    .login-input{width:100%;background:var(--surface2);border:2px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-family:var(--fm);font-size:15px;outline:none;margin-bottom:12px;transition:border-color .15s;}
+    .login-input:focus{border-color:var(--accent);}
+    .login-btn{width:100%;background:var(--accent);color:white;border:none;padding:14px;border-radius:10px;font-family:var(--fm);font-size:15px;font-weight:700;cursor:pointer;}
+    .login-btn:hover{background:var(--accent2);}
+    .login-err{color:var(--red);font-size:13px;margin-top:8px;font-weight:600;}
+
+    /* ── LAYOUT ── */
+    #app{display:flex;min-height:100vh;}
+    #sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+    #main{margin-left:var(--sidebar);flex:1;min-height:100vh;}
+
+    /* ── SIDEBAR ── */
+    .sb-brand{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+    .sb-logo{font-size:16px;font-weight:800;color:var(--text);}
+    .sb-logo span{color:var(--accent);}
+    .sb-sub{font-size:11px;color:var(--tm);margin-top:2px;font-weight:600;}
+    .sb-section{padding:12px 8px 4px;font-size:10px;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.8px;}
+    .sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;margin:1px 6px;cursor:pointer;transition:all .15s;font-size:13px;font-weight:600;color:var(--tm);border:none;background:none;width:calc(100% - 12px);text-align:left;}
+    .sb-item:hover{background:var(--surface2);color:var(--text);}
+    .sb-item.active{background:var(--accent-dim);color:var(--accent2);font-weight:700;}
+    .sb-item .icon{font-size:16px;width:20px;text-align:center;}
+    .sb-badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:auto;}
+    .sb-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border);}
+    .sb-logout{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--tm);padding:9px;border-radius:8px;font-family:var(--fm);font-size:12px;font-weight:700;cursor:pointer;}
+
+    /* ── TOPBAR ── */
+    #topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .tb-title{font-size:18px;font-weight:800;}
+    .tb-right{display:flex;align-items:center;gap:10px;}
+    .tb-badge{background:var(--accent-dim);color:var(--accent2);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;}
+
+    /* ── PAGE ── */
+    .page{padding:24px;display:none;}
+    .page.active{display:block;}
+
+    /* ── CARDS ── */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;}
+    .stat-card{background:var(--surface);border-radius:14px;padding:18px;box-shadow:var(--sh);border:1px solid var(--border);}
+    .stat-icon{font-size:24px;margin-bottom:8px;}
+    .stat-val{font-family:var(--mono);font-size:28px;font-weight:500;color:var(--text);}
+    .stat-lbl{font-size:12px;font-weight:700;color:var(--tm);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+    .stat-card.orange{border-left:4px solid var(--accent);}
+    .stat-card.blue{border-left:4px solid var(--blue);}
+    .stat-card.green{border-left:4px solid var(--green);}
+    .stat-card.red{border-left:4px solid var(--red);}
+    .stat-card.purple{border-left:4px solid var(--purple);}
+
+    /* ── SECTION CARD ── */
+    .card{background:var(--surface);border-radius:14px;padding:20px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:20px;}
+    .card-title{font-size:15px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+
+    /* ── TABLE ── */
+    .tbl{width:100%;border-collapse:collapse;}
+    .tbl th{text-align:left;font-size:11px;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;border-bottom:2px solid var(--border);background:var(--surface2);}
+    .tbl td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+    .tbl tr:last-child td{border-bottom:none;}
+    .tbl tr:hover td{background:var(--surface2);}
+    .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+
+    /* ── BUTTONS ── */
+    .btn{padding:8px 14px;border-radius:8px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+    .btn-orange{background:var(--accent);color:white;}
+    .btn-orange:hover{background:var(--accent2);}
+    .btn-red{background:rgba(220,38,38,.1);color:var(--red);border:1px solid rgba(220,38,38,.2);}
+    .btn-red:hover{background:rgba(220,38,38,.2);}
+    .btn-green{background:rgba(22,163,74,.1);color:var(--green);border:1px solid rgba(22,163,74,.2);}
+    .btn-green:hover{background:rgba(22,163,74,.2);}
+    .btn-blue{background:rgba(37,99,235,.1);color:var(--blue);border:1px solid rgba(37,99,235,.2);}
+    .btn-blue:hover{background:rgba(37,99,235,.2);}
+    .btn-ghost{background:var(--surface2);color:var(--tm);border:1px solid var(--border);}
+    .btn-ghost:hover{background:var(--border);}
+
+    /* ── FORMS ── */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .form-group{margin-bottom:16px;}
+    .form-group.full{grid-column:1/-1;}
+    label{display:block;font-size:12px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+    input[type=text],input[type=number],input[type=email],input[type=url],input[type=password],select,textarea{
+      width:100%;background:var(--surface2);border:2px solid var(--border);color:var(--text);
+      padding:10px 12px;border-radius:9px;font-family:var(--fm);font-size:14px;outline:none;transition:border-color .15s;
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+    textarea{resize:vertical;min-height:120px;}
+    select option{background:white;}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+    .tog{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+    .tog.on{background:var(--accent);}
+    .tog::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+    .tog.on::after{left:23px;}
+
+    /* ── BADGES ── */
+    .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+    .badge-green{background:rgba(22,163,74,.1);color:var(--green);}
+    .badge-red{background:rgba(220,38,38,.1);color:var(--red);}
+    .badge-orange{background:var(--accent-dim);color:var(--accent2);}
+    .badge-blue{background:rgba(37,99,235,.1);color:var(--blue);}
+    .badge-gray{background:var(--surface2);color:var(--tm);}
+
+    /* ── EDITOR ── */
+    #blog-editor{display:none;}
+    .editor-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px 8px 0 0;border:2px solid var(--border);border-bottom:none;}
+    .ed-btn{padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;font-size:12px;font-weight:700;cursor:pointer;transition:all .1s;}
+    .ed-btn:hover{background:var(--accent);color:white;border-color:var(--accent);}
+    #editor-area{min-height:300px;border:2px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:14px;font-size:14px;line-height:1.7;outline:none;background:white;}
+    .ai-btn{background:linear-gradient(135deg,#7c3aed,#2563eb);color:white;border:none;padding:8px 16px;border-radius:8px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+    .ai-btn:hover{opacity:.9;}
+
+    /* ── SEO PREVIEW ── */
+    .seo-preview{background:#f8f9fa;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px;}
+    .seo-preview-url{font-size:12px;color:var(--green);margin-bottom:4px;}
+    .seo-preview-title{font-size:18px;color:#1a0dab;font-weight:400;margin-bottom:2px;}
+    .seo-preview-desc{font-size:13px;color:#545454;line-height:1.4;}
+
+    /* ── MISC ── */
+    .divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+    .empty{text-align:center;padding:40px;color:var(--td);font-size:14px;font-weight:600;}
+    .toast-admin{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;box-shadow:var(--sh2);}
+    .toast-admin.show{opacity:1;}
+    .loading-dots{display:inline-block;font-size:13px;color:var(--tm);}
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+    .qa-btn{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--fm);}
+    .qa-btn:hover{border-color:var(--accent);background:var(--accent-dim);}
+    .qa-icon{font-size:24px;margin-bottom:6px;}
+    .qa-label{font-size:12px;font-weight:700;color:var(--text);}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:768px){
+      #sidebar{width:100%;height:auto;position:relative;flex-direction:row;overflow-x:auto;}
+      #main{margin-left:0;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+      .form-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">nagpur<span>.rent</span></div>
+    <div class="login-sub">Admin Panel</div>
+    <input type="password" class="login-input" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none;">
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">nagpur<span>.rent</span></div>
+    <div class="sb-sub">Admin Panel</div>
+  </div>
+
+  <div class="sb-section">Overview</div>
+  <button class="sb-item active" data-page="dashboard" onclick="nav(this)"><span class="icon">📊</span>Dashboard</button>
+
+  <div class="sb-section">Map Management</div>
+  <button class="sb-item" data-page="pins" onclick="nav(this)"><span class="icon">📌</span>Rent Pins</button>
+  <button class="sb-item" data-page="seekers" onclick="nav(this)"><span class="icon">🔍</span>Seekers</button>
+  <button class="sb-item" data-page="nakas" onclick="nav(this)"><span class="icon">🚨</span>Naka Alerts</button>
+  <button class="sb-item" data-page="reports" onclick="nav(this)"><span class="icon">🚩</span>Reports <span class="sb-badge" id="report-badge">0</span></button>
+
+  <div class="sb-section">Content</div>
+  <button class="sb-item" data-page="blog" onclick="nav(this)"><span class="icon">✍️</span>Blog</button>
+  <button class="sb-item" data-page="listings" onclick="nav(this)"><span class="icon">🏠</span>Listings</button>
+  <button class="sb-item" data-page="enquiries" onclick="nav(this)"><span class="icon">📩</span>Enquiries</button>
+
+  <div class="sb-section">Marketing</div>
+  <button class="sb-item" data-page="seo" onclick="nav(this)"><span class="icon">🔎</span>SEO</button>
+  <button class="sb-item" data-page="ads" onclick="nav(this)"><span class="icon">💰</span>AdSense</button>
+  <button class="sb-item" data-page="social" onclick="nav(this)"><span class="icon">📱</span>Social & WhatsApp</button>
+
+  <div class="sb-section">Site</div>
+  <button class="sb-item" data-page="settings" onclick="nav(this)"><span class="icon">⚙️</span>Settings</button>
+  <button class="sb-item" data-page="messageboard" onclick="nav(this)"><span class="icon">📢</span>Message Board</button>
+
+  <div class="sb-footer">
+    <button class="sb-logout" onclick="logout()">← Log Out</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="topbar">
+    <div class="tb-title" id="page-title">Dashboard</div>
+    <div class="tb-right">
+      <div class="tb-badge" id="tb-live">● Live</div>
+      <a href="https://nagpur.rent" target="_blank" style="font-size:13px;color:var(--accent);font-weight:700;text-decoration:none;">View Site →</a>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-row" id="dash-stats">
+      <div class="stat-card orange"><div class="stat-icon">📌</div><div class="stat-val" id="s-pins">—</div><div class="stat-lbl">Total Pins</div></div>
+      <div class="stat-card blue"><div class="stat-icon">📌</div><div class="stat-val" id="s-today">—</div><div class="stat-lbl">Pins Today</div></div>
+      <div class="stat-card green"><div class="stat-icon">🔍</div><div class="stat-val" id="s-seekers">—</div><div class="stat-lbl">Seekers</div></div>
+      <div class="stat-card red"><div class="stat-icon">🚨</div><div class="stat-val" id="s-nakas">—</div><div class="stat-lbl">Active Nakas</div></div>
+      <div class="stat-card purple"><div class="stat-icon">✍️</div><div class="stat-val" id="s-blogs">—</div><div class="stat-lbl">Blog Posts</div></div>
+      <div class="stat-card orange"><div class="stat-icon">🏠</div><div class="stat-val" id="s-listings">—</div><div class="stat-lbl">Listings</div></div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="qa-btn" onclick="nav(document.querySelector('[data-page=blog]'));openNewPost()">
+        <div class="qa-icon">✍️</div><div class="qa-label">New Blog Post</div>
+      </div>
+      <div class="qa-btn" onclick="nav(document.querySelector('[data-page=listings]'));openNewListing()">
+        <div class="qa-icon">🏠</div><div class="qa-label">Add Listing</div>
+      </div>
+      <div class="qa-btn" onclick="nav(document.querySelector('[data-page=messageboard]'))">
+        <div class="qa-icon">📢</div><div class="qa-label">Message Board</div>
+      </div>
+      <div class="qa-btn" onclick="nav(document.querySelector('[data-page=reports]'))">
+        <div class="qa-icon">🚩</div><div class="qa-label">View Reports</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent Pins <span style="font-size:12px;color:var(--tm);font-weight:600;">Last 10 added</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Area</th><th>BHK</th><th>Rent</th><th>Type</th><th>When</th><th></th></tr></thead>
+      <tbody id="dash-recent-pins"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ RENT PINS ═══ -->
+  <div class="page" id="page-pins">
+    <div class="card">
+      <div class="card-title">All Rent Pins
+        <input type="text" placeholder="Search area or society..." style="width:220px;font-size:13px;padding:7px 12px;" oninput="filterPinsTable(this.value)"/>
+      </div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Area</th><th>Society</th><th>BHK</th><th>Rent</th><th>Type</th><th>Gated</th><th>When</th><th></th></tr></thead>
+      <tbody id="pins-tbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ SEEKERS ═══ -->
+  <div class="page" id="page-seekers">
+    <div class="card">
+      <div class="card-title">Seeker Pins</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Area</th><th>Budget</th><th>BHK</th><th>Food</th><th>Gender</th><th>Contact</th><th>When</th><th></th></tr></thead>
+      <tbody id="seekers-tbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ NAKAS ═══ -->
+  <div class="page" id="page-nakas">
+    <div class="card">
+      <div class="card-title">Active Naka Alerts</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Area</th><th>Type</th><th>Time</th><th>Frequency</th><th>Confirms</th><th>Expires</th><th></th></tr></thead>
+      <tbody id="nakas-tbody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ REPORTS ═══ -->
+  <div class="page" id="page-reports">
+    <div class="card">
+      <div class="card-title">Flagged Reports</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pin</th><th>Reason</th><th>When</th><th></th></tr></thead>
+      <tbody id="reports-tbody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ BLOG ═══ -->
+  <div class="page" id="page-blog">
+    <div id="blog-list">
+      <div class="card">
+        <div class="card-title">Blog Posts
+          <button class="btn btn-orange" onclick="openNewPost()">+ New Post</button>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Title</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <tbody id="blog-tbody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="blog-editor">
+      <div class="card">
+        <div class="card-title">
+          <span id="editor-title-label">New Post</span>
+          <div style="display:flex;gap:8px;">
+            <button class="ai-btn" onclick="aiDraftPost()">🤖 AI Draft</button>
+            <button class="btn btn-ghost" onclick="closeBlogEditor()">← Back</button>
+            <button class="btn btn-ghost" onclick="savePost(false)">Save Draft</button>
+            <button class="btn btn-orange" onclick="savePost(true)">Publish</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Post Title</label>
+          <input type="text" id="post-title" placeholder="e.g. Best Areas to Rent in Nagpur 2025" oninput="autoSlug()"/>
+        </div>
+        <div class="form-group">
+          <label>Slug (URL)</label>
+          <input type="text" id="post-slug" placeholder="best-areas-nagpur-2025"/>
+        </div>
+        <div class="form-group">
+          <label>Excerpt (shown in blog list)</label>
+          <input type="text" id="post-excerpt" placeholder="Short description of the post..."/>
+        </div>
+        <div class="form-group">
+          <label>Cover Image URL</label>
+          <input type="url" id="post-cover" placeholder="https://..."/>
+        </div>
+
+        <div class="form-group">
+          <label>Content</label>
+          <div class="editor-toolbar">
+            <button class="ed-btn" onclick="fmt('bold')"><b>B</b></button>
+            <button class="ed-btn" onclick="fmt('italic')"><i>I</i></button>
+            <button class="ed-btn" onclick="fmt('underline')"><u>U</u></button>
+            <button class="ed-btn" onclick="fmtBlock('h2')">H2</button>
+            <button class="ed-btn" onclick="fmtBlock('h3')">H3</button>
+            <button class="ed-btn" onclick="fmt('insertUnorderedList')">• List</button>
+            <button class="ed-btn" onclick="fmt('insertOrderedList')">1. List</button>
+            <button class="ed-btn" onclick="insertLink()">🔗 Link</button>
+            <button class="ed-btn" onclick="fmt('removeFormat')">Clear</button>
+          </div>
+          <div id="editor-area" contenteditable="true" spellcheck="true"></div>
+        </div>
+
+        <hr class="divider"/>
+        <div style="font-size:14px;font-weight:800;margin-bottom:14px;">🔎 SEO Settings</div>
+        <div class="form-group">
+          <label>Meta Title <span style="color:var(--tm);font-weight:400;text-transform:none;">(60 chars ideal)</span></label>
+          <input type="text" id="post-meta-title" placeholder="Leave blank to use post title" oninput="updateSEOPreview()"/>
+        </div>
+        <div class="form-group">
+          <label>Meta Description <span style="color:var(--tm);font-weight:400;text-transform:none;">(160 chars ideal)</span></label>
+          <textarea id="post-meta-desc" style="min-height:70px;" placeholder="What this post is about..." oninput="updateSEOPreview()"></textarea>
+        </div>
+        <div class="form-group">
+          <label>OG Image URL (for WhatsApp/social preview)</label>
+          <input type="url" id="post-og-image" placeholder="https://..."/>
+        </div>
+        <div class="seo-preview" id="seo-preview">
+          <div class="seo-preview-url">nagpur.rent/blog/your-post-slug</div>
+          <div class="seo-preview-title" id="seo-prev-title">Post title will appear here</div>
+          <div class="seo-preview-desc" id="seo-prev-desc">Meta description will appear here — keep it under 160 characters</div>
+        </div>
+
+        <input type="hidden" id="editing-post-id"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LISTINGS ═══ -->
+  <div class="page" id="page-listings">
+    <div id="listings-list">
+      <div class="card">
+        <div class="card-title">Property Listings
+          <button class="btn btn-orange" onclick="openNewListing()">+ Add Listing</button>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Title</th><th>Type</th><th>Area</th><th>Price</th><th>Featured</th><th>Status</th><th></th></tr></thead>
+        <tbody id="listings-tbody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="listing-editor" style="display:none;">
+      <div class="card">
+        <div class="card-title">
+          <span id="listing-editor-title">New Listing</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost" onclick="closeListingEditor()">← Back</button>
+            <button class="btn btn-orange" onclick="saveListing()">Save Listing</button>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Listing Title</label>
+            <input type="text" id="lst-title" placeholder="e.g. Spacious 2BHK in Civil Lines"/>
+          </div>
+          <div class="form-group">
+            <label>Listing Type</label>
+            <select id="lst-type">
+              <option value="rent">For Rent</option>
+              <option value="buy">For Sale</option>
+              <option value="sell">Owner Selling</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Property Type</label>
+            <select id="lst-prop-type">
+              <option value="flat">Flat / Apartment</option>
+              <option value="house">Independent House</option>
+              <option value="plot">Plot / Land</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" id="lst-price" placeholder="e.g. 25000"/>
+          </div>
+          <div class="form-group">
+            <label>Area / Locality</label>
+            <input type="text" id="lst-area" placeholder="e.g. Dharampeth"/>
+          </div>
+          <div class="form-group">
+            <label>BHK</label>
+            <select id="lst-bhk">
+              <option value="">Select</option>
+              <option value="1">1 BHK</option>
+              <option value="2">2 BHK</option>
+              <option value="3">3 BHK</option>
+              <option value="4">4 BHK</option>
+              <option value="5">5+ BHK</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Area (sqft)</label>
+            <input type="number" id="lst-sqft" placeholder="e.g. 950"/>
+          </div>
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" id="lst-contact-name" placeholder="Owner / Agent name"/>
+          </div>
+          <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="text" id="lst-contact-phone" placeholder="10-digit number"/>
+          </div>
+          <div class="form-group">
+            <label>Contact Email</label>
+            <input type="email" id="lst-contact-email" placeholder="Optional"/>
+          </div>
+          <div class="form-group">
+            <label>Photo URLs (comma-separated)</label>
+            <input type="text" id="lst-photos" placeholder="https://img1.com, https://img2.com"/>
+          </div>
+          <div class="form-group full">
+            <label>Description</label>
+            <textarea id="lst-desc" placeholder="Describe the property — amenities, condition, nearby landmarks..."></textarea>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div style="font-size:14px;font-weight:700;">Featured Listing</div>
+          <div class="tog" id="lst-featured" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div style="font-size:14px;font-weight:700;">Active (visible on site)</div>
+          <div class="tog on" id="lst-active" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <input type="hidden" id="editing-listing-id"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ENQUIRIES ═══ -->
+  <div class="page" id="page-enquiries">
+    <div class="card">
+      <div class="card-title">Listing Enquiries</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Listing</th><th>Name</th><th>Phone</th><th>Message</th><th>When</th><th></th></tr></thead>
+      <tbody id="enquiries-tbody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ SEO ═══ -->
+  <div class="page" id="page-seo">
+    <div class="card">
+      <div class="card-title">SEO — Home Page (nagpur.rent)</div>
+      <div class="form-group">
+        <label>Meta Title</label>
+        <input type="text" id="seo-home-title" placeholder="nagpur.rent — Real Rents by Real Nagpurkars" oninput="updateHomeSEOPreview()"/>
+      </div>
+      <div class="form-group">
+        <label>Meta Description</label>
+        <textarea id="seo-home-desc" style="min-height:70px;" oninput="updateHomeSEOPreview()"></textarea>
+      </div>
+      <div class="seo-preview">
+        <div class="seo-preview-url">nagpur.rent</div>
+        <div class="seo-preview-title" id="home-seo-title-prev">nagpur.rent — Real Rents by Real Nagpurkars</div>
+        <div class="seo-preview-desc" id="home-seo-desc-prev">Community rental price map for Nagpur...</div>
+      </div>
+      <button class="btn btn-orange" style="margin-top:16px;" onclick="saveSEOSettings()">Save SEO Settings</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">SEO — Blog Page</div>
+      <div class="form-group">
+        <label>Meta Title</label>
+        <input type="text" id="seo-blog-title" placeholder="Nagpur Rent Blog"/>
+      </div>
+      <div class="form-group">
+        <label>Meta Description</label>
+        <textarea id="seo-blog-desc" style="min-height:70px;"></textarea>
+      </div>
+      <button class="btn btn-orange" style="margin-top:16px;" onclick="saveSEOSettings()">Save</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Google Analytics</div>
+      <div class="form-group">
+        <label>GA4 Measurement ID</label>
+        <input type="text" id="seo-ga4" placeholder="G-XXXXXXXXXX"/>
+      </div>
+      <div style="font-size:12px;color:var(--tm);margin-top:8px;">Your current GA4 ID: <strong>G-5D2PRRL89Q</strong> (already in the map)</div>
+      <button class="btn btn-orange" style="margin-top:16px;" onclick="saveSEOSettings()">Save</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sitemap & Indexing</div>
+      <div style="font-size:13px;color:var(--tm);line-height:1.7;margin-bottom:14px;">
+        Submit your sitemap to Google Search Console to help your pages get indexed faster.
+        Your sitemap URL is: <strong>nagpur.rent/sitemap.xml</strong>
+      </div>
+      <a href="https://search.google.com/search-console" target="_blank" class="btn btn-blue" style="display:inline-flex;text-decoration:none;">Open Google Search Console →</a>
+    </div>
+  </div>
+
+  <!-- ═══ ADS ═══ -->
+  <div class="page" id="page-ads">
+    <div class="card">
+      <div class="card-title">Google AdSense</div>
+      <div class="form-group">
+        <label>AdSense Publisher ID</label>
+        <input type="text" id="ads-pub-id" placeholder="ca-pub-XXXXXXXXXXXXXXXX"/>
+      </div>
+      <div style="font-size:12px;color:var(--tm);margin-bottom:16px;">Get this from your AdSense dashboard → Account → Account information</div>
+      <button class="btn btn-orange" onclick="saveAdSettings()">Save Publisher ID</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ad Slots</div>
+      <div id="ad-slots-list">Loading...</div>
+      <button class="btn btn-orange" style="margin-top:16px;" onclick="saveAdSettings()">Save All Slots</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 AdSense Setup Guide</div>
+      <div style="font-size:13px;color:var(--tm);line-height:1.8;">
+        <strong style="color:var(--text);">1.</strong> Apply at <a href="https://adsense.google.com" target="_blank" style="color:var(--blue);">adsense.google.com</a><br/>
+        <strong style="color:var(--text);">2.</strong> Add your site nagpur.rent and verify ownership<br/>
+        <strong style="color:var(--text);">3.</strong> Wait for approval (usually 2-4 weeks for new sites)<br/>
+        <strong style="color:var(--text);">4.</strong> Once approved, paste your Publisher ID above<br/>
+        <strong style="color:var(--text);">5.</strong> Create ad units in AdSense dashboard and paste codes in slots below<br/>
+        <strong style="color:var(--text);">Note:</strong> You need consistent content (blog posts) before applying.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SOCIAL ═══ -->
+  <div class="page" id="page-social">
+    <div class="card">
+      <div class="card-title">WhatsApp Integration</div>
+      <div class="form-group">
+        <label>Your WhatsApp Number (with country code)</label>
+        <input type="text" id="soc-whatsapp" placeholder="+919876543210"/>
+      </div>
+      <div style="font-size:12px;color:var(--tm);margin-bottom:16px;">This shows as a Contact button on paid listings. Users can message you directly.</div>
+      <button class="btn btn-orange" onclick="saveSocialSettings()">Save</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Social Links</div>
+      <div class="form-group">
+        <label>Instagram URL</label>
+        <input type="url" id="soc-instagram" placeholder="https://instagram.com/nagpurrent"/>
+      </div>
+      <div class="form-group">
+        <label>Twitter/X URL</label>
+        <input type="url" id="soc-twitter" placeholder="https://twitter.com/nagpurrent"/>
+      </div>
+      <div class="form-group">
+        <label>Facebook URL</label>
+        <input type="url" id="soc-facebook" placeholder="https://facebook.com/nagpurrent"/>
+      </div>
+      <button class="btn btn-orange" onclick="saveSocialSettings()">Save</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 Instagram Story Content Generator</div>
+      <div class="form-group">
+        <label>What do you want to post about?</label>
+        <input type="text" id="story-topic" placeholder="e.g. Rent in Dharampeth is too high, naka alert feature launch"/>
+      </div>
+      <button class="ai-btn" onclick="generateStoryContent()">🤖 Generate Story Content</button>
+      <div id="story-output" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SETTINGS ═══ -->
+  <div class="page" id="page-settings">
+    <div class="card">
+      <div class="card-title">Site Settings</div>
+      <div class="form-group">
+        <label>Site Tagline</label>
+        <input type="text" id="set-tagline" placeholder="Real rents. No broker. No BS. 🍊"/>
+      </div>
+      <button class="btn btn-orange" onclick="saveGeneralSettings()">Save</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Change Admin Password</div>
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" id="pw-current" placeholder="Current password"/>
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="pw-new" placeholder="New password"/>
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" id="pw-confirm" placeholder="Confirm new password"/>
+      </div>
+      <button class="btn btn-orange" onclick="changePassword()">Change Password</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--red);">⚠️ Danger Zone</div>
+      <div style="font-size:13px;color:var(--tm);margin-bottom:14px;">These actions cannot be undone.</div>
+      <button class="btn btn-red" onclick="clearExpiredNakas()">Clear Expired Nakas</button>
+    </div>
+  </div>
+
+  <!-- ═══ MESSAGE BOARD ═══ -->
+  <div class="page" id="page-messageboard">
+    <div class="card">
+      <div class="card-title">Message Board Banner</div>
+      <div style="font-size:13px;color:var(--tm);margin-bottom:14px;">This banner shows briefly at the top of the map when users visit. Use it for announcements.</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Message</th><th>Active</th><th></th></tr></thead>
+      <tbody id="msg-tbody"><tr><td colspan="3" class="empty">Loading...</td></tr></tbody></table></div>
+      <hr class="divider"/>
+      <div class="form-group">
+        <label>New Message</label>
+        <input type="text" id="new-msg" placeholder="e.g. 🎉 100 pins reached! Thanks Nagpur!"/>
+      </div>
+      <button class="btn btn-orange" onclick="addMessage()">Add Message</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast-admin" id="admin-toast"></div>
+
+<script>
+const SUPABASE_URL='https://artqzjmizytoxxaqzadw.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFydHF6am1penl0b3h4YXF6YWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MjE2MDQsImV4cCI6MjA5MTE5NzYwNH0.dVluFoXQGAKKFUL894F-R-VoITCD14vVJ6R2YyGiYzE';
+const ADMIN_PASS_KEY='nagpur_admin_pass';
+
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let currentPage='dashboard';
+let allPinsData=[];
+
+// ── AUTH ──
+const storedPass=localStorage.getItem(ADMIN_PASS_KEY)||'CHANGE_THIS_PASSWORD';
+
+function doLogin(){
+  const pw=document.getElementById('pw-input').value;
+  if(pw===storedPass){
+    localStorage.setItem('nag_admin_session','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    loadDashboard();
+  } else {
+    document.getElementById('login-err').textContent='Wrong password. Try again.';
+  }
+}
+
+function logout(){
+  localStorage.removeItem('nag_admin_session');
+  location.reload();
+}
+
+// Check if already logged in
+if(localStorage.getItem('nag_admin_session')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  setTimeout(loadDashboard,100);
+}
+
+// ── NAVIGATION ──
+function nav(btn){
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const page=btn.dataset.page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('page-title').textContent=btn.textContent.trim();
+  currentPage=page;
+  loadPage(page);
+}
+
+function loadPage(page){
+  const loaders={
+    dashboard:loadDashboard,pins:loadPins,seekers:loadSeekers,
+    nakas:loadNakas,reports:loadReports,blog:loadBlog,
+    listings:loadListings,enquiries:loadEnquiries,
+    seo:loadSEO,ads:loadAds,social:loadSocial,
+    settings:loadSettings,messageboard:loadMessageBoard,
+  };
+  if(loaders[page])loaders[page]();
+}
+
+// ── DASHBOARD ──
+async function loadDashboard(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const sevenDaysAgo=new Date(Date.now()-7*24*60*60*1000).toISOString();
+
+  const[{data:pins},{data:seekers},{data:nakas},{data:blogs},{data:listings},{data:reports}]=await Promise.all([
+    sb.from('pins').select('id,created_at,rent,bhk,gated,society_name,lat,lng'),
+    sb.from('seekers').select('id',{count:'exact'}),
+    sb.from('nakas').select('id').gte('created_at',sevenDaysAgo),
+    sb.from('blog_posts').select('id',{count:'exact'}),
+    sb.from('paid_listings').select('id').eq('active',true),
+    sb.from('reports').select('id',{count:'exact'}),
+  ]);
+
+  allPinsData=pins||[];
+  const todayPins=(pins||[]).filter(p=>new Date(p.created_at)>=today).length;
+
+  document.getElementById('s-pins').textContent=pins?.length||0;
+  document.getElementById('s-today').textContent=todayPins;
+  document.getElementById('s-seekers').textContent=seekers?.length||0;
+  document.getElementById('s-nakas').textContent=nakas?.length||0;
+  document.getElementById('s-blogs').textContent=blogs?.length||0;
+  document.getElementById('s-listings').textContent=listings?.length||0;
+  document.getElementById('report-badge').textContent=reports?.length||0;
+
+  // Recent pins table
+  const recent=(pins||[]).slice(0,10);
+  document.getElementById('dash-recent-pins').innerHTML=recent.length?recent.map(p=>`
+    <tr>
+      <td>${getNearestArea(p.lat,p.lng)}</td>
+      <td>${p.bhk} BHK</td>
+      <td><strong>₹${p.rent.toLocaleString('en-IN')}</strong></td>
+      <td><span class="badge ${p.gated?'badge-blue':'badge-orange'}">${p.gated?'Gated':'Non-Gated'}</span></td>
+      <td>${ago(p.created_at)}</td>
+      <td><button class="btn btn-red" onclick="deletePin('${p.id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="6" class="empty">No pins yet</td></tr>';
+}
+
+// ── PINS ──
+async function loadPins(){
+  const{data}=await sb.from('pins').select('*').order('created_at',{ascending:false});
+  allPinsData=data||[];
+  renderPinsTable(data||[]);
+}
+
+function renderPinsTable(pins){
+  document.getElementById('pins-tbody').innerHTML=pins.length?pins.map(p=>`
+    <tr>
+      <td>${getNearestArea(p.lat,p.lng)}</td>
+      <td>${p.society_name||'—'}</td>
+      <td>${p.bhk} BHK</td>
+      <td><strong>₹${p.rent.toLocaleString('en-IN')}</strong>${p.maintenance>0?`<br><span style="font-size:11px;color:var(--tm)">+₹${p.maintenance} maint</span>`:''}</td>
+      <td><span class="badge badge-orange">${cap(p.furnishing||'unfurnished')}</span></td>
+      <td><span class="badge ${p.gated?'badge-blue':'badge-gray'}">${p.gated?'Yes':'No'}</span></td>
+      <td>${ago(p.created_at)}</td>
+      <td><button class="btn btn-red" onclick="deletePin('${p.id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="8" class="empty">No pins</td></tr>';
+}
+
+function filterPinsTable(q){
+  if(!q){renderPinsTable(allPinsData);return;}
+  const filtered=allPinsData.filter(p=>(p.society_name||'').toLowerCase().includes(q.toLowerCase())||getNearestArea(p.lat,p.lng).toLowerCase().includes(q.toLowerCase()));
+  renderPinsTable(filtered);
+}
+
+async function deletePin(id){
+  if(!confirm('Delete this pin?'))return;
+  await sb.from('pins').delete().eq('id',id);
+  toast('Pin deleted');loadDashboard();if(currentPage==='pins')loadPins();
+}
+
+// ── SEEKERS ──
+async function loadSeekers(){
+  const{data}=await sb.from('seekers').select('*').order('created_at',{ascending:false});
+  document.getElementById('seekers-tbody').innerHTML=(data||[]).length?(data||[]).map(s=>`
+    <tr>
+      <td>${getNearestArea(s.lat,s.lng)}</td>
+      <td>₹${(s.budget_min||0).toLocaleString('en-IN')}–₹${(s.budget_max||0).toLocaleString('en-IN')}</td>
+      <td>${s.bhk_preference||'Any'}</td>
+      <td>${s.food_pref||'Any'}</td>
+      <td>${s.gender||'Any'}</td>
+      <td>${s.contact_email||'—'}</td>
+      <td>${ago(s.created_at)}</td>
+      <td><button class="btn btn-red" onclick="deleteSeeker('${s.id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="8" class="empty">No seekers</td></tr>';
+}
+
+async function deleteSeeker(id){await sb.from('seekers').delete().eq('id',id);toast('Deleted');loadSeekers();}
+
+// ── NAKAS ──
+async function loadNakas(){
+  const sevenDaysAgo=new Date(Date.now()-7*24*60*60*1000).toISOString();
+  const{data}=await sb.from('nakas').select('*').gte('created_at',sevenDaysAgo).order('confirms',{ascending:false});
+  const expiry=n=>{const exp=new Date(new Date(n.created_at).getTime()+7*24*60*60*1000);return exp.toLocaleDateString('en-IN');};
+  document.getElementById('nakas-tbody').innerHTML=(data||[]).length?(data||[]).map(n=>`
+    <tr>
+      <td>${getNearestArea(n.lat,n.lng)}</td>
+      <td><span class="badge badge-red">${cap(n.type||'general')}</span></td>
+      <td>${cap(n.time_of_day||'random')}</td>
+      <td>${cap(n.frequency||'today')}</td>
+      <td>👍 ${n.confirms||0}</td>
+      <td>${expiry(n)}</td>
+      <td><button class="btn btn-red" onclick="deleteNaka('${n.id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="7" class="empty">No active nakas</td></tr>';
+}
+
+async function deleteNaka(id){await sb.from('nakas').delete().eq('id',id);toast('Deleted');loadNakas();}
+
+// ── REPORTS ──
+async function loadReports(){
+  const{data}=await sb.from('reports').select('*,pins(rent,bhk,lat,lng)').order('created_at',{ascending:false});
+  document.getElementById('reports-tbody').innerHTML=(data||[]).length?(data||[]).map(r=>`
+    <tr>
+      <td>${r.pins?`₹${r.pins.rent.toLocaleString('en-IN')} ${r.pins.bhk}BHK`:'Pin deleted'}</td>
+      <td>${r.reason||'No reason'}</td>
+      <td>${ago(r.created_at)}</td>
+      <td style="display:flex;gap:6px;">
+        ${r.pins?`<button class="btn btn-red" onclick="deleteReportedPin('${r.id}','${r.pin_id}')">Delete Pin</button>`:''}
+        <button class="btn btn-ghost" onclick="dismissReport('${r.id}')">Dismiss</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="4" class="empty">No reports — all clean! 🎉</td></tr>';
+}
+
+async function deleteReportedPin(rId,pId){
+  if(!confirm('Delete the reported pin?'))return;
+  await sb.from('pins').delete().eq('id',pId);
+  await sb.from('reports').delete().eq('id',rId);
+  toast('Pin deleted');loadReports();
+}
+async function dismissReport(rId){
+  await sb.from('reports').delete().eq('id',rId);
+  toast('Report dismissed');loadReports();
+}
+
+// ── BLOG ──
+async function loadBlog(){
+  const{data}=await sb.from('blog_posts').select('*').order('created_at',{ascending:false});
+  document.getElementById('blog-tbody').innerHTML=(data||[]).length?(data||[]).map(p=>`
+    <tr>
+      <td><strong>${p.title}</strong><br><span style="font-size:11px;color:var(--tm);">/${p.slug}</span></td>
+      <td><span class="badge ${p.published?'badge-green':'badge-gray'}">${p.published?'Published':'Draft'}</span></td>
+      <td>${ago(p.created_at)}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-blue" onclick="editPost('${p.id}')">Edit</button>
+        <button class="btn ${p.published?'btn-ghost':'btn-green'}" onclick="togglePublish('${p.id}',${p.published})">${p.published?'Unpublish':'Publish'}</button>
+        <button class="btn btn-red" onclick="deletePost('${p.id}')">Delete</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="4" class="empty">No blog posts yet. Write your first one!</td></tr>';
+}
+
+function openNewPost(){
+  document.getElementById('blog-list').style.display='none';
+  document.getElementById('blog-editor').style.display='block';
+  document.getElementById('editor-title-label').textContent='New Post';
+  document.getElementById('editing-post-id').value='';
+  ['post-title','post-slug','post-excerpt','post-cover','post-meta-title','post-meta-desc','post-og-image'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('editor-area').innerHTML='';
+}
+
+function closeBlogEditor(){
+  document.getElementById('blog-editor').style.display='none';
+  document.getElementById('blog-list').style.display='block';
+  loadBlog();
+}
+
+async function editPost(id){
+  const{data}=await sb.from('blog_posts').select('*').eq('id',id).single();
+  if(!data)return;
+  document.getElementById('blog-list').style.display='none';
+  document.getElementById('blog-editor').style.display='block';
+  document.getElementById('editor-title-label').textContent='Edit Post';
+  document.getElementById('editing-post-id').value=id;
+  document.getElementById('post-title').value=data.title||'';
+  document.getElementById('post-slug').value=data.slug||'';
+  document.getElementById('post-excerpt').value=data.excerpt||'';
+  document.getElementById('post-cover').value=data.cover_image||'';
+  document.getElementById('post-meta-title').value=data.meta_title||'';
+  document.getElementById('post-meta-desc').value=data.meta_desc||'';
+  document.getElementById('post-og-image').value=data.og_image||'';
+  document.getElementById('editor-area').innerHTML=data.content||'';
+  updateSEOPreview();
+}
+
+async function savePost(publish){
+  const title=document.getElementById('post-title').value.trim();
+  if(!title){toast('Add a title first');return;}
+  const id=document.getElementById('editing-post-id').value;
+  const data={
+    title,
+    slug:document.getElementById('post-slug').value||slugify(title),
+    excerpt:document.getElementById('post-excerpt').value,
+    cover_image:document.getElementById('post-cover').value,
+    content:document.getElementById('editor-area').innerHTML,
+    meta_title:document.getElementById('post-meta-title').value,
+    meta_desc:document.getElementById('post-meta-desc').value,
+    og_image:document.getElementById('post-og-image').value,
+    published:publish,
+    updated_at:new Date().toISOString(),
+  };
+  if(id){await sb.from('blog_posts').update(data).eq('id',id);}
+  else{await sb.from('blog_posts').insert([data]);}
+  toast(publish?'Post published!':'Draft saved');
+  closeBlogEditor();
+}
+
+async function togglePublish(id,current){
+  await sb.from('blog_posts').update({published:!current}).eq('id',id);
+  toast(!current?'Published':'Unpublished');
+  loadBlog();
+}
+
+async function deletePost(id){
+  if(!confirm('Delete this post?'))return;
+  await sb.from('blog_posts').delete().eq('id',id);
+  toast('Deleted');loadBlog();
+}
+
+function autoSlug(){
+  const t=document.getElementById('post-title').value;
+  document.getElementById('post-slug').value=slugify(t);
+  updateSEOPreview();
+}
+
+function updateSEOPreview(){
+  const title=document.getElementById('post-meta-title').value||document.getElementById('post-title').value;
+  const desc=document.getElementById('post-meta-desc').value;
+  const slug=document.getElementById('post-slug').value;
+  document.getElementById('seo-prev-title').textContent=title||'Post title';
+  document.getElementById('seo-prev-desc').textContent=desc||'Meta description...';
+  document.querySelector('#seo-preview .seo-preview-url').textContent='nagpur.rent/blog/'+slug;
+}
+
+function fmt(cmd){document.execCommand(cmd,false,null);document.getElementById('editor-area').focus();}
+function fmtBlock(tag){document.execCommand('formatBlock',false,tag);}
+function insertLink(){const url=prompt('URL:');if(url)document.execCommand('createLink',false,url);}
+
+async function aiDraftPost(){
+  const topic=document.getElementById('post-title').value||prompt('What topic should the post be about?');
+  if(!topic)return;
+  const btn=document.querySelector('.ai-btn');
+  btn.textContent='🤖 Drafting...';btn.disabled=true;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:`Write a blog post for nagpur.rent about: "${topic}". 
+Context: nagpur.rent is a community rental price map for Nagpur, India where residents anonymously share their rent.
+Write in a friendly, informative tone. Include practical tips for Nagpur residents. 
+Format with HTML tags (h2, p, ul, li). Keep it 400-500 words. Start with the body content directly, no title tag.`}]
+      })
+    });
+    const d=await res.json();
+    const text=d.content?.[0]?.text||'';
+    document.getElementById('editor-area').innerHTML=text;
+    if(!document.getElementById('post-title').value)document.getElementById('post-title').value=topic;
+    autoSlug();
+    toast('AI draft ready! Review and edit before publishing.');
+  }catch(e){toast('AI draft failed — check API connection');}
+  btn.textContent='🤖 AI Draft';btn.disabled=false;
+}
+
+// ── LISTINGS ──
+async function loadListings(){
+  const{data}=await sb.from('paid_listings').select('*').order('created_at',{ascending:false});
+  document.getElementById('listings-tbody').innerHTML=(data||[]).length?(data||[]).map(l=>`
+    <tr>
+      <td><strong>${l.title}</strong></td>
+      <td><span class="badge badge-blue">${cap(l.listing_type)}</span></td>
+      <td>${l.area||'—'}</td>
+      <td>₹${(l.price||0).toLocaleString('en-IN')}</td>
+      <td>${l.featured?'⭐ Yes':'No'}</td>
+      <td><span class="badge ${l.active?'badge-green':'badge-red'}">${l.active?'Active':'Inactive'}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-blue" onclick="editListing('${l.id}')">Edit</button>
+        <button class="btn btn-red" onclick="deleteListing('${l.id}')">Delete</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="7" class="empty">No listings yet. Add your first paid listing!</td></tr>';
+}
+
+function openNewListing(){
+  document.getElementById('listings-list').style.display='none';
+  document.getElementById('listing-editor').style.display='block';
+  document.getElementById('listing-editor-title').textContent='New Listing';
+  document.getElementById('editing-listing-id').value='';
+  ['lst-title','lst-price','lst-area','lst-sqft','lst-contact-name','lst-contact-phone','lst-contact-email','lst-photos','lst-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lst-featured').classList.remove('on');
+  document.getElementById('lst-active').classList.add('on');
+}
+
+function closeListingEditor(){
+  document.getElementById('listing-editor').style.display='none';
+  document.getElementById('listings-list').style.display='block';
+  loadListings();
+}
+
+async function editListing(id){
+  const{data}=await sb.from('paid_listings').select('*').eq('id',id).single();
+  if(!data)return;
+  document.getElementById('listings-list').style.display='none';
+  document.getElementById('listing-editor').style.display='block';
+  document.getElementById('listing-editor-title').textContent='Edit Listing';
+  document.getElementById('editing-listing-id').value=id;
+  document.getElementById('lst-title').value=data.title||'';
+  document.getElementById('lst-type').value=data.listing_type||'rent';
+  document.getElementById('lst-prop-type').value=data.property_type||'flat';
+  document.getElementById('lst-price').value=data.price||'';
+  document.getElementById('lst-area').value=data.area||'';
+  document.getElementById('lst-bhk').value=data.bhk||'';
+  document.getElementById('lst-sqft').value=data.sqft||'';
+  document.getElementById('lst-contact-name').value=data.contact_name||'';
+  document.getElementById('lst-contact-phone').value=data.contact_phone||'';
+  document.getElementById('lst-contact-email').value=data.contact_email||'';
+  document.getElementById('lst-photos').value=data.photos||'';
+  document.getElementById('lst-desc').value=data.description||'';
+  if(data.featured)document.getElementById('lst-featured').classList.add('on');
+  if(!data.active)document.getElementById('lst-active').classList.remove('on');
+}
+
+async function saveListing(){
+  const title=document.getElementById('lst-title').value.trim();
+  if(!title){toast('Add a title');return;}
+  const id=document.getElementById('editing-listing-id').value;
+  const data={
+    title,listing_type:document.getElementById('lst-type').value,
+    property_type:document.getElementById('lst-prop-type').value,
+    price:parseInt(document.getElementById('lst-price').value)||null,
+    area:document.getElementById('lst-area').value,
+    bhk:parseInt(document.getElementById('lst-bhk').value)||null,
+    sqft:parseInt(document.getElementById('lst-sqft').value)||null,
+    contact_name:document.getElementById('lst-contact-name').value,
+    contact_phone:document.getElementById('lst-contact-phone').value,
+    contact_email:document.getElementById('lst-contact-email').value,
+    photos:document.getElementById('lst-photos').value,
+    description:document.getElementById('lst-desc').value,
+    featured:document.getElementById('lst-featured').classList.contains('on'),
+    active:document.getElementById('lst-active').classList.contains('on'),
+  };
+  if(id){await sb.from('paid_listings').update(data).eq('id',id);}
+  else{await sb.from('paid_listings').insert([data]);}
+  toast('Listing saved!');closeListingEditor();
+}
+
+async function deleteListing(id){
+  if(!confirm('Delete this listing?'))return;
+  await sb.from('paid_listings').delete().eq('id',id);
+  toast('Deleted');loadListings();
+}
+
+// ── ENQUIRIES ──
+async function loadEnquiries(){
+  const{data}=await sb.from('listing_enquiries').select('*,paid_listings(title)').order('created_at',{ascending:false});
+  document.getElementById('enquiries-tbody').innerHTML=(data||[]).length?(data||[]).map(e=>`
+    <tr>
+      <td>${e.paid_listings?.title||'—'}</td>
+      <td><strong>${e.name||'—'}</strong></td>
+      <td><a href="tel:${e.phone}" style="color:var(--blue)">${e.phone||'—'}</a></td>
+      <td>${e.message||'—'}</td>
+      <td>${ago(e.created_at)}</td>
+      <td><button class="btn btn-red" onclick="deleteEnquiry('${e.id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="6" class="empty">No enquiries yet</td></tr>';
+}
+
+async function deleteEnquiry(id){await sb.from('listing_enquiries').delete().eq('id',id);toast('Deleted');loadEnquiries();}
+
+// ── SEO ──
+async function loadSEO(){
+  const{data}=await sb.from('site_settings').select('*');
+  const s={};(data||[]).forEach(r=>{s[r.key]=r.value;});
+  document.getElementById('seo-home-title').value=s.meta_title_home||'';
+  document.getElementById('seo-home-desc').value=s.meta_desc_home||'';
+  document.getElementById('seo-blog-title').value=s.meta_title_blog||'';
+  document.getElementById('seo-blog-desc').value=s.meta_desc_blog||'';
+  document.getElementById('seo-ga4').value=s.ga4_id||'';
+  updateHomeSEOPreview();
+}
+
+function updateHomeSEOPreview(){
+  document.getElementById('home-seo-title-prev').textContent=document.getElementById('seo-home-title').value||'nagpur.rent';
+  document.getElementById('home-seo-desc-prev').textContent=document.getElementById('seo-home-desc').value||'';
+}
+
+async function saveSEOSettings(){
+  const updates=[
+    {key:'meta_title_home',value:document.getElementById('seo-home-title').value},
+    {key:'meta_desc_home',value:document.getElementById('seo-home-desc').value},
+    {key:'meta_title_blog',value:document.getElementById('seo-blog-title').value},
+    {key:'ga4_id',value:document.getElementById('seo-ga4').value},
+  ];
+  for(const u of updates){await sb.from('site_settings').upsert({key:u.key,value:u.value},{onConflict:'key'});}
+  toast('SEO settings saved!');
+}
+
+// ── ADS ──
+async function loadAds(){
+  const[{data:settings},{data:slots}]=await Promise.all([
+    sb.from('site_settings').select('*').eq('key','adsense_publisher_id'),
+    sb.from('ad_slots').select('*'),
+  ]);
+  document.getElementById('ads-pub-id').value=settings?.[0]?.value||'';
+  document.getElementById('ad-slots-list').innerHTML=(slots||[]).map(slot=>`
+    <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">${cap(slot.slot_name.replace(/_/g,' '))}</div>
+          <div style="font-size:12px;color:var(--tm);">Position: ${slot.position}</div>
+        </div>
+        <div class="tog ${slot.active?'on':''}" id="slot-tog-${slot.id}" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <label style="font-size:11px;">AdSense Code</label>
+      <textarea id="slot-code-${slot.id}" style="min-height:60px;font-family:var(--mono);font-size:12px;" placeholder="Paste your AdSense ad unit code here...">${slot.adsense_code||''}</textarea>
+    </div>`).join('');
+}
+
+async function saveAdSettings(){
+  await sb.from('site_settings').upsert({key:'adsense_publisher_id',value:document.getElementById('ads-pub-id').value},{onConflict:'key'});
+  const{data:slots}=await sb.from('ad_slots').select('id');
+  for(const slot of slots||[]){
+    const code=document.getElementById('slot-code-'+slot.id)?.value||'';
+    const active=document.getElementById('slot-tog-'+slot.id)?.classList.contains('on')||false;
+    await sb.from('ad_slots').update({adsense_code:code,active}).eq('id',slot.id);
+  }
+  toast('Ad settings saved!');
+}
+
+// ── SOCIAL ──
+async function loadSocial(){
+  const{data}=await sb.from('site_settings').select('*');
+  const s={};(data||[]).forEach(r=>{s[r.key]=r.value;});
+  document.getElementById('soc-whatsapp').value=s.whatsapp_number||'';
+  document.getElementById('soc-instagram').value=s.instagram_url||'';
+  document.getElementById('soc-twitter').value=s.twitter_url||'';
+  document.getElementById('soc-facebook').value=s.facebook_url||'';
+}
+
+async function saveSocialSettings(){
+  const updates=[
+    {key:'whatsapp_number',value:document.getElementById('soc-whatsapp').value},
+    {key:'instagram_url',value:document.getElementById('soc-instagram').value},
+    {key:'twitter_url',value:document.getElementById('soc-twitter').value},
+    {key:'facebook_url',value:document.getElementById('soc-facebook').value},
+  ];
+  for(const u of updates)await sb.from('site_settings').upsert({key:u.key,value:u.value},{onConflict:'key'});
+  toast('Social settings saved!');
+}
+
+async function generateStoryContent(){
+  const topic=document.getElementById('story-topic').value;
+  if(!topic){toast('Enter a topic first');return;}
+  const out=document.getElementById('story-output');
+  out.innerHTML='<div style="color:var(--tm);font-size:13px;">Generating...</div>';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:500,
+        messages:[{role:'user',content:`Write 2 Instagram Story slides for nagpur.rent about: "${topic}".
+nagpur.rent is a community rent map for Nagpur, India. Orange City vibes, fun and local.
+Format as:
+SLIDE 1:
+[content]
+
+SLIDE 2:
+[content]
+
+Keep each slide under 100 words. Punchy, local, real. Include 1-2 emojis per slide. End with nagpur.rent`}]
+      })
+    });
+    const d=await res.json();
+    const text=d.content?.[0]?.text||'';
+    out.innerHTML=`<div style="background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;">${text}</div>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.getElementById('story-output').textContent);toast('Copied!')">Copy</button>`;
+  }catch(e){out.innerHTML='<div style="color:var(--red);font-size:13px;">Failed. Check API.</div>';}
+}
+
+// ── SETTINGS ──
+async function loadSettings(){
+  const{data}=await sb.from('site_settings').select('*');
+  const s={};(data||[]).forEach(r=>{s[r.key]=r.value;});
+  document.getElementById('set-tagline').value=s.site_tagline||'';
+}
+
+async function saveGeneralSettings(){
+  await sb.from('site_settings').upsert({key:'site_tagline',value:document.getElementById('set-tagline').value},{onConflict:'key'});
+  toast('Settings saved!');
+}
+
+function changePassword(){
+  const current=document.getElementById('pw-current').value;
+  const newPw=document.getElementById('pw-new').value;
+  const confirm=document.getElementById('pw-confirm').value;
+  if(current!==storedPass){toast('Current password is wrong');return;}
+  if(newPw!==confirm){toast('Passwords do not match');return;}
+  if(newPw.length<6){toast('Password must be at least 6 characters');return;}
+  localStorage.setItem(ADMIN_PASS_KEY,newPw);
+  toast('Password changed!');
+  ['pw-current','pw-new','pw-confirm'].forEach(id=>document.getElementById(id).value='');
+}
+
+async function clearExpiredNakas(){
+  if(!confirm('Delete all nakas older than 7 days?'))return;
+  const sevenDaysAgo=new Date(Date.now()-7*24*60*60*1000).toISOString();
+  await sb.from('nakas').delete().lt('created_at',sevenDaysAgo);
+  toast('Expired nakas cleared!');
+}
+
+// ── MESSAGE BOARD ──
+async function loadMessageBoard(){
+  const{data}=await sb.from('message_board').select('*').order('created_at',{ascending:false});
+  document.getElementById('msg-tbody').innerHTML=(data||[]).length?(data||[]).map(m=>`
+    <tr>
+      <td>${m.message}</td>
+      <td><span class="badge ${m.active?'badge-green':'badge-gray'}">${m.active?'Active':'Inactive'}</span></td>
+      <td>
+        <button class="btn ${m.active?'btn-ghost':'btn-green'}" onclick="toggleMsg('${m.id}',${m.active})">${m.active?'Deactivate':'Activate'}</button>
+        <button class="btn btn-red" onclick="deleteMsg('${m.id}')">Delete</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="3" class="empty">No messages</td></tr>';
+}
+
+async function addMessage(){
+  const msg=document.getElementById('new-msg').value.trim();
+  if(!msg){toast('Enter a message');return;}
+  await sb.from('message_board').insert([{message:msg,active:true}]);
+  document.getElementById('new-msg').value='';
+  toast('Message added!');loadMessageBoard();
+}
+
+async function toggleMsg(id,current){
+  await sb.from('message_board').update({active:!current}).eq('id',id);
+  toast(current?'Deactivated':'Activated');loadMessageBoard();
+}
+
+async function deleteMsg(id){
+  await sb.from('message_board').delete().eq('id',id);
+  toast('Deleted');loadMessageBoard();
+}
+
+// ── HELPERS ──
+function toast(msg){
+  const t=document.getElementById('admin-toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function ago(ts){
+  const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);
+  if(m<1)return'just now';if(m<60)return m+'m ago';
+  const h=Math.floor(m/60);if(h<24)return h+'h ago';
+  return Math.floor(h/24)+'d ago';
+}
+
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
+
+function slugify(s){return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');}
+
+function updateHomeSEOPreview(){
+  document.getElementById('home-seo-title-prev').textContent=document.getElementById('seo-home-title').value||'nagpur.rent';
+  document.getElementById('home-seo-desc-prev').textContent=document.getElementById('seo-home-desc').value||'';
+}
+
+const AREAS=[
+  {name:'Dharampeth',lat:21.1362,lng:79.0709},{name:'Civil Lines',lat:21.1543,lng:79.0849},
+  {name:'Sadar',lat:21.1437,lng:79.0918},{name:'Laxmi Nagar',lat:21.1224,lng:79.1068},
+  {name:'Trimurti Nagar',lat:21.1317,lng:79.0766},{name:'Pratap Nagar',lat:21.1250,lng:79.0832},
+  {name:'Manewada',lat:21.1050,lng:79.1050},{name:'Besa',lat:21.0843,lng:79.1011},
+  {name:'Wardha Road',lat:21.1080,lng:79.0745},{name:'Manish Nagar',lat:21.1180,lng:79.0612},
+  {name:'Hingna Road',lat:21.1380,lng:79.0261},{name:'Sitabuldi',lat:21.1458,lng:79.0882},
+  {name:'Dhantoli',lat:21.1383,lng:79.0951},{name:'Ambazari',lat:21.1493,lng:79.0527},
+  {name:'Seminary Hills',lat:21.1612,lng:79.0801},{name:'Bajaj Nagar',lat:21.1350,lng:79.0700},
+];
+function getNearestArea(lat,lng){
+  if(!lat||!lng)return'Unknown';
+  let nearest=AREAS[0],minD=999;
+  AREAS.forEach(a=>{const d=Math.sqrt((lat-a.lat)**2+(lng-a.lng)**2);if(d<minD){minD=d;nearest=a;}});
+  return nearest.name;
+}
+</script>
+</body>
+</html>
