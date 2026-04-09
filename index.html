@@ -354,7 +354,7 @@
     <span id="add-text">Add My Rent</span>
   </button>
   <div id="right-btns">
-    <div class="rb" onclick="openOverlay('stats-overlay')">📊 <span>Stats</span></div>
+    <div class="rb" onclick="openStats()">📊 <span>Stats</span></div>
     <div class="rb" onclick="openOverlay('seeker-overlay')">🔍 <span>Flat Hunt</span></div>
     <div class="rb" onclick="openOverlay('naka-list-overlay')">🚨 <span>Naka Alert</span></div>
     <div class="rb" onclick="openOverlay('spots-overlay')">🍊 <span>Nagpur Spots</span></div>
@@ -376,7 +376,7 @@
     <div class="mnav-icon">🔍</div>
     <div>Flat Hunt</div>
   </button>
-  <button class="mnav-item" onclick="openOverlay('stats-overlay')">
+  <button class="mnav-item" onclick="openStats()">
     <div class="mnav-icon">📊</div>
     <div>Stats</div>
   </button>
@@ -1212,7 +1212,11 @@ async function openStats(){
   const body=document.getElementById('stats-body');
   body.innerHTML='<div style="color:var(--td);text-align:center;padding:20px;font-weight:700;">Loading...</div>';
   openOverlay('stats-overlay');
-  const pins=allPins;
+  // Always fetch fresh from Supabase
+  const{data,error}=await sb.from('pins').select('*');
+  if(error||!data){body.innerHTML='<div style="color:var(--tm);font-weight:700;">Could not load data. Try again.</div>';return;}
+  const pins=data;
+  allPins=data; // keep in sync
   if(!pins.length){body.innerHTML='<div style="color:var(--tm);font-weight:700;">No pins yet. Be the first to add one!</div>';return;}
 
   const byB={};pins.forEach(p=>{(byB[p.bhk]=byB[p.bhk]||[]).push(p.rent);});
