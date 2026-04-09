@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <!-- Meta tags injected by JS below -->
+  <title>Property Listing | nagpur.rent</title>
+  <meta name="description" content="Property listing on nagpur.rent — Nagpur's community rental platform."/>
+  <link rel="canonical" id="canonical" href="https://nagpur.rent/listing/"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="nagpur.rent"/>
+  <meta property="og:title" id="og-title" content="Property Listing | nagpur.rent"/>
+  <meta property="og:description" id="og-desc" content="View this property on nagpur.rent"/>
+  <meta property="og:url" id="og-url" content="https://nagpur.rent/listing/"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D2PRRL89Q"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-5D2PRRL89Q');</script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+    :root{--orange:#f97316;--orange2:#ea580c;--orange-light:#fff7ed;--border:#ffe8d0;--text:#1c0a00;--tm:#78350f;--td:#a16207;--s1:#fffaf5;--s2:#fff3e6;--green:#16a34a;--blue:#2563eb;--fm:'Nunito',sans-serif;--mono:'DM Mono',monospace;--sh:0 2px 12px rgba(249,115,22,.08);--sh2:0 8px 32px rgba(0,0,0,.1);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--fm);background:#fafafa;color:var(--text);}
+    #topnav{background:white;border-bottom:2px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+    .logo{font-size:20px;font-weight:900;color:var(--text);text-decoration:none;}.logo span{color:var(--orange);}
+    #site-nav{position:relative;}
+    .nav-toggle{background:white;border:2px solid var(--border);padding:7px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;}
+    .nav-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border:2px solid var(--border);border-radius:16px;padding:8px;min-width:180px;box-shadow:var(--sh2);z-index:200;}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:var(--text);text-decoration:none;}
+    .nav-item:hover{background:var(--orange-light);}
+    /* BREADCRUMB */
+    .breadcrumb{max-width:860px;margin:0 auto;padding:14px 24px;font-size:12px;color:var(--td);font-weight:600;}
+    .breadcrumb a{color:var(--orange2);text-decoration:none;}
+    /* MAIN */
+    #main{max-width:860px;margin:0 auto;padding:0 24px 60px;}
+    /* HERO IMG */
+    .listing-hero{width:100%;height:280px;background:linear-gradient(135deg,#1c0a00,var(--orange2));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:80px;margin-bottom:24px;}
+    /* LAYOUT */
+    .listing-layout{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;}
+    @media(max-width:768px){.listing-layout{grid-template-columns:1fr;}}
+    /* LEFT */
+    .tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+    .tag{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;}
+    .tag-o{background:var(--orange-light);color:var(--orange2);border:1px solid var(--border);}
+    .tag-b{background:#eff6ff;color:var(--blue);border:1px solid #bfdbfe;}
+    .tag-f{background:var(--orange);color:white;}
+    h1{font-size:28px;font-weight:900;line-height:1.3;margin-bottom:8px;}
+    .listing-area{font-size:14px;color:var(--td);font-weight:700;margin-bottom:16px;}
+    .price-block{margin-bottom:20px;}
+    .price-big{font-family:var(--mono);font-size:36px;color:var(--orange2);}
+    .price-label{font-size:13px;color:var(--td);font-weight:600;}
+    .deposit-label{font-size:13px;color:var(--tm);font-weight:600;margin-top:4px;}
+    .specs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+    .spec{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--tm);}
+    .highlights{margin-bottom:24px;}
+    .highlights-title{font-size:13px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+    .hl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .hl-item{background:white;border:2px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;color:var(--tm);display:flex;align-items:center;gap:6px;}
+    .about-title{font-size:13px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;margin-top:24px;}
+    .about-body{font-size:15px;line-height:1.85;color:var(--tm);white-space:pre-line;}
+    /* RIGHT SIDEBAR */
+    .sidebar{position:sticky;top:80px;}
+    .contact-card{background:white;border:2px solid var(--border);border-radius:20px;padding:22px;box-shadow:var(--sh2);}
+    .cc-title{font-size:11px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
+    .cc-price{font-family:var(--mono);font-size:26px;color:var(--orange2);margin-bottom:4px;}
+    .cc-deposit{font-size:12px;color:var(--td);font-weight:600;margin-bottom:16px;}
+    .btn-wa{width:100%;background:#25d366;color:white;border:none;padding:13px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-enq{width:100%;background:var(--orange);color:white;border:none;padding:13px;border-radius:12px;font-family:var(--fm);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-enq:hover{background:var(--orange2);}
+    .cc-owner{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;font-weight:700;color:var(--tm);}
+    .cc-owner strong{color:var(--text);display:block;margin-bottom:2px;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--orange2);text-decoration:none;margin-bottom:20px;}
+    /* ENQUIRY FORM */
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+    .backdrop.open{display:flex;}
+    .modal{background:white;border-radius:24px 24px 0 0;padding:28px 24px 32px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;}
+    @media(min-width:640px){.backdrop{align-items:center;}.modal{border-radius:24px;}}
+    .mclose{position:absolute;top:18px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--td);}
+    .mtitle{font-size:18px;font-weight:900;margin-bottom:16px;}
+    .fg{margin-bottom:14px;}
+    .fl{display:block;font-size:11px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+    .fi,.fta{width:100%;background:#f9fafb;border:2px solid var(--border);color:var(--text);padding:11px 13px;border-radius:12px;font-family:var(--fm);font-size:14px;outline:none;}
+    .fi:focus,.fta:focus{border-color:var(--orange);}
+    .fta{resize:vertical;min-height:80px;}
+    .btn-sub{width:100%;background:var(--orange);color:white;border:none;padding:14px;border-radius:14px;font-family:var(--fm);font-size:15px;font-weight:800;cursor:pointer;}
+    .btn-sub:hover{background:var(--orange2);}
+    /* LOADING */
+    #loading{text-align:center;padding:80px 24px;color:var(--td);}
+    .spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    /* FOOTER */
+    footer{background:#1c0a00;color:#a16207;text-align:center;padding:32px 20px;font-size:13px;font-weight:600;}
+    footer a{color:var(--orange);text-decoration:none;}
+    .fl-logo{font-size:22px;font-weight:900;color:white;margin-bottom:8px;}.fl-logo span{color:var(--orange);}
+    @media(max-width:640px){h1{font-size:22px;}.price-big{font-size:28px;}.hl-grid{grid-template-columns:1fr;}.listing-hero{height:200px;font-size:56px;}}
+  </style>
+</head>
+<body>
+<nav id="topnav">
+  <a href="/" class="logo">nagpur<span>.rent</span></a>
+  <div id="site-nav">
+    <button class="nav-toggle" onclick="toggleNav()">☰ Menu</button>
+    <div class="nav-dropdown" id="nav-dd">
+      <a href="/" class="nav-item">🗺 Map</a>
+      <a href="/listings.html" class="nav-item">🏠 Listings</a>
+      <a href="/blog.html" class="nav-item">✍️ Blog</a>
+      <a href="/about.html" class="nav-item">💛 About</a>
+    </div>
+  </div>
+</nav>
+
+<div id="loading"><div class="spinner"></div><p>Loading listing...</p></div>
+<div id="page-content" style="display:none;">
+  <div class="breadcrumb"><a href="/">nagpur.rent</a> › <a href="/listings.html">Listings</a> › <span id="bc-title"></span></div>
+  <main id="main">
+    <div class="listing-hero" id="listing-hero">🏢</div>
+    <div class="listing-layout">
+      <div id="listing-left"></div>
+      <div class="sidebar" id="listing-sidebar"></div>
+    </div>
+  </main>
+</div>
+
+<div class="backdrop" id="enq-modal">
+  <div class="modal">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <div class="mtitle" id="enq-title">Send Enquiry</div>
+    <div id="enq-form">
+      <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" id="e-name" placeholder="Full name"/></div>
+      <div class="fg"><label class="fl">Phone Number</label><input type="tel" class="fi" id="e-phone" placeholder="10-digit mobile number"/></div>
+      <div class="fg"><label class="fl">Message (optional)</label><textarea class="fta" id="e-msg" placeholder="When do you want to move in? Any specific requirements?"></textarea></div>
+      <button class="btn-sub" onclick="submitEnq()">Send Enquiry →</button>
+      <p style="font-size:11px;color:var(--td);text-align:center;margin-top:10px;">Your details will only be shared with the property owner.</p>
+    </div>
+    <div id="enq-ok" style="display:none;text-align:center;padding:24px;">
+      <div style="font-size:48px;margin-bottom:12px;">✅</div>
+      <div style="font-size:18px;font-weight:900;margin-bottom:8px;">Enquiry Sent!</div>
+      <div style="font-size:14px;color:var(--td);">The owner will contact you shortly.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="fl-logo">nagpur<span>.rent</span></div>
+  <p>Real rents. Real people. No broker. 🍊</p>
+  <p style="margin-top:12px;"><a href="/">Map</a> &nbsp;·&nbsp; <a href="/listings.html">Listings</a> &nbsp;·&nbsp; <a href="/blog.html">Blog</a> &nbsp;·&nbsp; <a href="/about.html">About</a></p>
+  <div style="margin-top:16px;padding-top:14px;border-top:1px solid #3d1a00;">
+    <p style="color:#fed7aa;font-weight:700;margin-bottom:6px;">Contact Us</p>
+    <p>Murtaza Rangwala</p>
+    <p><a href="https://wa.me/917350299845">+91 73502 99845</a> &nbsp;·&nbsp; <a href="mailto:murtaza.mycap@gmail.com">murtaza.mycap@gmail.com</a></p>
+  </div>
+  <p style="margin-top:14px;font-size:11px;">© 2025 nagpur.rent · Built with 🍊 in Nagpur</p>
+</footer>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient('https://artqzjmizytoxxaqzadw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFydHF6am1penl0b3h4YXF6YWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MjE2MDQsImV4cCI6MjA5MTE5NzYwNH0.dVluFoXQGAKKFUL894F-R-VoITCD14vVJ6R2YyGiYzE');
+
+const SEED={id:'seed-1',title:'Premium Commercial Space on CA Road',slug:'premium-commercial-space-ca-road',listing_type:'rent',property_type:'commercial',price:35000,area:'CA Road, Civil Lines, Nagpur',sqft:150,deposit:100000,featured:true,contact_name:'nagpur.rent',contact_phone:'917350299845',description:'A premium ground-floor commercial unit on CA Road — one of Nagpur\'s most high-footfall corridors in the Civil Lines area.\n\nPerfect for: retail outlet, boutique office, clinic, salon, café, or any customer-facing business. The space is bare-shell and ready for your fit-out.\n\nBuilding features: 24/7 security, CCTV, professional lobby, GST registration possible at this address.\n\nLocation highlights:\n• 2 min from Civil Lines hub\n• High pedestrian footfall all day\n• Banks, restaurants, businesses nearby\n• Metro corridor connectivity\n• Ample street parking',highlights:['Ground floor · High visibility','Bare-shell ready for fit-out','GST registration possible','24/7 security & CCTV','Civil Lines hub proximity','High daily footfall']};
+
+const IC={commercial:'🏢',flat:'🏠',house:'🏡',bungalow:'🏘',shop:'🛍',warehouse:'🏭'};
+const LB={commercial:'Commercial Space',flat:'Flat',house:'House',bungalow:'Bungalow',shop:'Shop',warehouse:'Warehouse'};
+
+function getSlug(){
+  const path=window.location.pathname;
+  const parts=path.split('/').filter(Boolean);
+  if(parts[0]==='listing'&&parts[1])return parts[1];
+  const params=new URLSearchParams(window.location.search);
+  return params.get('slug')||'';
+}
+
+async function init(){
+  const slug=getSlug();
+  if(!slug){window.location.href='/listings.html';return;}
+
+  let listing=null;
+  if(slug===SEED.slug){listing=SEED;}
+  else{
+    const{data}=await sb.from('paid_listings').select('*').eq('slug',slug).eq('active',true).single();
+    listing=data;
+  }
+
+  if(!listing){
+    document.getElementById('loading').innerHTML='<p style="color:var(--td);font-size:16px;">Listing not found. <a href="/listings.html" style="color:var(--orange2);">View all listings →</a></p>';
+    return;
+  }
+
+  // Inject meta tags
+  const metaTitle=`${listing.title} — ${listing.area} | nagpur.rent`;
+  const metaDesc=`${LB[listing.property_type]||'Property'} for ${listing.listing_type} in ${listing.area}. ₹${listing.price?.toLocaleString('en-IN')}${listing.listing_type==='rent'?'/month':''}. ${listing.sqft?listing.sqft+' sqft. ':''}Contact directly on nagpur.rent.`;
+  const pageUrl=`https://nagpur.rent/listing/${listing.slug||slug}`;
+
+  document.title=metaTitle;
+  document.querySelector('meta[name="description"]').content=metaDesc;
+  document.getElementById('canonical').href=pageUrl;
+  document.getElementById('og-title').content=metaTitle;
+  document.getElementById('og-desc').content=metaDesc;
+  document.getElementById('og-url').content=pageUrl;
+
+  // Render
+  document.getElementById('listing-hero').textContent=IC[listing.property_type]||'🏠';
+  document.getElementById('bc-title').textContent=listing.title;
+
+  document.getElementById('listing-left').innerHTML=`
+    <a href="/listings.html" class="back-link">← Back to Listings</a>
+    <div class="tags">
+      ${listing.featured?'<span class="tag tag-f">⭐ Featured</span>':''}
+      <span class="tag tag-o">${LB[listing.property_type]||listing.property_type}</span>
+      <span class="tag tag-b">${listing.listing_type==='rent'?'For Rent':'For Sale'}</span>
+    </div>
+    <h1>${esc(listing.title)}</h1>
+    <div class="listing-area">📍 ${esc(listing.area||'Nagpur')}</div>
+    <div class="price-block">
+      <div class="price-big">₹${fmt(listing.price)}<span class="price-label">/${listing.listing_type==='rent'?'month':'total'}</span></div>
+      ${listing.deposit?`<div class="deposit-label">Security deposit: ₹${fmt(listing.deposit)}</div>`:''}
+    </div>
+    <div class="specs">
+      ${listing.sqft?`<span class="spec">📐 ${listing.sqft} sqft</span>`:''}
+      ${listing.bhk?`<span class="spec">🛏 ${listing.bhk} BHK</span>`:''}
+      ${listing.property_type?`<span class="spec">${LB[listing.property_type]}</span>`:''}
+    </div>
+    ${listing.highlights&&listing.highlights.length?`
+    <div class="highlights">
+      <div class="highlights-title">Key Features</div>
+      <div class="hl-grid">${listing.highlights.map(h=>`<div class="hl-item">✓ ${esc(h)}</div>`).join('')}</div>
+    </div>`:''}
+    <div class="about-title">About This Property</div>
+    <div class="about-body">${esc(listing.description||'')}</div>`;
+
+  document.getElementById('listing-sidebar').innerHTML=`
+    <div class="contact-card">
+      <div class="cc-title">Enquire About This Property</div>
+      <div class="cc-price">₹${fmt(listing.price)}<span style="font-size:14px;color:var(--td);font-weight:600;font-family:var(--fm);">/${listing.listing_type==='rent'?'mo':'total'}</span></div>
+      ${listing.deposit?`<div class="cc-deposit">+ ₹${fmt(listing.deposit)} deposit</div>`:''}
+      ${listing.contact_phone?`<button class="btn-wa" onclick="window.open('https://wa.me/${listing.contact_phone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent('Hi, I saw your listing on nagpur.rent — '+listing.title+'. Is it still available?')}','_blank')">💬 WhatsApp Owner</button>`:''}
+      <button class="btn-enq" onclick="openEnq('${esc(listing.id)}','${esc(listing.title).replace(/'/g,"\\'")}')">📩 Send Enquiry Form</button>
+      <div class="cc-owner"><strong>${esc(listing.contact_name||'Owner')}</strong>Listed directly on nagpur.rent</div>
+    </div>`;
+
+  document.getElementById('loading').style.display='none';
+  document.getElementById('page-content').style.display='block';
+  gtag('event','listing_view',{listing_id:listing.id,slug:slug});
+}
+
+let curId=null;
+function openEnq(id,title){
+  curId=id;
+  document.getElementById('enq-title').textContent='Enquire: '+title;
+  document.getElementById('enq-form').style.display='block';
+  document.getElementById('enq-ok').style.display='none';
+  ['e-name','e-phone','e-msg'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('enq-modal').classList.add('open');
+}
+async function submitEnq(){
+  const name=document.getElementById('e-name').value.trim();
+  const phone=document.getElementById('e-phone').value.trim();
+  if(!name||!phone){alert('Please enter your name and phone number');return;}
+  const btn=document.querySelector('#enq-form .btn-sub');
+  btn.textContent='Sending...';btn.disabled=true;
+  if(curId!=='seed-1'){await sb.from('listing_enquiries').insert([{listing_id:curId,name,phone,message:document.getElementById('e-msg').value,ip_address:'web'}]);}
+  else{await new Promise(r=>setTimeout(r,600));}
+  document.getElementById('enq-form').style.display='none';
+  document.getElementById('enq-ok').style.display='block';
+  btn.textContent='Send Enquiry →';btn.disabled=false;
+}
+function closeModal(){document.getElementById('enq-modal').classList.remove('open');}
+document.getElementById('enq-modal').addEventListener('click',e=>{if(e.target===document.getElementById('enq-modal'))closeModal();});
+function toggleNav(){const d=document.getElementById('nav-dd');d.style.display=d.style.display==='block'?'none':'block';}
+document.addEventListener('click',e=>{if(!document.getElementById('site-nav').contains(e.target))document.getElementById('nav-dd').style.display='none';});
+function fmt(n){return n?n.toLocaleString('en-IN'):'';}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+init();
+</script>
+</body>
+</html>
