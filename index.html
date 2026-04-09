@@ -11,8 +11,44 @@
     gtag('js', new Date());
     gtag('config', 'G-5D2PRRL89Q');
   </script>
-  <title>nagpur.rent — Real rents by real Nagpurkars</title>
-  <meta name="description" content="Nagpur cha rent map — real rents shared by real Nagpurkars. No broker, no BS."/>
+  <title>nagpur.rent — Real Rents by Real Nagpurkars | No Broker</title>
+  <meta name="description" content="Find real rental prices across Nagpur shared anonymously by residents. Compare rents, find flats, report nakas. No broker, no login, no BS."/>
+  <meta name="keywords" content="Nagpur rent, Nagpur flat rent, rental prices Nagpur, Nagpur property, rent map Nagpur, Dharampeth rent, Civil Lines rent, Nagpur real estate"/>
+  <meta name="author" content="nagpur.rent"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://nagpur.rent/"/>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://nagpur.rent/"/>
+  <meta property="og:title" content="nagpur.rent — Real Rents by Real Nagpurkars"/>
+  <meta property="og:description" content="Community rental price map for Nagpur. See real rents shared by actual residents. No broker, no login."/>
+  <meta property="og:image" content="https://nagpur.rent/og-image.png"/>
+  <meta property="og:site_name" content="nagpur.rent"/>
+  <meta property="og:locale" content="en_IN"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="nagpur.rent — Real Rents by Real Nagpurkars"/>
+  <meta name="twitter:description" content="Community rental price map for Nagpur. No broker, no login."/>
+  <meta name="twitter:image" content="https://nagpur.rent/og-image.png"/>
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "nagpur.rent",
+    "url": "https://nagpur.rent",
+    "description": "Community rental price map for Nagpur, India. Real rents shared anonymously by residents.",
+    "inLanguage": "en-IN",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://nagpur.rent/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Nunito:wght@400;600;700;800;900&display=swap');
@@ -236,6 +272,15 @@
     .naka-confirm-btn{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);color:#b91c1c;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;}
     .naka-confirm-btn:hover{background:rgba(220,38,38,.15);}
     /* ── MOBILE ── */
+    /* ── SITE MENU ── */
+    .menu-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:var(--text);text-decoration:none;transition:background .1s;}
+    .menu-item:hover{background:var(--orange-light);}
+    .menu-item.active-menu{color:var(--orange2);}
+    /* ── SITE NAV ── */
+    .nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:var(--text);text-decoration:none;transition:background .12s;}
+    .nav-item:hover{background:var(--orange-light);}
+    .nav-item.active-nav{color:var(--orange2);}
+
     /* ── BOTTOM NAV — hidden on desktop ── */
     #mobile-nav{display:none;}
     .mnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;cursor:pointer;transition:all .15s;font-size:10px;font-weight:800;color:var(--td);gap:3px;border:none;background:none;font-family:var(--fm);}
@@ -249,6 +294,8 @@
       #logo-text{font-size:13px;}
       #pin-badge{font-size:10px;padding:2px 6px;}
       #live-pill{display:none;}
+      #menu-btn-label{display:none;}
+      #menu-btn{padding:7px 10px;}
       #about-btn{display:none;}
       #search-wrap{flex:1;max-width:none;}
       #search-input{font-size:13px;padding:8px 12px 8px 34px;}
@@ -313,6 +360,20 @@
     <div id="pin-badge">0 pins</div>
   </div>
 
+  <!-- Site menu -->
+  <div id="site-menu" style="position:relative;margin-left:auto;margin-right:8px;z-index:300;">
+    <button id="menu-btn" onclick="toggleMenu()" style="background:white;border:2px solid var(--border);padding:7px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--text);box-shadow:var(--sh1);">
+      ☰ <span id="menu-btn-label">Menu</span>
+    </button>
+    <div id="menu-dropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border:2px solid var(--border);border-radius:16px;padding:8px;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+      <a href="/" class="menu-item active-menu">🗺 Map</a>
+      <a href="/listings.html" class="menu-item">🏠 Listings</a>
+      <a href="/blog.html" class="menu-item">✍️ Blog</a>
+      <a href="/about.html" class="menu-item">👋 About Us</a>
+      <div style="border-top:1px solid var(--border);margin:6px 0;"></div>
+      <a href="https://wa.me/" class="menu-item" id="menu-wa" style="color:#16a34a;">💬 WhatsApp Us</a>
+    </div>
+  </div>
   <div id="search-wrap">
     <div id="search-icon">🔍</div>
     <input id="search-input" type="text" placeholder="Search area or locality..." autocomplete="off" oninput="onSearch(this.value)"/>
@@ -353,6 +414,21 @@
     <span id="add-icon">＋</span>
     <span id="add-text">Add My Rent</span>
   </button>
+  <!-- Site nav dropdown -->
+  <div id="site-nav" style="position:relative;z-index:500;">
+    <button id="nav-toggle" onclick="toggleSiteNav()" style="background:white;border:2px solid var(--border);padding:7px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:var(--sh1);transition:all .15s;">
+      <span>☰</span><span id="nav-toggle-text">Menu</span>
+    </button>
+    <div id="nav-dropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border:2px solid var(--border);border-radius:16px;padding:8px;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+      <a href="/" class="nav-item active-nav">🗺 Map</a>
+      <a href="/listings.html" class="nav-item">🏠 Listings</a>
+      <a href="/blog.html" class="nav-item">✍️ Blog</a>
+      <a href="/about.html" class="nav-item">💛 About</a>
+      <div style="border-top:1px solid var(--border);margin:6px 0;"></div>
+      <a href="https://nagpur.rent" target="_blank" class="nav-item" style="font-size:11px;color:var(--td);">🍊 nagpur.rent</a>
+    </div>
+  </div>
+
   <div id="right-btns">
     <div class="rb" onclick="openStats()">📊 <span>Stats</span></div>
     <div class="rb" onclick="openOverlay('seeker-overlay')">🔍 <span>Flat Hunt</span></div>
@@ -447,8 +523,13 @@
 
     <div class="trust-box">Every pin is from a real person — not scraped, not AI-generated.<br><strong>Built with AI. Data isn't.</strong></div>
 
-    <button class="btn-wa" onclick="shareWelcome()">📲 Share with friends first</button>
-    <button class="btn-p" onclick="closeOverlay('welcome-overlay')">Let's go 🍊</button>
+    <div style="background:var(--s2);border:2px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--tm);line-height:1.9;font-weight:600;">
+      📞 <strong style="color:var(--text);">Murtaza Rangwala</strong><br/>
+      <a href="https://wa.me/917350299845" target="_blank" style="color:var(--orange2);font-weight:700;">+91 73502 99845</a> &nbsp;·&nbsp; <a href="mailto:murtaza.mycap@gmail.com" style="color:var(--orange2);font-weight:700;">murtaza.mycap@gmail.com</a>
+    </div>
+
+    <button class="btn-wa" onclick="window.open('https://wa.me/917350299845?text=Hi, I found nagpur.rent! 🍊','_blank')">💬 WhatsApp Us</button>
+    <button class="btn-p" onclick="closeOverlay('welcome-overlay')" style="margin-top:8px;">Let's go 🍊</button>
   </div>
 </div>
 
@@ -954,6 +1035,18 @@ function togglePlacing(){
 }
 function openMobileMore(){openOverlay('more-overlay');}
 
+function toggleMenu(){
+  const d=document.getElementById('menu-dropdown');
+  d.style.display=d.style.display==='none'?'block':'none';
+}
+// Close menu on outside click
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('site-menu');
+  if(menu&&!menu.contains(e.target)){
+    document.getElementById('menu-dropdown').style.display='none';
+  }
+});
+
 function startPick(mode){
   pickMode=mode;placing=true;
   document.getElementById('add-btn').classList.add('placing');
@@ -1408,6 +1501,20 @@ function checkMS(n){
   }
 }
 
+// ── SITE NAV ──
+function toggleSiteNav(){
+  const dd=document.getElementById('nav-dropdown');
+  const isOpen=dd.style.display==='block';
+  dd.style.display=isOpen?'none':'block';
+  document.getElementById('nav-toggle-text').textContent=isOpen?'Menu':'Close';
+}
+document.addEventListener('click',function(e){
+  if(!document.getElementById('site-nav').contains(e.target)){
+    document.getElementById('nav-dropdown').style.display='none';
+    document.getElementById('nav-toggle-text').textContent='Menu';
+  }
+});
+
 // ── ADMIN NOTIFICATION ──
 // Uses a free email service (emailjs) — set up at emailjs.com and replace these values
 const ADMIN_EMAIL='your@email.com'; // replace with your email
@@ -1563,6 +1670,17 @@ async function loadNakasOnMap(){
   const nakas=await loadNakas();
   renderNakaMarkers(nakas);
 }
+
+// Site nav dropdown
+function toggleSiteNav(e){
+  e.stopPropagation();
+  const d=document.getElementById('sitenav-dropdown');
+  d.style.display=d.style.display==='flex'?'none':'flex';
+}
+document.addEventListener('click',()=>{
+  const d=document.getElementById('sitenav-dropdown');
+  if(d)d.style.display='none';
+});
 
 function openOverlay(id){
   document.getElementById(id).classList.add('open');
