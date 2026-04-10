@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>About nagpur.rent — Community Rent Map for Nagpur</title>
+  <meta name="description" content="nagpur.rent is a community-built rental price map for Nagpur, India. Built by Nagpurkars, for Nagpurkars. No brokers, no ads, just real data."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://nagpur.rent/about.html"/>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D2PRRL89Q"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-5D2PRRL89Q');</script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+    :root{--orange:#f97316;--orange2:#ea580c;--orange-light:#fff7ed;--border:#ffe8d0;--text:#1c0a00;--tm:#78350f;--td:#a16207;--s1:#fffaf5;--s2:#fff3e6;--fm:'Nunito',sans-serif;--sh:0 2px 12px rgba(249,115,22,.08);--sh2:0 8px 32px rgba(0,0,0,.1);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--fm);background:#fafafa;color:var(--text);}
+    #topnav{background:white;border-bottom:2px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+    .logo{font-size:20px;font-weight:900;color:var(--text);text-decoration:none;}.logo span{color:var(--orange);}
+    #site-nav{position:relative;}
+    .nav-toggle{background:white;border:2px solid var(--border);padding:7px 14px;border-radius:50px;font-family:var(--fm);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+    .nav-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border:2px solid var(--border);border-radius:16px;padding:8px;min-width:180px;box-shadow:var(--sh2);z-index:200;}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:var(--text);text-decoration:none;transition:background .12s;}
+    .nav-item:hover{background:var(--orange-light);}.nav-item.active{color:var(--orange2);}
+    /* HERO */
+    #hero{background:linear-gradient(135deg,#1c0a00,#3d1a00);padding:60px 24px;text-align:center;}
+    .brand{font-size:52px;font-weight:900;color:white;margin-bottom:8px;}
+    .brand span{color:var(--orange);}
+    .tagline{font-size:17px;color:#fed7aa;max-width:480px;margin:0 auto;line-height:1.7;}
+    /* CONTENT */
+    #main{max-width:720px;margin:0 auto;padding:48px 24px;}
+    .section{margin-bottom:48px;}
+    .section h2{font-size:22px;font-weight:900;margin-bottom:16px;padding-left:16px;border-left:4px solid var(--orange);}
+    .section p{font-size:15px;line-height:1.85;color:var(--tm);margin-bottom:14px;}
+    .section a{color:var(--orange2);font-weight:700;}
+    /* FEATURES */
+    .features{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+    .feat{background:white;border:2px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--sh);}
+    .feat-icon{font-size:28px;margin-bottom:8px;}
+    .feat-title{font-size:14px;font-weight:800;margin-bottom:4px;}
+    .feat-desc{font-size:12px;color:var(--tm);line-height:1.5;}
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
+    .stat-box{background:white;border:2px solid var(--border);border-radius:14px;padding:20px;text-align:center;box-shadow:var(--sh);}
+    .stat-val{font-size:28px;font-weight:900;color:var(--orange2);margin-bottom:4px;}
+    .stat-lbl{font-size:11px;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.5px;}
+    /* TEAM */
+    .team-card{background:white;border:2px solid var(--border);border-radius:20px;padding:24px;box-shadow:var(--sh);display:flex;gap:20px;align-items:flex-start;}
+    .team-avatar{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--orange2),var(--orange));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+    .team-name{font-size:18px;font-weight:900;margin-bottom:4px;}
+    .team-role{font-size:13px;color:var(--orange2);font-weight:700;margin-bottom:8px;}
+    .team-bio{font-size:13px;color:var(--tm);line-height:1.7;}
+    /* MISSION */
+    .mission-box{background:linear-gradient(135deg,#1c0a00,#3d1a00);border-radius:20px;padding:32px;text-align:center;color:white;}
+    .mission-box h2{font-size:22px;font-weight:900;color:white;margin-bottom:12px;border:none;padding:0;}
+    .mission-box p{color:#fed7aa;font-size:15px;line-height:1.8;margin-bottom:0;}
+    /* CTA */
+    .cta-box{background:var(--orange-light);border:2px solid var(--border);border-radius:20px;padding:32px;text-align:center;}
+    .cta-title{font-size:22px;font-weight:900;margin-bottom:10px;}
+    .cta-sub{font-size:15px;color:var(--tm);margin-bottom:20px;line-height:1.6;}
+    .btn-cta{display:inline-block;background:var(--orange);color:white;padding:14px 28px;border-radius:14px;font-family:var(--fm);font-size:15px;font-weight:800;text-decoration:none;}
+    .btn-cta:hover{background:var(--orange2);}
+    footer{background:#1c0a00;color:#a16207;text-align:center;padding:32px 20px;margin-top:0;font-size:13px;font-weight:600;}
+    footer a{color:var(--orange);text-decoration:none;}
+    .fl-logo{font-size:22px;font-weight:900;color:white;margin-bottom:8px;}.fl-logo span{color:var(--orange);}
+    @media(max-width:640px){.features{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}.team-card{flex-direction:column;}#main{padding:32px 16px;}}
+  </style>
+</head>
+<body>
+<nav id="topnav">
+  <a href="/" class="logo">nagpur<span>.rent</span></a>
+  <div id="site-nav">
+    <button class="nav-toggle" onclick="toggleNav()">☰ Menu</button>
+    <div class="nav-dropdown" id="nav-dd">
+      <a href="/" class="nav-item">🗺 Map</a>
+      <a href="/listings.html" class="nav-item">🏠 Listings</a>
+      <a href="/blog.html" class="nav-item">✍️ Blog</a>
+      <a href="/about.html" class="nav-item active">💛 About</a>
+    </div>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="brand">nagpur<span>.rent</span></div>
+  <p class="tagline">A community-built rental price map for Nagpur. Real rents, shared by real residents. No broker. No BS. 🍊</p>
+</section>
+
+<main id="main">
+
+  <div class="section">
+    <h2>Our Mission</h2>
+    <div class="mission-box">
+      <h2>Make rent transparent in Nagpur.</h2>
+      <p>Every renter deserves to know what the market actually looks like — not what a broker tells them. We're building the community database that makes that possible.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>The Problem We're Solving</h2>
+    <p>Rental prices in Indian cities are completely opaque. There is no public database, no registry, no way to verify what a fair price looks like in any given neighbourhood. Brokers control this information and use it to their advantage.</p>
+    <p>The result: tenants overpay. New residents get taken advantage of. Negotiation happens in the dark. And the information asymmetry keeps growing.</p>
+    <p>nagpur.rent flips this. Every pin on the map is a Nagpurkar saying — "this is what I actually pay." No middleman. No agenda. Just data.</p>
+  </div>
+
+  <div class="section">
+    <h2>What nagpur.rent Does</h2>
+    <div class="features">
+      <div class="feat"><div class="feat-icon">📌</div><div class="feat-title">Rent Pins</div><div class="feat-desc">Residents drop anonymous pins showing their actual rent — gated, non-gated, BHK type, furnishing.</div></div>
+      <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">Percentile Ranking</div><div class="feat-desc">Every pin shows how that rent compares to others in the same BHK category across Nagpur.</div></div>
+      <div class="feat"><div class="feat-icon">🔍</div><div class="feat-title">Flat Hunt</div><div class="feat-desc">Looking for a flat? Drop a seeker pin. Landlords and residents find you directly.</div></div>
+      <div class="feat"><div class="feat-icon">🚨</div><div class="feat-title">Naka Alert</div><div class="feat-desc">Community-reported police checkpoints across Nagpur. Auto-expires in 7 days.</div></div>
+      <div class="feat"><div class="feat-icon">🏠</div><div class="feat-title">Property Listings</div><div class="feat-desc">Verified commercial and residential listings — direct from owners, no broker fees.</div></div>
+      <div class="feat"><div class="feat-icon">✍️</div><div class="feat-title">Rent Blog</div><div class="feat-desc">Area guides, rent trends, and practical tips based on real community data.</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>By the Numbers</h2>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="s-pins">49+</div><div class="stat-lbl">Rent Pins</div></div>
+      <div class="stat-box"><div class="stat-val">13+</div><div class="stat-lbl">Areas Covered</div></div>
+      <div class="stat-box"><div class="stat-val">Free</div><div class="stat-lbl">Always</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Who Built This</h2>
+    <div class="team-card">
+      <div class="team-avatar">🍊</div>
+      <div>
+        <div class="team-name">Murtaza Rangwala</div>
+        <div class="team-role">Performance Marketing Expert · Creator of nagpur.rent</div>
+        <div class="team-bio">Mechanical engineer turned performance marketer turned builder. Murtaza is a performance marketing expert based in Nagpur with experience running large-scale digital campaigns across multiple industries. He built nagpur.rent as a side project — the idea was simple: Nagpur deserved a community-powered rent map, so he built one.</div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="section">
+    <h2>Get in Touch</h2>
+    <p>Want to list a property? Have feedback? Want to collaborate? Get in touch directly:</p>
+    <p><strong>Murtaza Rangwala</strong><br/><a href="https://wa.me/917350299845" target="_blank">+91 73502 99845</a> &nbsp;·&nbsp; <a href="mailto:murtaza.mycap@gmail.com">murtaza.mycap@gmail.com</a></p>
+    <p>If you're a developer, journalist, researcher, or real estate professional interested in Nagpur's rental data — we'd love to talk.</p>
+  </div>
+
+  <div class="cta-box">
+    <div class="cta-title">🍊 Add your rent today</div>
+    <p class="cta-sub">Takes 30 seconds. No login. Your data stays anonymous. Every pin makes the map more useful for everyone in Nagpur.</p>
+    <a href="/" class="btn-cta">Open the Map →</a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="fl-logo">nagpur<span>.rent</span></div>
+  <p>Real rents. Real people. No broker. 🍊</p>
+  <p style="margin-top:12px;"><a href="/">Map</a> &nbsp;·&nbsp; <a href="/listings.html">Listings</a> &nbsp;·&nbsp; <a href="/blog.html">Blog</a> &nbsp;·&nbsp; <a href="/about.html">About</a></p>
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid #3d1a00;">
+    <p style="color:#fed7aa;font-weight:700;margin-bottom:6px;">Contact Us</p>
+    <p>Murtaza Rangwala</p>
+    <p><a href="https://wa.me/917350299845" target="_blank">+91 73502 99845</a> &nbsp;·&nbsp; <a href="mailto:murtaza.mycap@gmail.com">murtaza.mycap@gmail.com</a></p>
+  </div>
+  <p style="margin-top:16px;font-size:11px;">© 2025 nagpur.rent · Built with 🍊 in Nagpur</p>
+</footer>
+
+<script>
+function toggleNav(){const d=document.getElementById('nav-dd');d.style.display=d.style.display==='block'?'none':'block';}
+document.addEventListener('click',e=>{if(!document.getElementById('site-nav').contains(e.target))document.getElementById('nav-dd').style.display='none';});
+</script>
+</body>
+</html>
