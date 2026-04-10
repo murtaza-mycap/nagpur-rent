@@ -202,6 +202,9 @@
   <button class="sb-item" data-page="ads" onclick="nav(this)"><span class="icon">💰</span>AdSense</button>
   <button class="sb-item" data-page="social" onclick="nav(this)"><span class="icon">📱</span>Social & WhatsApp</button>
 
+  <div class="sb-section">Scripts & Tracking</div>
+  <button class="sb-item" data-page="scripts" onclick="nav(this)"><span class="icon">💉</span>Head Scripts</button>
+
   <div class="sb-section">Site</div>
   <button class="sb-item" data-page="settings" onclick="nav(this)"><span class="icon">⚙️</span>Settings</button>
   <button class="sb-item" data-page="messageboard" onclick="nav(this)"><span class="icon">📢</span>Message Board</button>
@@ -662,6 +665,73 @@
     </div>
   </div>
 
+
+  <!-- ═══ HEAD SCRIPTS ═══ -->
+  <div class="page" id="page-scripts">
+
+    <div class="card">
+      <div class="card-title">🔍 Verification Tags</div>
+      <p style="font-size:13px;color:var(--tm);margin-bottom:16px;line-height:1.6;">Paste only the <strong>content value</strong> from the verification meta tag — not the full tag. These are injected on all pages automatically.</p>
+      <div class="form-group">
+        <label>Google Search Console Verification</label>
+        <input type="text" id="sc-meta-verification" placeholder="e.g. abc123xyz (content value only)"/>
+        <div style="font-size:11px;color:var(--tm);margin-top:4px;">From: &lt;meta name="google-site-verification" content="<strong>PASTE THIS PART</strong>"/&gt;</div>
+      </div>
+      <div class="form-group">
+        <label>Bing Webmaster Verification</label>
+        <input type="text" id="sc-bing-verification" placeholder="e.g. abc123xyz (content value only)"/>
+      </div>
+      <button class="btn btn-orange" onclick="saveScripts()">Save</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Analytics & Tracking IDs</div>
+      <p style="font-size:13px;color:var(--tm);margin-bottom:16px;line-height:1.6;">Paste just the ID — the full pixel code is auto-generated and injected on all pages.</p>
+      <div class="form-group">
+        <label>Google Tag Manager ID</label>
+        <input type="text" id="sc-gtm-id" placeholder="e.g. GTM-XXXXXXX"/>
+        <div style="font-size:11px;color:var(--tm);margin-top:4px;">Replaces manual GA4 tags once set up. Get from tagmanager.google.com</div>
+      </div>
+      <div class="form-group">
+        <label>Facebook Pixel ID</label>
+        <input type="text" id="sc-fb-pixel" placeholder="e.g. 1234567890123456"/>
+        <div style="font-size:11px;color:var(--tm);margin-top:4px;">Get from Meta Business Suite → Events Manager → Pixel</div>
+      </div>
+      <div class="form-group">
+        <label>Microsoft Clarity ID</label>
+        <input type="text" id="sc-clarity" placeholder="e.g. abc1defgh2"/>
+        <div style="font-size:11px;color:var(--tm);margin-top:4px;">Free heatmap & session recording tool. Get from clarity.microsoft.com</div>
+      </div>
+      <button class="btn btn-orange" onclick="saveScripts()">Save & Inject on All Pages</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧩 Custom Head Scripts</div>
+      <p style="font-size:13px;color:var(--tm);margin-bottom:16px;line-height:1.6;">Paste any raw script, meta tag, or pixel code here. It will be injected into the &lt;head&gt; of every page. Use this for any tool not listed above — Hotjar, LinkedIn Insight, Twitter Pixel, Intercom, etc.</p>
+      <div class="form-group">
+        <label>Custom Scripts (raw HTML)</label>
+        <textarea id="sc-custom" style="min-height:160px;font-family:var(--mono);font-size:12px;" placeholder="<!-- Paste any script or meta tag here -->
+e.g.
+&lt;script&gt;
+  // Hotjar tracking code
+  (function(h,o,t,j,a,r){ ... })();
+&lt;/script&gt;
+
+&lt;meta name=&quot;any-tag&quot; content=&quot;value&quot;/&gt;"></textarea>
+      </div>
+      <button class="btn btn-orange" onclick="saveScripts()">Save & Inject on All Pages</button>
+      <div style="background:rgba(220,38,38,.06);border:1.5px solid rgba(220,38,38,.2);border-radius:10px;padding:10px 13px;margin-top:12px;font-size:12px;color:#b45309;font-weight:600;line-height:1.6;">
+        ⚠️ Only paste scripts from trusted sources. Malicious scripts here will affect all your pages.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ What's Currently Active</div>
+      <div id="scripts-status">Loading...</div>
+    </div>
+
+  </div>
+
 </div><!-- /main -->
 </div><!-- /app -->
 
@@ -719,7 +789,7 @@ function nav(btn){
 
 function loadPage(page){
   const loaders={
-    dashboard:loadDashboard,pins:loadPins,seekers:loadSeekers,
+    dashboard:loadDashboard,pins:loadPins,seekers:loadSeekers,scripts:loadScripts,
     nakas:loadNakas,reports:loadReports,blog:loadBlog,
     listings:loadListings,enquiries:loadEnquiries,
     seo:loadSEO,ads:loadAds,social:loadSocial,
@@ -1271,6 +1341,48 @@ async function toggleMsg(id,current){
 async function deleteMsg(id){
   await sb.from('message_board').delete().eq('id',id);
   toast('Deleted');loadMessageBoard();
+}
+
+// ══════════ HEAD SCRIPTS ══════════
+async function loadScripts(){
+  const keys=['meta_verification','bing_verification','gtm_id','fb_pixel_id','clarity_id','custom_head_scripts'];
+  const{data}=await sb.from('site_settings').select('key,value').in('key',keys);
+  const s={};(data||[]).forEach(r=>{s[r.key]=r.value||'';});
+
+  document.getElementById('sc-meta-verification').value=s.meta_verification||'';
+  document.getElementById('sc-bing-verification').value=s.bing_verification||'';
+  document.getElementById('sc-gtm-id').value=s.gtm_id||'';
+  document.getElementById('sc-fb-pixel').value=s.fb_pixel_id||'';
+  document.getElementById('sc-clarity').value=s.clarity_id||'';
+  document.getElementById('sc-custom').value=s.custom_head_scripts||'';
+
+  // Status summary
+  const active=[];
+  if(s.gtm_id)active.push('✅ Google Tag Manager: '+s.gtm_id);
+  if(s.fb_pixel_id)active.push('✅ Facebook Pixel: '+s.fb_pixel_id);
+  if(s.clarity_id)active.push('✅ Microsoft Clarity: '+s.clarity_id);
+  if(s.meta_verification)active.push('✅ Google Search Console verified');
+  if(s.bing_verification)active.push('✅ Bing Webmaster verified');
+  if(s.custom_head_scripts)active.push('✅ Custom scripts active ('+s.custom_head_scripts.length+' chars)');
+  document.getElementById('scripts-status').innerHTML=active.length
+    ?active.map(a=>`<div style="font-size:13px;font-weight:700;padding:6px 0;border-bottom:1px solid var(--border);">${a}</div>`).join('')
+    :'<div style="color:var(--td);font-size:13px;font-weight:600;padding:10px 0;">No tracking scripts active yet.</div>';
+}
+
+async function saveScripts(){
+  const updates=[
+    {key:'meta_verification',  value:document.getElementById('sc-meta-verification').value.trim()},
+    {key:'bing_verification',  value:document.getElementById('sc-bing-verification').value.trim()},
+    {key:'gtm_id',             value:document.getElementById('sc-gtm-id').value.trim()},
+    {key:'fb_pixel_id',        value:document.getElementById('sc-fb-pixel').value.trim()},
+    {key:'clarity_id',         value:document.getElementById('sc-clarity').value.trim()},
+    {key:'custom_head_scripts',value:document.getElementById('sc-custom').value.trim()},
+  ];
+  for(const u of updates){
+    await sb.from('site_settings').upsert({key:u.key,value:u.value},{onConflict:'key'});
+  }
+  toast('✅ Scripts saved! Active on all pages immediately.');
+  loadScripts();
 }
 
 // ── HELPERS ──
