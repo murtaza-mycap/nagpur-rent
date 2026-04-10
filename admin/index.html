@@ -398,7 +398,11 @@
         <div class="form-grid">
           <div class="form-group full">
             <label>Listing Title</label>
-            <input type="text" id="lst-title" placeholder="e.g. Spacious 2BHK in Civil Lines"/>
+            <input type="text" id="lst-title" placeholder="e.g. Spacious 2BHK in Civil Lines" oninput="autoListingSlug()"/>
+          </div>
+          <div class="form-group full">
+            <label>Slug (URL) <span style="color:var(--tm);font-weight:400;text-transform:none;font-size:11px;">nagpur.rent/listing/<span id="slug-preview" style="color:var(--blue);">your-slug</span></span></label>
+            <input type="text" id="lst-slug" placeholder="spacious-2bhk-civil-lines-nagpur"/>
           </div>
           <div class="form-group">
             <label>Listing Type</label>
@@ -1011,7 +1015,8 @@ function openNewListing(){
   document.getElementById('listing-editor').style.display='block';
   document.getElementById('listing-editor-title').textContent='New Listing';
   document.getElementById('editing-listing-id').value='';
-  ['lst-title','lst-price','lst-area','lst-sqft','lst-contact-name','lst-contact-phone','lst-contact-email','lst-photos','lst-desc'].forEach(id=>document.getElementById(id).value='');
+  ['lst-title','lst-slug','lst-price','lst-area','lst-sqft','lst-contact-name','lst-contact-phone','lst-contact-email','lst-photos','lst-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('slug-preview').textContent='your-slug';
   document.getElementById('lst-featured').classList.remove('on');
   document.getElementById('lst-active').classList.add('on');
 }
@@ -1030,6 +1035,8 @@ async function editListing(id){
   document.getElementById('listing-editor-title').textContent='Edit Listing';
   document.getElementById('editing-listing-id').value=id;
   document.getElementById('lst-title').value=data.title||'';
+  document.getElementById('lst-slug').value=data.slug||'';
+  document.getElementById('slug-preview').textContent=data.slug||'your-slug';
   document.getElementById('lst-type').value=data.listing_type||'rent';
   document.getElementById('lst-prop-type').value=data.property_type||'flat';
   document.getElementById('lst-price').value=data.price||'';
@@ -1050,7 +1057,7 @@ async function saveListing(){
   if(!title){toast('Add a title');return;}
   const id=document.getElementById('editing-listing-id').value;
   const data={
-    title,listing_type:document.getElementById('lst-type').value,
+    title,slug:document.getElementById('lst-slug').value||slugify(title),listing_type:document.getElementById('lst-type').value,
     property_type:document.getElementById('lst-prop-type').value,
     price:parseInt(document.getElementById('lst-price').value)||null,
     area:document.getElementById('lst-area').value,
@@ -1282,6 +1289,7 @@ function ago(ts){
 
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
 
+function autoListingSlug(){const t=document.getElementById('lst-title').value;const s=slugify(t);document.getElementById('lst-slug').value=s;document.getElementById('slug-preview').textContent=s||'your-slug';}
 function slugify(s){return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');}
 
 function updateHomeSEOPreview(){
